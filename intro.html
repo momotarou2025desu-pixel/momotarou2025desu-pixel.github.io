@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Play App Series by iogusnohin</title>
+  <title>アプリ紹介</title>
   <style>
     body { font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans JP", sans-serif; line-height: 1.7; margin: 24px; }
     header { margin-bottom: 16px; }
@@ -59,7 +59,7 @@
       <option value="sw">スワヒリ語</option>
     </select>
   </div>
-  <p class="note">※日本語以外を選ぶと、Google翻訳のページに移動してページ全体を自動翻訳表示します。</p>
+  <p class="note">※日本語以外を選ぶと、新規ページ（新規タブ）でGoogle翻訳を開いてページ全体を自動翻訳表示します。</p>
 
   <main class="grid">
     <section class="card" id="ai_launcher">
@@ -129,12 +129,11 @@
 
       const sel = document.getElementById("lang");
 
-      function goTranslate(locale) {
+      function openTranslateInNewTab(locale) {
         const tl = LOCALE_TO_TL[locale];
-        if (!tl || tl === "ja") {
-          location.href = ORIGINAL_URL;
-          return;
-        }
+
+        // 日本語は何もしない（このページのまま）
+        if (!tl || tl === "ja") return;
 
         const gt =
           "https://translate.google.com/translate" +
@@ -143,10 +142,14 @@
           "&tl=" + encodeURIComponent(tl) +
           "&u=" + encodeURIComponent(ORIGINAL_URL);
 
-        location.href = gt;
+        // ★新規ページ（新規タブ）で開く
+        window.open(gt, "_blank", "noopener,noreferrer");
+
+        // ページ遷移しないので、選択は日本語に戻す（見た目を分かりやすく）
+        sel.value = "ja-JP";
       }
 
-      sel.addEventListener("change", () => goTranslate(sel.value));
+      sel.addEventListener("change", () => openTranslateInNewTab(sel.value));
     })();
   </script>
 </body>
