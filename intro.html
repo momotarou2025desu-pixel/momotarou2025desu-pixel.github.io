@@ -32,11 +32,31 @@
     <p class="subtitle">iogusnohinが提供するアプリです。暮らしや仕事に役立つアプリを揃えています。</p>
   </header>
 
-  <!-- 言語選択（一覧はCLDRから自動生成） -->
+  <!-- 言語選択（アプリが対応している言語だけをベタ打ち） -->
   <div class="langbar">
     <label for="lang">言語：</label>
     <select id="lang">
-      <option value="ja" selected>読み込み中…</option>
+      <option value="ja-JP" selected>日本語（日本）</option>
+
+      <option value="en-US">英語（米国）</option>
+      <option value="de-DE">ドイツ語（ドイツ）</option>
+      <option value="hi-IN">ヒンディー語（インド）</option>
+      <option value="fr-FR">フランス語（フランス）</option>
+      <option value="it-IT">イタリア語（イタリア）</option>
+      <option value="ru-RU">ロシア語（ロシア）</option>
+      <option value="pt-BR">ポルトガル語（ブラジル）</option>
+      <option value="es-419">スペイン語（ラテンアメリカ）</option>
+      <option value="ko-KR">韓国語（韓国）</option>
+      <option value="tr-TR">トルコ語（トルコ）</option>
+
+      <option value="id">インドネシア語</option>
+      <option value="nl-NL">オランダ語（オランダ）</option>
+      <option value="ar">アラビア語</option>
+      <option value="zh-TW">中国語（繁体・台湾）</option>
+      <option value="th">タイ語</option>
+      <option value="fil">フィリピノ語</option>
+      <option value="uk">ウクライナ語</option>
+      <option value="sw">スワヒリ語</option>
     </select>
   </div>
   <p class="note">※日本語以外を選ぶと、Google翻訳のページに移動してページ全体を自動翻訳表示します。</p>
@@ -81,38 +101,41 @@
 
   <script>
     (() => {
-      // ここは「常にオリジナルの日本語ページURL」を固定（重要）
+      // 常に「日本語オリジナルのページURL」を固定（重要）
       const ORIGINAL_URL = "https://momotarou2025desu-pixel.github.io/intro.html";
 
-      // CLDR（言語名の日本語表記）をCDNから取得して言語一覧を自動生成
-      // jsDelivrのnpm配信（cldr-localenames-full）
-      const CLDR_LANGS_URL = "https://cdn.jsdelivr.net/npm/cldr-localenames-full/main/ja/languages.json";
+      // アプリの locale（values） → Google翻訳の tl に渡すコード
+      const LOCALE_TO_TL = {
+        "ja-JP": "ja",
+        "en-US": "en",
+        "de-DE": "de",
+        "hi-IN": "hi",
+        "fr-FR": "fr",
+        "it-IT": "it",
+        "ru-RU": "ru",
+        "pt-BR": "pt",
+        "es-419": "es",   // Google翻訳は es-419 が不安定なので es に寄せる
+        "ko-KR": "ko",
+        "tr-TR": "tr",
+        "id": "id",
+        "nl-NL": "nl",
+        "ar": "ar",
+        "zh-TW": "zh-TW",
+        "th": "th",
+        "fil": "tl",      // Google翻訳は fil より tl が通りやすい
+        "uk": "uk",
+        "sw": "sw"
+      };
 
       const sel = document.getElementById("lang");
 
-      // CLDRの言語コード → Google翻訳URLのtlに渡しやすいコードへ（通りやすい範囲だけ）
-      function mapToGoogleTL(code) {
-        if (!code) return null;
-        if (code === "und" || code === "mul" || code === "zxx") return null;
-
-        // CLDRでよく出る表記をGoogle翻訳側に寄せる
-        if (code === "zh-Hans") return "zh-CN";
-        if (code === "zh-Hant") return "zh-TW";
-
-        // 2文字言語コード（en, ko, fr...）はそのまま
-        if (/^[a-z]{2}$/.test(code)) return code;
-
-        // 一部の地域付き（中国語・ポルトガル語）だけ許可
-        if (/^(zh-(CN|TW|HK)|pt-(BR|PT))$/.test(code)) return code;
-
-        return null;
-      }
-
-      function goTranslate(tl) {
-        if (tl === "ja") {
+      function goTranslate(locale) {
+        const tl = LOCALE_TO_TL[locale];
+        if (!tl || tl === "ja") {
           location.href = ORIGINAL_URL;
           return;
         }
+
         const gt =
           "https://translate.google.com/translate" +
           "?hl=" + encodeURIComponent(tl) +
@@ -123,69 +146,7 @@
         location.href = gt;
       }
 
-      function buildSelect(options) {
-        // options: Array<[code, label]>
-        sel.innerHTML = "";
-
-        // 先頭は日本語固定（戻れるように）
-        sel.appendChild(new Option("日本語", "ja", true, true));
-
-        // 以降を追加（重複除去）
-        const seen = new Set(["ja"]);
-        for (const [code, label] of options) {
-          if (!code || !label) continue;
-          if (seen.has(code)) continue;
-          seen.add(code);
-          sel.appendChild(new Option(label, code));
-        }
-      }
-
-      async function loadLanguages() {
-        try {
-          const res = await fetch(CLDR_LANGS_URL, { cache: "force-cache" });
-          if (!res.ok) throw new Error("fetch failed");
-
-          const data = await res.json();
-
-          // CLDR構造：main.ja.localeDisplayNames.languages
-          const langs = data?.main?.ja?.localeDisplayNames?.languages;
-          if (!langs || typeof langs !== "object") throw new Error("invalid json");
-
-          // [tl, 日本語名] を作る
-          const items = [];
-          for (const [cldrCode, jaName] of Object.entries(langs)) {
-            const tl = mapToGoogleTL(cldrCode);
-            if (!tl) continue;
-            items.push([tl, String(jaName)]);
-          }
-
-          // 日本語の並び順でソート（大量になるので、必要ならここで絞り込み可能）
-          const collator = new Intl.Collator("ja");
-          items.sort((a, b) => collator.compare(a[1], b[1]));
-
-          buildSelect(items);
-          sel.value = "ja";
-        } catch (e) {
-          // 取得に失敗した時だけの最小フォールバック
-          buildSelect([
-            ["en", "英語"],
-            ["ko", "韓国語"],
-            ["zh-CN", "中国語（簡体）"],
-            ["zh-TW", "中国語（繁体）"],
-            ["fr", "フランス語"],
-            ["de", "ドイツ語"],
-            ["es", "スペイン語"],
-            ["pt", "ポルトガル語"],
-            ["id", "インドネシア語"],
-            ["th", "タイ語"],
-            ["vi", "ベトナム語"]
-          ]);
-          sel.value = "ja";
-        }
-      }
-
       sel.addEventListener("change", () => goTranslate(sel.value));
-      loadLanguages();
     })();
   </script>
 </body>
