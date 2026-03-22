@@ -1,8 +1,8 @@
 <html lang="ja"><head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>指示の言葉集</title>
-  <meta name="description" content="指示の言葉集">
+  <title>配布ファイル</title>
+  <meta name="description" content="ZIPや画像の配布ページ">
   <style>
     :root {
       --bg: #f8f9fa;
@@ -22,15 +22,10 @@
       color: var(--text);
       font-family: Arial, "Hiragino Sans", "Yu Gothic", sans-serif;
     }
-    a {
-      color: inherit;
-      text-decoration: none;
-    }
-    button {
-      font: inherit;
-    }
+    a { color: inherit; text-decoration: none; }
+    button, input, textarea { font: inherit; }
     .wrap {
-      width: min(100% - 28px, 860px);
+      width: min(100% - 28px, 920px);
       margin: 0 auto;
       padding: 18px 0 36px;
     }
@@ -88,30 +83,83 @@
       border-radius: 18px;
       padding: 14px;
     }
-    .card-head {
+    .field {
+      display: grid;
+      gap: 6px;
+      margin-bottom: 10px;
+    }
+    .field:last-of-type {
+      margin-bottom: 0;
+    }
+    .field label {
+      color: var(--muted);
+      font-size: .88rem;
+      font-weight: 700;
+    }
+    .text-input, .text-area {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: #fff;
+      color: var(--text);
+      padding: 10px 12px;
+      outline: none;
+    }
+    .text-area {
+      min-height: 74px;
+      resize: vertical;
+      line-height: 1.7;
+    }
+    .text-input:focus, .text-area:focus {
+      box-shadow: 0 0 0 2px rgba(26,115,232,.12);
+      border-color: #b9d0f7;
+    }
+    .preview {
+      margin-top: 12px;
+      padding: 12px 14px;
+      border-radius: 14px;
+      background: #f1f3f4;
+      border: 1px solid #eceff1;
       display: flex;
       align-items: center;
       justify-content: space-between;
       gap: 12px;
-      margin-bottom: 10px;
       flex-wrap: wrap;
     }
-    .title-input {
+    .preview-text {
       min-width: 0;
-      flex: 1 1 260px;
-      border: 0;
-      outline: none;
-      background: transparent;
-      font-size: 1rem;
-      font-weight: 700;
-      line-height: 1.35;
-      color: var(--text);
-      padding: 0;
+      display: grid;
+      gap: 4px;
     }
-    .actions {
+    .preview-title {
+      font-weight: 700;
+      line-height: 1.5;
+      word-break: break-word;
+    }
+    .preview-desc {
+      color: var(--muted);
+      font-size: .94rem;
+      line-height: 1.6;
+      word-break: break-word;
+    }
+    .download-link {
+      min-height: 38px;
+      padding: 0 14px;
+      display: inline-flex;
+      align-items: center;
+      border-radius: 999px;
+      background: var(--blue-soft);
+      color: var(--blue);
+      font-weight: 700;
+      border: 1px solid #c7d7ef;
+      white-space: nowrap;
+    }
+    .card-actions {
       display: flex;
       gap: 8px;
       flex-wrap: wrap;
+      margin-top: 12px;
+      justify-content: flex-end;
     }
     .action-btn {
       min-height: 34px;
@@ -129,24 +177,6 @@
       background: var(--danger-soft);
       color: var(--danger);
     }
-    .phrase-input {
-      width: 100%;
-      min-height: 68px;
-      resize: vertical;
-      margin: 0;
-      padding: 12px 14px;
-      border-radius: 14px;
-      background: #f1f3f4;
-      border: 1px solid #eceff1;
-      line-height: 1.7;
-      font-size: .97rem;
-      color: var(--text);
-      outline: none;
-    }
-    .phrase-input:focus,
-    .title-input:focus {
-      box-shadow: 0 0 0 2px rgba(26,115,232,.12);
-    }
     .status {
       margin-top: 12px;
       color: var(--muted);
@@ -155,15 +185,8 @@
     }
     @media (max-width: 560px) {
       .wrap {
-        width: min(100% - 20px, 860px);
+        width: min(100% - 20px, 920px);
         padding-top: 14px;
-      }
-      .card {
-        padding: 12px;
-      }
-      .toolbar,
-      .actions {
-        width: 100%;
       }
     }
   </style>
@@ -179,107 +202,118 @@
       </div>
     </div>
 
-    <h1>指示の言葉集</h1>
+    <h1>配布ファイル</h1>
 
     <section class="list" id="list"><article class="card">
-      <div class="card-head">
-        <input class="title-input" type="text" value="">
-        <div class="actions">
-          <button class="action-btn" type="button" data-action="copy">コピー</button>
-          <button class="action-btn" type="button" data-action="up">↑</button>
-          <button class="action-btn" type="button" data-action="down">↓</button>
-          <button class="action-btn danger" type="button" data-action="delete">削除</button>
-        </div>
+      <div class="field">
+        <label>タイトル</label>
+        <input class="text-input title-input" type="text" value="">
       </div>
-      <textarea class="phrase-input"></textarea>
+
+      <div class="field">
+        <label>ファイル名</label>
+        <input class="text-input file-input" type="text" value="">
+      </div>
+
+      <div class="field">
+        <label>説明</label>
+        <textarea class="text-area desc-input"></textarea>
+      </div>
+
+      <div class="preview">
+        <div class="preview-text">
+          <div class="preview-title">祭りの夜と灯篭の精</div>
+          <div class="preview-desc">祭りの夜と灯篭の精</div>
+        </div>
+        <a class="download-link" href="downloads/祭りの夜と灯篭の精" download="">ダウンロード</a>
+      </div>
+
+      <div class="card-actions">
+        <button class="action-btn" type="button" data-action="up">↑</button>
+        <button class="action-btn" type="button" data-action="down">↓</button>
+        <button class="action-btn danger" type="button" data-action="delete">削除</button>
+      </div>
     </article><article class="card">
-      <div class="card-head">
-        <input class="title-input" type="text" value="">
-        <div class="actions">
-          <button class="action-btn" type="button" data-action="copy">コピー</button>
-          <button class="action-btn" type="button" data-action="up">↑</button>
-          <button class="action-btn" type="button" data-action="down">↓</button>
-          <button class="action-btn danger" type="button" data-action="delete">削除</button>
-        </div>
+      <div class="field">
+        <label>タイトル</label>
+        <input class="text-input title-input" type="text" value="">
       </div>
-      <textarea class="phrase-input"></textarea>
-    </article><article class="card">
-      <div class="card-head">
-        <input class="title-input" type="text" value="">
-        <div class="actions">
-          <button class="action-btn" type="button" data-action="copy">コピー</button>
-          <button class="action-btn" type="button" data-action="up">↑</button>
-          <button class="action-btn" type="button" data-action="down">↓</button>
-          <button class="action-btn danger" type="button" data-action="delete">削除</button>
-        </div>
+
+      <div class="field">
+        <label>ファイル名</label>
+        <input class="text-input file-input" type="text" value="">
       </div>
-      <textarea class="phrase-input"></textarea>
-    </article><article class="card">
-      <div class="card-head">
-        <input class="title-input" type="text" value="">
-        <div class="actions">
-          <button class="action-btn" type="button" data-action="copy">コピー</button>
-          <button class="action-btn" type="button" data-action="up">↑</button>
-          <button class="action-btn" type="button" data-action="down">↓</button>
-          <button class="action-btn danger" type="button" data-action="delete">削除</button>
-        </div>
+
+      <div class="field">
+        <label>説明</label>
+        <textarea class="text-area desc-input"></textarea>
       </div>
-      <textarea class="phrase-input"></textarea>
-    </article><article class="card">
-      <div class="card-head">
-        <input class="title-input" type="text" value="">
-        <div class="actions">
-          <button class="action-btn" type="button" data-action="copy">コピー</button>
-          <button class="action-btn" type="button" data-action="up">↑</button>
-          <button class="action-btn" type="button" data-action="down">↓</button>
-          <button class="action-btn danger" type="button" data-action="delete">削除</button>
+
+      <div class="preview">
+        <div class="preview-text">
+          <div class="preview-title">画像 01</div>
+          <div class="preview-desc">ここに画像の説明を入れます。</div>
         </div>
+        <a class="download-link" href="downloads/image01.png" download="">ダウンロード</a>
       </div>
-      <textarea class="phrase-input"></textarea>
+
+      <div class="card-actions">
+        <button class="action-btn" type="button" data-action="up">↑</button>
+        <button class="action-btn" type="button" data-action="down">↓</button>
+        <button class="action-btn danger" type="button" data-action="delete">削除</button>
+      </div>
     </article></section>
-    <div class="status" id="status"></div>
+    <div class="status" id="status">保存しました</div>
   </div>
 
   <template id="cardTemplate">
     <article class="card">
-      <div class="card-head">
-        <input class="title-input" type="text" value="">
-        <div class="actions">
-          <button class="action-btn" type="button" data-action="copy">コピー</button>
-          <button class="action-btn" type="button" data-action="up">↑</button>
-          <button class="action-btn" type="button" data-action="down">↓</button>
-          <button class="action-btn danger" type="button" data-action="delete">削除</button>
-        </div>
+      <div class="field">
+        <label>タイトル</label>
+        <input class="text-input title-input" type="text" value="">
       </div>
-      <textarea class="phrase-input"></textarea>
+
+      <div class="field">
+        <label>ファイル名</label>
+        <input class="text-input file-input" type="text" value="">
+      </div>
+
+      <div class="field">
+        <label>説明</label>
+        <textarea class="text-area desc-input"></textarea>
+      </div>
+
+      <div class="preview">
+        <div class="preview-text">
+          <div class="preview-title"></div>
+          <div class="preview-desc"></div>
+        </div>
+        <a class="download-link" href="#" download="">ダウンロード</a>
+      </div>
+
+      <div class="card-actions">
+        <button class="action-btn" type="button" data-action="up">↑</button>
+        <button class="action-btn" type="button" data-action="down">↓</button>
+        <button class="action-btn danger" type="button" data-action="delete">削除</button>
+      </div>
     </article>
   </template>
 
   <script>
     const defaultItems = [
   {
-    "title": "新規チャットを作成したら貼る",
-    "phrase": "以下をルールとする\n呼称：AI＝AI さん／依頼者＝使う人  \n使う人：手作業なし。指示は出す。\nAI さん：実作業担当。推測で進めない。  \n分からない時は「わからない」と言って確認する。\n使う人が指示するまでは相談モードで、簡潔だが分かりやすく返す。  \nファイルを作る時は、使う人が提供したファイル名と同じファイル名ルールで作る。\nファイル名に日時が含まれているときはYYYYMMDD_HHMMSSと考え、 \nYYYYMMDD_HHMMSS はAIさんが取れる時間\nHHMMSS の後ろに文字追加は禁止。"
+    "title": "祭りの夜と灯篭の精",
+    "file": "祭りの夜と灯篭の精.png",
+    "desc": "祭りの夜と灯篭の精"
   },
   {
-    "title": "最新ファイルを修正",
-    "phrase": "この最新ファイルを土台にして修正して"
-  },
-  {
-    "title": "見た目だけ直す",
-    "phrase": "機能は変えずに、見た目だけ直して"
-  },
-  {
-    "title": "一番シンプルで作る",
-    "phrase": "一番シンプルな形で作成して"
-  },
-  {
-    "title": "原因だけ調べる",
-    "phrase": "長く広く調べず、原因をピンポイントで特定して"
+    "title": "画像 01",
+    "file": "image01.png",
+    "desc": "ここに画像の説明を入れます。"
   }
 ];
 
-    const STORAGE_KEY = "shiji_editor_items_v1";
+    const STORAGE_KEY = "download_editor_items_v2";
     const listEl = document.getElementById("list");
     const template = document.getElementById("cardTemplate");
     const statusEl = document.getElementById("status");
@@ -301,7 +335,8 @@
         if (!Array.isArray(parsed) || parsed.length === 0) return cloneDefaults();
         return parsed.map(item => ({
           title: typeof item.title === "string" ? item.title : "",
-          phrase: typeof item.phrase === "string" ? item.phrase : ""
+          file: typeof item.file === "string" ? item.file : "",
+          desc: typeof item.desc === "string" ? item.desc : ""
         }));
       } catch (e) {
         return cloneDefaults();
@@ -321,34 +356,48 @@
       }, 1600);
     }
 
+    function fileHref(name) {
+      return "downloads/" + (name || "");
+    }
+
     function render() {
       listEl.innerHTML = "";
       items.forEach((item, index) => {
         const node = template.content.firstElementChild.cloneNode(true);
         const titleInput = node.querySelector(".title-input");
-        const phraseInput = node.querySelector(".phrase-input");
+        const fileInput = node.querySelector(".file-input");
+        const descInput = node.querySelector(".desc-input");
+        const previewTitle = node.querySelector(".preview-title");
+        const previewDesc = node.querySelector(".preview-desc");
+        const downloadLink = node.querySelector(".download-link");
 
         titleInput.value = item.title;
-        phraseInput.value = item.phrase;
+        fileInput.value = item.file;
+        descInput.value = item.desc;
 
-        titleInput.addEventListener("input", () => {
-          items[index].title = titleInput.value;
-          saveItems();
+        function refreshPreview() {
+          previewTitle.textContent = titleInput.value || "タイトル未入力";
+          previewDesc.textContent = descInput.value || "説明未入力";
+          downloadLink.href = fileHref(fileInput.value);
+          downloadLink.setAttribute("download", "");
+        }
+
+        function saveCurrent(message) {
+          items[index] = {
+            title: titleInput.value,
+            file: fileInput.value,
+            desc: descInput.value
+          };
+          saveItems(message);
+          refreshPreview();
+        }
+
+        [titleInput, fileInput, descInput].forEach(el => {
+          el.addEventListener("input", () => saveCurrent());
+          el.addEventListener("change", () => saveCurrent());
         });
 
-        phraseInput.addEventListener("input", () => {
-          items[index].phrase = phraseInput.value;
-          saveItems();
-        });
-
-        node.querySelector('[data-action="copy"]').addEventListener("click", async () => {
-          try {
-            await navigator.clipboard.writeText((phraseInput.value || "").trim());
-            setStatus("コピーしました");
-          } catch (e) {
-            setStatus("コピーに失敗しました");
-          }
-        });
+        refreshPreview();
 
         node.querySelector('[data-action="up"]').addEventListener("click", () => {
           if (index === 0) return;
@@ -370,7 +419,9 @@
 
         node.querySelector('[data-action="delete"]').addEventListener("click", () => {
           items.splice(index, 1);
-          if (items.length === 0) items.push({ title: "新しい項目", phrase: "" });
+          if (items.length === 0) {
+            items.push({ title: "新しい配布ファイル", file: "", desc: "" });
+          }
           saveItems("削除しました");
           render();
         });
@@ -380,7 +431,7 @@
     }
 
     addBtn.addEventListener("click", () => {
-      items.push({ title: "新しい項目", phrase: "" });
+      items.push({ title: "新しい配布ファイル", file: "", desc: "" });
       saveItems("追加しました");
       render();
     });
@@ -402,12 +453,12 @@
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = "shiji.html";
+      a.download = "download.html";
       document.body.appendChild(a);
       a.click();
       a.remove();
       URL.revokeObjectURL(url);
-      setStatus("shiji.html を書き出しました");
+      setStatus("download.html を書き出しました");
     });
 
     render();
