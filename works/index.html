@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>作品一覧</title>
+  <style>
+    :root {
+      --bg: #f8f9fa;
+      --surface: #ffffff;
+      --text: #202124;
+      --muted: #5f6368;
+      --line: #dadce0;
+      --blue: #1a73e8;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, "Hiragino Sans", "Yu Gothic", sans-serif;
+    }
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+    .wrap {
+      width: min(100% - 32px, 860px);
+      margin: 0 auto;
+      padding: 28px 0 56px;
+    }
+    .back {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 18px;
+      color: var(--muted);
+      font-size: .92rem;
+    }
+    h1 {
+      margin: 0 0 18px;
+      font-size: clamp(1.5rem, 3vw, 2rem);
+      font-weight: 700;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 18px;
+    }
+    .card strong {
+      display: block;
+      color: var(--blue);
+      margin-bottom: 8px;
+    }
+    .card p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.7;
+    }
+    @media (max-width: 640px) {
+      .grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <a class="back" href="../index.html">← 戻る</a>
+    <h1>作品一覧</h1>
+    <div class="grid">
+      <a class="card" href="work01.html"><strong>作品01</strong><p>作品01ページへ</p></a>
+      <a class="card" href="work02.html"><strong>作品02</strong><p>作品02ページへ</p></a>
+      <a class="card" href="work03.html"><strong>作品03</strong><p>作品03ページへ</p></a>
+      <a class="card" href="work04.html"><strong>作品04</strong><p>作品04ページへ</p></a>
+      <a class="card" href="work05.html"><strong>作品05</strong><p>作品05ページへ</p></a>
+    </div>
+  </div>
+</body>
+</html>

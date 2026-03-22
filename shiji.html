@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>指示の言葉集</title>
+  <meta name="description" content="指示の言葉集">
+  <style>
+    :root {
+      --bg: #f8f9fa;
+      --surface: #ffffff;
+      --text: #202124;
+      --muted: #5f6368;
+      --line: #dadce0;
+      --blue: #1a73e8;
+      --blue-soft: #e8f0fe;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, "Hiragino Sans", "Yu Gothic", sans-serif;
+    }
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+    .wrap {
+      width: min(100% - 28px, 760px);
+      margin: 0 auto;
+      padding: 18px 0 36px;
+    }
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+    .back {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--muted);
+      font-size: .92rem;
+      min-height: 36px;
+    }
+    h1 {
+      margin: 0 0 14px;
+      font-size: clamp(1.45rem, 3vw, 1.95rem);
+      font-weight: 700;
+      line-height: 1.25;
+    }
+    .list {
+      display: grid;
+      gap: 10px;
+    }
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 14px;
+    }
+    .card-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+    .card h2 {
+      margin: 0;
+      font-size: 1rem;
+      font-weight: 700;
+      line-height: 1.35;
+    }
+    .copy-btn {
+      min-height: 38px;
+      padding: 0 14px;
+      border: 1px solid #c7d7ef;
+      border-radius: 999px;
+      background: var(--blue-soft);
+      color: var(--blue);
+      font: inherit;
+      font-weight: 700;
+      cursor: pointer;
+      flex: 0 0 auto;
+    }
+    .copy-btn:hover {
+      background: #dfe9fb;
+    }
+    .phrase {
+      margin: 0;
+      padding: 12px 14px;
+      border-radius: 14px;
+      background: #f1f3f4;
+      border: 1px solid #eceff1;
+      line-height: 1.7;
+      font-size: .97rem;
+      word-break: break-word;
+    }
+    @media (max-width: 560px) {
+      .wrap {
+        width: min(100% - 20px, 760px);
+        padding-top: 14px;
+      }
+      .card {
+        padding: 12px;
+      }
+      .card-head {
+        align-items: flex-start;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="topbar">
+      <a class="back" href="index.html">← 戻る</a>
+    </div>
+
+    <h1>指示の言葉集</h1>
+
+    <section class="list">
+      <article class="card">
+        <div class="card-head">
+          <h2>HTMLを作成</h2>
+          <button class="copy-btn" data-copy="p1">コピー</button>
+        </div>
+        <p class="phrase" id="p1">この内容でHTMLを作成して</p>
+      </article>
+
+      <article class="card">
+        <div class="card-head">
+          <h2>最新ファイルを修正</h2>
+          <button class="copy-btn" data-copy="p2">コピー</button>
+        </div>
+        <p class="phrase" id="p2">この最新ファイルを土台にして修正して</p>
+      </article>
+
+      <article class="card">
+        <div class="card-head">
+          <h2>見た目だけ直す</h2>
+          <button class="copy-btn" data-copy="p3">コピー</button>
+        </div>
+        <p class="phrase" id="p3">機能は変えずに、見た目だけ直して</p>
+      </article>
+
+      <article class="card">
+        <div class="card-head">
+          <h2>一番シンプルで作る</h2>
+          <button class="copy-btn" data-copy="p4">コピー</button>
+        </div>
+        <p class="phrase" id="p4">一番シンプルな形で作成して</p>
+      </article>
+
+      <article class="card">
+        <div class="card-head">
+          <h2>原因だけ調べる</h2>
+          <button class="copy-btn" data-copy="p5">コピー</button>
+        </div>
+        <p class="phrase" id="p5">長く広く調べず、原因をピンポイントで特定して</p>
+      </article>
+    </section>
+  </div>
+
+  <script>
+    document.querySelectorAll('.copy-btn').forEach(button => {
+      button.addEventListener('click', async () => {
+        const target = document.getElementById(button.dataset.copy);
+        if (!target) return;
+        const text = target.textContent.trim();
+        try {
+          await navigator.clipboard.writeText(text);
+          const oldText = button.textContent;
+          button.textContent = 'コピー済み';
+          setTimeout(() => {
+            button.textContent = oldText;
+          }, 1200);
+        } catch (e) {
+          button.textContent = '失敗';
+          setTimeout(() => {
+            button.textContent = 'コピー';
+          }, 1200);
+        }
+      });
+    });
+  </script>
+</body>
+</html>
