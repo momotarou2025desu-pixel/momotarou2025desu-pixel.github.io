@@ -1,8 +1,10 @@
-<html lang="ja"><head>
+<!DOCTYPE html>
+<html lang="ja">
+<head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>配布ファイル</title>
-  <meta name="description" content="ZIPや画像の配布ページ">
+  <meta name="description" content="配布ファイル">
   <style>
     :root {
       --bg: #f8f9fa;
@@ -12,8 +14,6 @@
       --line: #dadce0;
       --blue: #1a73e8;
       --blue-soft: #e8f0fe;
-      --danger: #b3261e;
-      --danger-soft: #fce8e6;
     }
     * { box-sizing: border-box; }
     body {
@@ -23,7 +23,6 @@
       font-family: Arial, "Hiragino Sans", "Yu Gothic", sans-serif;
     }
     a { color: inherit; text-decoration: none; }
-    button, input, textarea { font: inherit; }
     .wrap {
       width: min(100% - 28px, 920px);
       margin: 0 auto;
@@ -35,7 +34,6 @@
       justify-content: space-between;
       gap: 12px;
       margin-bottom: 14px;
-      flex-wrap: wrap;
     }
     .back {
       display: inline-flex;
@@ -44,28 +42,6 @@
       color: var(--muted);
       font-size: .92rem;
       min-height: 36px;
-    }
-    .toolbar {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-      justify-content: flex-end;
-    }
-    .tool-btn {
-      min-height: 38px;
-      padding: 0 14px;
-      border: 1px solid #c7d7ef;
-      border-radius: 999px;
-      background: var(--blue-soft);
-      color: var(--blue);
-      cursor: pointer;
-      font-weight: 700;
-    }
-    .tool-btn.ghost {
-      background: #fff;
-      border-color: var(--line);
-      color: var(--muted);
-      font-weight: 600;
     }
     h1 {
       margin: 0 0 14px;
@@ -83,43 +59,7 @@
       border-radius: 18px;
       padding: 14px;
     }
-    .field {
-      display: grid;
-      gap: 6px;
-      margin-bottom: 10px;
-    }
-    .field:last-of-type {
-      margin-bottom: 0;
-    }
-    .field label {
-      color: var(--muted);
-      font-size: .88rem;
-      font-weight: 700;
-    }
-    .text-input, .text-area {
-      width: 100%;
-      border: 1px solid var(--line);
-      border-radius: 12px;
-      background: #fff;
-      color: var(--text);
-      padding: 10px 12px;
-      outline: none;
-    }
-    .text-area {
-      min-height: 74px;
-      resize: vertical;
-      line-height: 1.7;
-    }
-    .text-input:focus, .text-area:focus {
-      box-shadow: 0 0 0 2px rgba(26,115,232,.12);
-      border-color: #b9d0f7;
-    }
     .preview {
-      margin-top: 12px;
-      padding: 12px 14px;
-      border-radius: 14px;
-      background: #f1f3f4;
-      border: 1px solid #eceff1;
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -154,35 +94,6 @@
       border: 1px solid #c7d7ef;
       white-space: nowrap;
     }
-    .card-actions {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-      margin-top: 12px;
-      justify-content: flex-end;
-    }
-    .action-btn {
-      min-height: 34px;
-      padding: 0 12px;
-      border: 1px solid #c7d7ef;
-      border-radius: 999px;
-      background: var(--blue-soft);
-      color: var(--blue);
-      cursor: pointer;
-      font-weight: 700;
-      font-size: .92rem;
-    }
-    .action-btn.danger {
-      border-color: #efc7c4;
-      background: var(--danger-soft);
-      color: var(--danger);
-    }
-    .status {
-      margin-top: 12px;
-      color: var(--muted);
-      font-size: .9rem;
-      min-height: 1.4em;
-    }
     @media (max-width: 560px) {
       .wrap {
         width: min(100% - 20px, 920px);
@@ -195,274 +106,11 @@
   <div class="wrap">
     <div class="topbar">
       <a class="back" href="index.html">← 戻る</a>
-      <div class="toolbar">
-        <button class="tool-btn ghost" id="resetLocalBtn" type="button">保存を初期化</button>
-        <button class="tool-btn" id="addBtn" type="button">項目を追加</button>
-        <button class="tool-btn" id="exportBtn" type="button">HTMLを書き出し</button>
-      </div>
     </div>
-
     <h1>配布ファイル</h1>
-
-    <section class="list" id="list"><article class="card">
-      <div class="field">
-        <label>タイトル</label>
-        <input class="text-input title-input" type="text" value="">
-      </div>
-
-      <div class="field">
-        <label>ファイル名</label>
-        <input class="text-input file-input" type="text" value="">
-      </div>
-
-      <div class="field">
-        <label>説明</label>
-        <textarea class="text-area desc-input"></textarea>
-      </div>
-
-      <div class="preview">
-        <div class="preview-text">
-          <div class="preview-title">祭りの夜と灯篭の精</div>
-          <div class="preview-desc">祭りの夜と灯篭の精</div>
-        </div>
-        <a class="download-link" href="downloads/祭りの夜と灯篭の精" download="">ダウンロード</a>
-      </div>
-
-      <div class="card-actions">
-        <button class="action-btn" type="button" data-action="up">↑</button>
-        <button class="action-btn" type="button" data-action="down">↓</button>
-        <button class="action-btn danger" type="button" data-action="delete">削除</button>
-      </div>
-    </article><article class="card">
-      <div class="field">
-        <label>タイトル</label>
-        <input class="text-input title-input" type="text" value="">
-      </div>
-
-      <div class="field">
-        <label>ファイル名</label>
-        <input class="text-input file-input" type="text" value="">
-      </div>
-
-      <div class="field">
-        <label>説明</label>
-        <textarea class="text-area desc-input"></textarea>
-      </div>
-
-      <div class="preview">
-        <div class="preview-text">
-          <div class="preview-title">画像 01</div>
-          <div class="preview-desc">ここに画像の説明を入れます。</div>
-        </div>
-        <a class="download-link" href="downloads/image01.png" download="">ダウンロード</a>
-      </div>
-
-      <div class="card-actions">
-        <button class="action-btn" type="button" data-action="up">↑</button>
-        <button class="action-btn" type="button" data-action="down">↓</button>
-        <button class="action-btn danger" type="button" data-action="delete">削除</button>
-      </div>
-    </article></section>
-    <div class="status" id="status">保存しました</div>
+    <section class="list">
+      
+    </section>
   </div>
-
-  <template id="cardTemplate">
-    <article class="card">
-      <div class="field">
-        <label>タイトル</label>
-        <input class="text-input title-input" type="text" value="">
-      </div>
-
-      <div class="field">
-        <label>ファイル名</label>
-        <input class="text-input file-input" type="text" value="">
-      </div>
-
-      <div class="field">
-        <label>説明</label>
-        <textarea class="text-area desc-input"></textarea>
-      </div>
-
-      <div class="preview">
-        <div class="preview-text">
-          <div class="preview-title"></div>
-          <div class="preview-desc"></div>
-        </div>
-        <a class="download-link" href="#" download="">ダウンロード</a>
-      </div>
-
-      <div class="card-actions">
-        <button class="action-btn" type="button" data-action="up">↑</button>
-        <button class="action-btn" type="button" data-action="down">↓</button>
-        <button class="action-btn danger" type="button" data-action="delete">削除</button>
-      </div>
-    </article>
-  </template>
-
-  <script>
-    const defaultItems = [
-  {
-    "title": "祭りの夜と灯篭の精",
-    "file": "祭りの夜と灯篭の精",
-    "desc": "祭りの夜と灯篭の精"
-  },
-  {
-    "title": "画像 01",
-    "file": "image01.png",
-    "desc": "ここに画像の説明を入れます。"
-  }
-];
-
-    const STORAGE_KEY = "download_editor_items_v2";
-    const listEl = document.getElementById("list");
-    const template = document.getElementById("cardTemplate");
-    const statusEl = document.getElementById("status");
-    const addBtn = document.getElementById("addBtn");
-    const exportBtn = document.getElementById("exportBtn");
-    const resetLocalBtn = document.getElementById("resetLocalBtn");
-
-    let items = loadItems();
-
-    function cloneDefaults() {
-      return JSON.parse(JSON.stringify(defaultItems));
-    }
-
-    function loadItems() {
-      try {
-        const raw = localStorage.getItem(STORAGE_KEY);
-        if (!raw) return cloneDefaults();
-        const parsed = JSON.parse(raw);
-        if (!Array.isArray(parsed) || parsed.length === 0) return cloneDefaults();
-        return parsed.map(item => ({
-          title: typeof item.title === "string" ? item.title : "",
-          file: typeof item.file === "string" ? item.file : "",
-          desc: typeof item.desc === "string" ? item.desc : ""
-        }));
-      } catch (e) {
-        return cloneDefaults();
-      }
-    }
-
-    function saveItems(message = "保存しました") {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
-      setStatus(message);
-    }
-
-    function setStatus(message) {
-      statusEl.textContent = message;
-      clearTimeout(setStatus.timer);
-      setStatus.timer = setTimeout(() => {
-        if (statusEl.textContent === message) statusEl.textContent = "";
-      }, 1600);
-    }
-
-    function fileHref(name) {
-      return "downloads/" + (name || "");
-    }
-
-    function render() {
-      listEl.innerHTML = "";
-      items.forEach((item, index) => {
-        const node = template.content.firstElementChild.cloneNode(true);
-        const titleInput = node.querySelector(".title-input");
-        const fileInput = node.querySelector(".file-input");
-        const descInput = node.querySelector(".desc-input");
-        const previewTitle = node.querySelector(".preview-title");
-        const previewDesc = node.querySelector(".preview-desc");
-        const downloadLink = node.querySelector(".download-link");
-
-        titleInput.value = item.title;
-        fileInput.value = item.file;
-        descInput.value = item.desc;
-
-        function refreshPreview() {
-          previewTitle.textContent = titleInput.value || "タイトル未入力";
-          previewDesc.textContent = descInput.value || "説明未入力";
-          downloadLink.href = fileHref(fileInput.value);
-          downloadLink.setAttribute("download", "");
-        }
-
-        function saveCurrent(message) {
-          items[index] = {
-            title: titleInput.value,
-            file: fileInput.value,
-            desc: descInput.value
-          };
-          saveItems(message);
-          refreshPreview();
-        }
-
-        [titleInput, fileInput, descInput].forEach(el => {
-          el.addEventListener("input", () => saveCurrent());
-          el.addEventListener("change", () => saveCurrent());
-        });
-
-        refreshPreview();
-
-        node.querySelector('[data-action="up"]').addEventListener("click", () => {
-          if (index === 0) return;
-          const tmp = items[index - 1];
-          items[index - 1] = items[index];
-          items[index] = tmp;
-          saveItems("並びを保存しました");
-          render();
-        });
-
-        node.querySelector('[data-action="down"]').addEventListener("click", () => {
-          if (index >= items.length - 1) return;
-          const tmp = items[index + 1];
-          items[index + 1] = items[index];
-          items[index] = tmp;
-          saveItems("並びを保存しました");
-          render();
-        });
-
-        node.querySelector('[data-action="delete"]').addEventListener("click", () => {
-          items.splice(index, 1);
-          if (items.length === 0) {
-            items.push({ title: "新しい配布ファイル", file: "", desc: "" });
-          }
-          saveItems("削除しました");
-          render();
-        });
-
-        listEl.appendChild(node);
-      });
-    }
-
-    addBtn.addEventListener("click", () => {
-      items.push({ title: "新しい配布ファイル", file: "", desc: "" });
-      saveItems("追加しました");
-      render();
-    });
-
-    resetLocalBtn.addEventListener("click", () => {
-      items = cloneDefaults();
-      localStorage.removeItem(STORAGE_KEY);
-      render();
-      setStatus("初期状態に戻しました");
-    });
-
-    exportBtn.addEventListener("click", () => {
-      const dataScript = "const defaultItems = " + JSON.stringify(items, null, 2) + ";";
-      const exportHtml = document.documentElement.outerHTML.replace(
-        /const defaultItems = \[[\s\S]*?\];/,
-        dataScript
-      );
-      const blob = new Blob([exportHtml], { type: "text/html;charset=utf-8" });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = "download.html";
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      URL.revokeObjectURL(url);
-      setStatus("download.html を書き出しました");
-    });
-
-    render();
-  </script>
-
-
-</body></html>
+</body>
+</html>
