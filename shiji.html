@@ -93,18 +93,7 @@
       line-height: 1.7;
       font-size: .97rem;
       word-break: break-word;
-    }
-    @media (max-width: 560px) {
-      .wrap {
-        width: min(100% - 20px, 760px);
-        padding-top: 14px;
-      }
-      .card {
-        padding: 12px;
-      }
-      .card-head {
-        align-items: flex-start;
-      }
+      white-space: pre-wrap;
     }
   </style>
 </head>
@@ -115,7 +104,50 @@
     </div>
     <h1>指示の言葉集</h1>
     <section class="list">
-      
+      <article class="card">
+        <div class="card-head">
+          <h2>新規チャットを作成したら貼る</h2>
+          <button class="copy-btn" type="button" data-copy="p1">コピー</button>
+        </div>
+        <p class="phrase" id="p1">以下をルールとする
+呼称：AI＝AI さん／依頼者＝使う人  
+使う人：手作業なし。指示は出す。
+AI さん：実作業担当。推測で進めない。  
+分からない時は「わからない」と言って確認する。
+使う人が指示するまでは相談モードで、簡潔だが分かりやすく返す。  
+ファイルを作る時は、使う人が提供したファイル名と同じファイル名ルールで作る。
+ファイル名に日時が含まれているときはYYYYMMDD_HHMMSSと考え、 
+YYYYMMDD_HHMMSS はAIさんが取れる時間
+HHMMSS の後ろに文字追加は禁止。</p>
+      </article>
+      <article class="card">
+        <div class="card-head">
+          <h2>最新ファイルを修正</h2>
+          <button class="copy-btn" type="button" data-copy="p2">コピー</button>
+        </div>
+        <p class="phrase" id="p2">この最新ファイルを土台にして修正して</p>
+      </article>
+      <article class="card">
+        <div class="card-head">
+          <h2>見た目だけ直す</h2>
+          <button class="copy-btn" type="button" data-copy="p3">コピー</button>
+        </div>
+        <p class="phrase" id="p3">機能は変えずに、見た目だけ直して</p>
+      </article>
+      <article class="card">
+        <div class="card-head">
+          <h2>一番シンプルで作る</h2>
+          <button class="copy-btn" type="button" data-copy="p4">コピー</button>
+        </div>
+        <p class="phrase" id="p4">一番シンプルな形で作成して</p>
+      </article>
+      <article class="card">
+        <div class="card-head">
+          <h2>原因だけ調べる</h2>
+          <button class="copy-btn" type="button" data-copy="p5">コピー</button>
+        </div>
+        <p class="phrase" id="p5">長く広く調べず、原因をピンポイントで特定して</p>
+      </article>
     </section>
   </div>
   <script>
@@ -129,14 +161,10 @@
           await navigator.clipboard.writeText(text);
           const oldText = button.textContent;
           button.textContent = 'コピー済み';
-          setTimeout(() => {
-            button.textContent = oldText;
-          }, 1200);
+          setTimeout(() => { button.textContent = oldText; }, 1200);
         } catch (e) {
           button.textContent = '失敗';
-          setTimeout(() => {
-            button.textContent = 'コピー';
-          }, 1200);
+          setTimeout(() => { button.textContent = 'コピー'; }, 1200);
         }
       });
     });
