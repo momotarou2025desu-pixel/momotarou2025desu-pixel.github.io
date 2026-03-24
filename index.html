@@ -3,36 +3,107 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>完全無料ホームページ作成</title>
-  <meta name="description" content="完全無料ホームページ作成">
+  <title>ChatGPTの達人</title>
+  <meta name="description" content="ChatGPTの達人">
   <style>
     :root {
-      --bg: #f8f9fa;
+      --bg: #f5f6f7;
       --text: #202124;
+      --muted: #5f6368;
+      --line: #dadce0;
+      --blue: #1a73e8;
+      --blue-soft: #e8f0fe;
     }
     * { box-sizing: border-box; }
-    html, body {
-      height: 100%;
-      margin: 0;
-    }
+    html, body { height: 100%; margin: 0; }
     body {
       background: var(--bg);
       color: var(--text);
       font-family: Arial, "Hiragino Sans", "Yu Gothic", sans-serif;
+    }
+    .page {
+      min-height: 100%;
       display: grid;
       place-items: center;
+      padding: 24px;
     }
-    h1 {
+    .hero {
+      width: min(100%, 900px);
+      display: grid;
+      gap: 28px;
+      justify-items: center;
+    }
+    .head {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 28px;
+      flex-wrap: wrap;
+      text-align: left;
+    }
+    .icon {
+      width: min(24vw, 140px);
+      min-width: 96px;
+      height: auto;
+      display: block;
+    }
+    .texts {
+      display: grid;
+      gap: 10px;
+      align-content: center;
+    }
+    .title {
       margin: 0;
-      font-size: clamp(2rem, 5vw, 4rem);
+      font-size: clamp(1.9rem, 5vw, 3.5rem);
       font-weight: 700;
-      line-height: 1.2;
+      line-height: 1.15;
+    }
+    .subtitle {
+      margin: 0;
+      font-size: clamp(1rem, 2.2vw, 1.5rem);
+      font-weight: 700;
+      color: var(--muted);
+      line-height: 1.35;
+    }
+    .single-link {
+      min-width: min(100%, 360px);
+      padding: 18px 28px;
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      background: #fff;
+      color: var(--blue);
+      text-decoration: none;
       text-align: center;
-      letter-spacing: 0.02em;
+      font-size: clamp(1.15rem, 2.3vw, 1.5rem);
+      font-weight: 700;
+      box-shadow: 0 1px 2px rgba(0,0,0,.03);
+    }
+    .single-link:hover {
+      background: var(--blue-soft);
+    }
+    @media (max-width: 720px) {
+      .head {
+        text-align: center;
+        gap: 18px;
+      }
+      .texts {
+        justify-items: center;
+      }
     }
   </style>
 </head>
 <body>
-  <h1>完全無料ホームページ作成</h1>
+  <main class="page">
+    <section class="hero">
+      <div class="head">
+        <img class="icon" src="assets/tatsujin_icon_transparent.png" alt="ChatGPTの達人">
+        <div class="texts">
+          <h1 class="title">ChatGPTの達人</h1>
+          <p class="subtitle">ChatGPTの能力を検証・公開中</p>
+        </div>
+      </div>
+      <a class="single-link" href="works/ChatGPTでホームページ作成.html">完全無料ホームページ作成</a>
+    </section>
+  </main>
 </body>
 </html>
