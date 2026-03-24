@@ -73,35 +73,19 @@
       font-weight: 700;
     }
     .steps {
-      list-style: none;
-      padding: 0;
       margin: 0;
-      display: grid;
-      gap: 14px;
-    }
-    .steps li {
-      display: flex;
-      gap: 14px;
-      align-items: flex-start;
-      padding: 14px 16px;
-      border-radius: 18px;
-      background: #fbfcfe;
-      border: 1px solid #e7ebf0;
-      line-height: 1.75;
+      padding-left: 1.6em;
+      line-height: 1.9;
       font-size: 1rem;
     }
+    .steps li {
+      margin: 0 0 10px;
+      padding: 0;
+      border: none;
+      background: transparent;
+    }
     .num {
-      flex: 0 0 auto;
-      width: 32px;
-      height: 32px;
-      border-radius: 999px;
-      background: var(--blue-soft);
-      color: var(--blue);
-      display: grid;
-      place-items: center;
-      font-weight: 700;
-      font-size: .98rem;
-      margin-top: 1px;
+      display: none;
     }
     .note {
       margin-top: 18px;
@@ -143,8 +127,8 @@
     @media (max-width: 560px) {
       .page { padding-top: 32px; }
       .card { padding: 22px 16px; border-radius: 22px; }
-      .steps li { padding: 12px 12px; gap: 12px; }
-      .num { width: 30px; height: 30px; }
+      .steps { padding-left: 1.4em; }
+      .steps li { margin-bottom: 8px; }
     }
   </style>
 </head>
