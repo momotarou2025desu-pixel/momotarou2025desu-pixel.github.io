@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>完全無料ホームページ作成 | ChatGPTの達人</title>
+  <meta name="description" content="GitHubでホームページを公開する最短手順を案内するページ">
+  <meta property="og:title" content="完全無料ホームページ作成 | ChatGPTの達人">
+  <meta property="og:description" content="GitHubでホームページを公開する最短手順を案内するページ">
+  <meta name="twitter:title" content="完全無料ホームページ作成 | ChatGPTの達人">
+  <meta name="twitter:description" content="GitHubでホームページを公開する最短手順を案内するページ">
+  <style>
+    :root {
+      --bg: #f8f9fa;
+      --card: #ffffff;
+      --text: #202124;
+      --muted: #5f6368;
+      --line: #dadce0;
+      --blue: #1a73e8;
+      --blue-soft: #e8f0fe;
+      --shadow: 0 10px 30px rgba(32, 33, 36, 0.08);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, "Hiragino Sans", "Yu Gothic", sans-serif;
+    }
+    a { color: inherit; text-decoration: none; }
+    .page {
+      min-height: 100vh;
+      padding: 56px 16px 64px;
+    }
+    .wrap {
+      width: min(100%, 860px);
+      margin: 0 auto;
+    }
+    .hero {
+      display: grid;
+      gap: 24px;
+      justify-items: center;
+      text-align: center;
+      margin-bottom: 28px;
+    }
+    .brand {
+      font-size: .95rem;
+      color: var(--blue);
+      font-weight: 700;
+      letter-spacing: .04em;
+    }
+    h1 {
+      margin: 0;
+      font-size: clamp(1.8rem, 3.8vw, 2.8rem);
+      line-height: 1.25;
+    }
+    .lead {
+      margin: 0;
+      color: var(--muted);
+      font-size: 1rem;
+      line-height: 1.8;
+    }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 28px;
+      box-shadow: var(--shadow);
+      padding: 28px 24px;
+    }
+    .section-title {
+      margin: 0 0 18px;
+      font-size: 1.3rem;
+      font-weight: 700;
+    }
+    .steps {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: grid;
+      gap: 14px;
+    }
+    .steps li {
+      display: flex;
+      gap: 14px;
+      align-items: flex-start;
+      padding: 14px 16px;
+      border-radius: 18px;
+      background: #fbfcfe;
+      border: 1px solid #e7ebf0;
+      line-height: 1.75;
+      font-size: 1rem;
+    }
+    .num {
+      flex: 0 0 auto;
+      width: 32px;
+      height: 32px;
+      border-radius: 999px;
+      background: var(--blue-soft);
+      color: var(--blue);
+      display: grid;
+      place-items: center;
+      font-weight: 700;
+      font-size: .98rem;
+      margin-top: 1px;
+    }
+    .note {
+      margin-top: 18px;
+      padding: 16px 18px;
+      border-radius: 18px;
+      background: #fff8e1;
+      border: 1px solid #f0df9a;
+      line-height: 1.8;
+      font-size: .98rem;
+    }
+    .actions {
+      margin-top: 28px;
+      display: grid;
+      gap: 14px;
+      justify-items: center;
+    }
+    .button {
+      min-width: min(100%, 420px);
+      padding: 18px 28px;
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      background: #fff;
+      color: var(--blue);
+      text-align: center;
+      font-size: clamp(1rem, 2.3vw, 1.25rem);
+      font-weight: 700;
+      box-shadow: 0 1px 2px rgba(0,0,0,.03);
+      transition: background .15s ease, transform .15s ease, border-color .15s ease;
+    }
+    .button:hover {
+      background: var(--blue-soft);
+      border-color: var(--blue);
+      transform: translateY(-1px);
+    }
+    .button.secondary {
+      color: var(--text);
+      background: transparent;
+    }
+    @media (max-width: 560px) {
+      .page { padding-top: 32px; }
+      .card { padding: 22px 16px; border-radius: 22px; }
+      .steps li { padding: 12px 12px; gap: 12px; }
+      .num { width: 30px; height: 30px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <div class="wrap">
+      <section class="hero">
+        <div class="brand">ChatGPTの達人</div>
+        <h1>完全無料ホームページ作成</h1>
+        <p class="lead">GitHubにホームページを入れて公開するまでの流れを、最短でまとめています。</p>
+      </section>
+
+      <section class="card">
+        <h2 class="section-title">公開までの流れ</h2>
+        <ol class="steps">
+          <li><span class="num">1</span><span>GitHubに登録してログイン</span></li>
+          <li><span class="num">2</span><span>Create repositoryで保存場所を作る</span></li>
+          <li><span class="num">3</span><span>Add file → Upload filesでホームページのHTMLを入れる</span></li>
+          <li><span class="num">4</span><span>Commit changesで確定する</span></li>
+          <li><span class="num">5</span><span>Settings → Pagesで公開URLを確認する</span></li>
+        </ol>
+
+        <div class="note">
+          わからなければ、Alt+PrintScreenで今の画面をコピーして、AIさんにCtrl+Vで貼り付ける
+        </div>
+
+        <div class="actions">
+          <a class="button" href="ChatGPTでホームページ作成.html">ChatGPTへの実例</a>
+          <a class="button secondary" href="../index.html">トップへ戻る</a>
+        </div>
+      </section>
+    </div>
+  </main>
+</body>
+</html>
