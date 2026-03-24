@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>デザイン、翻訳機能などの搭載実例 | ChatGPTの達人</title>
+  <meta name="description" content="ホームページにデザイン変更や翻訳機能などを追加する実例をまとめたページ">
+  <meta property="og:title" content="デザイン、翻訳機能などの搭載実例 | ChatGPTの達人">
+  <meta property="og:description" content="ホームページにデザイン変更や翻訳機能などを追加する実例をまとめたページ">
+  <meta name="twitter:title" content="デザイン、翻訳機能などの搭載実例 | ChatGPTの達人">
+  <meta name="twitter:description" content="ホームページにデザイン変更や翻訳機能などを追加する実例をまとめたページ">
+  <style>
+    :root {
+      --bg: #f8f9fa;
+      --card: #ffffff;
+      --text: #202124;
+      --muted: #5f6368;
+      --line: #dadce0;
+      --blue: #1a73e8;
+      --blue-soft: #e8f0fe;
+      --shadow: 0 10px 30px rgba(32, 33, 36, 0.08);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, "Hiragino Sans", "Yu Gothic", sans-serif;
+    }
+    a { color: inherit; text-decoration: none; }
+    .page { min-height: 100vh; padding: 56px 16px 64px; }
+    .wrap { width: min(100%, 920px); margin: 0 auto; }
+    .hero {
+      display: grid;
+      gap: 20px;
+      justify-items: center;
+      text-align: center;
+      margin-bottom: 28px;
+    }
+    .brand {
+      font-size: .95rem;
+      color: var(--blue);
+      font-weight: 700;
+      letter-spacing: .04em;
+    }
+    h1 {
+      margin: 0;
+      font-size: clamp(1.8rem, 3.8vw, 2.8rem);
+      line-height: 1.25;
+    }
+    .lead {
+      margin: 0;
+      color: var(--muted);
+      font-size: 1rem;
+      line-height: 1.8;
+      max-width: 760px;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+    }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 26px;
+      box-shadow: var(--shadow);
+      padding: 24px 22px;
+    }
+    .label {
+      display: inline-block;
+      margin-bottom: 12px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: var(--blue-soft);
+      color: var(--blue);
+      font-size: .86rem;
+      font-weight: 700;
+    }
+    h2 {
+      margin: 0 0 12px;
+      font-size: 1.2rem;
+      line-height: 1.5;
+    }
+    ul {
+      margin: 0;
+      padding-left: 1.4em;
+      line-height: 1.85;
+      color: var(--text);
+    }
+    .sub {
+      margin: 10px 0 0;
+      color: var(--muted);
+      line-height: 1.75;
+      font-size: .96rem;
+    }
+    .actions {
+      margin-top: 28px;
+      display: grid;
+      gap: 14px;
+      justify-items: center;
+    }
+    .button {
+      min-width: min(100%, 420px);
+      padding: 18px 28px;
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      background: #fff;
+      color: var(--blue);
+      text-align: center;
+      font-size: clamp(1rem, 2.3vw, 1.2rem);
+      font-weight: 700;
+      box-shadow: 0 1px 2px rgba(0,0,0,.03);
+      transition: background .15s ease, transform .15s ease, border-color .15s ease;
+    }
+    .button:hover {
+      background: var(--blue-soft);
+      border-color: var(--blue);
+      transform: translateY(-1px);
+    }
+    .button.secondary {
+      color: var(--text);
+      background: transparent;
+    }
+    @media (max-width: 720px) {
+      .grid { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 560px) {
+      .page { padding-top: 32px; }
+      .card { padding: 20px 16px; border-radius: 22px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <div class="wrap">
+      <section class="hero">
+        <div class="brand">ChatGPTの達人</div>
+        <h1>デザイン、翻訳機能などの搭載実例</h1>
+        <p class="lead">ホームページに機能を追加したいときに、ChatGPTへどのように頼めばよいかの実例をまとめています。</p>
+      </section>
+
+      <section class="grid">
+        <article class="card">
+          <div class="label">デザイン変更</div>
+          <h2>見た目を整える実例</h2>
+          <ul>
+            <li>ロゴを上に置いて、全体をやや上寄せにする</li>
+            <li>ボタンの角を丸くして、色を青系にそろえる</li>
+            <li>スマホでは文字を少し大きくして見やすくする</li>
+          </ul>
+          <p class="sub">例: 「トップを少し上寄せの中央配置にして、主ボタンだけを目立たせて」</p>
+        </article>
+
+        <article class="card">
+          <div class="label">翻訳機能</div>
+          <h2>多言語対応の実例</h2>
+          <ul>
+            <li>日本語と英語を切り替えるボタンを付ける</li>
+            <li>見出しと説明文を言語ごとに切り替える</li>
+            <li>将来は中国語や韓国語も増やせる形にする</li>
+          </ul>
+          <p class="sub">例: 「日本語と英語を切り替える翻訳ボタンを付けて」</p>
+        </article>
+
+        <article class="card">
+          <div class="label">機能追加</div>
+          <h2>使いやすさを上げる実例</h2>
+          <ul>
+            <li>画像をクリックすると大きく表示する</li>
+            <li>不要な入力欄や固定UIを消す</li>
+            <li>説明ページの下に実例ボタンを増やす</li>
+          </ul>
+          <p class="sub">例: 「保存HTMLの下固定入力欄を消して、画像だけ拡大できるようにして」</p>
+        </article>
+
+        <article class="card">
+          <div class="label">ページ導線</div>
+          <h2>案内ページを増やす実例</h2>
+          <ul>
+            <li>最初に手順ページを見せる</li>
+            <li>その下に実例ボタンを置く</li>
+            <li>必要なページだけ順番に見せる</li>
+          </ul>
+          <p class="sub">例: 「公開までの流れの下に、実例ボタンを2つ並べて」</p>
+        </article>
+      </section>
+
+      <div class="actions">
+        <a class="button" href="chatgpt-homepage-example.html">ChatGPTへの実例</a>
+        <a class="button secondary" href="homepage-guide.html">完全無料ホームページ作成へ戻る</a>
+      </div>
+    </div>
+  </main>
+</body>
+</html>
