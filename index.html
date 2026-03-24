@@ -38,9 +38,9 @@
     .page {
       min-height: 100%;
       display: flex;
-      align-items: center;
+      align-items: flex-start;
       justify-content: center;
-      padding: 40px 16px 56px;
+      padding: clamp(88px, 22vh, 180px) 16px 56px;
     }
     .wrap {
       width: min(100%, 980px);
@@ -157,7 +157,7 @@
     }
     @media (max-width: 560px) {
       .page {
-        padding-top: 28px;
+        padding-top: 64px;
       }
       .brand-row {
         gap: 14px;
