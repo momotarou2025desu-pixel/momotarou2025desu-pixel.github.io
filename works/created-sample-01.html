@@ -1,0 +1,921 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>田中酒造</title>
+  <meta name="description" content="田中酒造の公式ページです。代表銘柄、酒造りの思想、蔵情報をご案内しています。">
+  <style>
+    :root {
+      --bg: #f6f2eb;
+      --paper: #fffdf8;
+      --paper-soft: #efe8dc;
+      --ink: #181614;
+      --muted: #6d675f;
+      --line: rgba(24, 22, 20, 0.10);
+      --accent: #1d4b3a;
+      --accent-soft: rgba(29, 75, 58, 0.10);
+      --bronze: #9b6d3d;
+      --shadow: 0 24px 60px rgba(24, 22, 20, 0.08);
+      --radius: 28px;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      font-family: "Noto Sans JP", "Hiragino Sans", "Yu Gothic", sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at top left, rgba(155, 109, 61, 0.10), transparent 24%),
+        radial-gradient(circle at bottom right, rgba(29, 75, 58, 0.08), transparent 22%),
+        var(--bg);
+      letter-spacing: 0.02em;
+      line-height: 1.7;
+    }
+
+    a { color: inherit; text-decoration: none; }
+
+    .wrap {
+      width: min(1200px, calc(100% - 40px));
+      margin: 0 auto;
+    }
+
+    .site-header {
+      padding: 22px 0 18px;
+    }
+
+    .header-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      padding-bottom: 14px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .brand-mark {
+      width: 46px;
+      height: 46px;
+      border-radius: 16px;
+      display: grid;
+      place-items: center;
+      background: linear-gradient(135deg, var(--accent), #133528);
+      color: #fff;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      box-shadow: 0 12px 28px rgba(29, 75, 58, 0.22);
+    }
+
+    .brand-copy strong {
+      display: block;
+      font-size: 18px;
+      letter-spacing: 0.12em;
+    }
+
+    .brand-copy span {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+    }
+
+    .nav {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 18px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .nav a:hover { color: var(--accent); }
+
+    .hero {
+      padding: 28px 0 46px;
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.1fr) minmax(360px, 0.9fr);
+      gap: 28px;
+      align-items: stretch;
+    }
+
+    .hero-copy,
+    .hero-visual {
+      background: rgba(255, 253, 248, 0.88);
+      border: 1px solid rgba(24, 22, 20, 0.08);
+      border-radius: calc(var(--radius) + 8px);
+      box-shadow: var(--shadow);
+    }
+
+    .hero-copy {
+      padding: 48px 48px 42px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      min-height: 520px;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      width: fit-content;
+      padding: 8px 14px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 22px 0 18px;
+      font-family: "Noto Serif JP", "Yu Mincho", serif;
+      font-size: clamp(44px, 7vw, 78px);
+      line-height: 1.04;
+      letter-spacing: 0.08em;
+      font-weight: 600;
+    }
+
+    .hero-lead {
+      max-width: 28em;
+      margin: 0;
+      font-size: clamp(18px, 2vw, 22px);
+      color: #2b2824;
+    }
+
+    .hero-meta {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+      margin-top: 28px;
+    }
+
+    .meta-chip {
+      padding: 16px 18px;
+      background: var(--paper);
+      border: 1px solid rgba(24,22,20,0.08);
+      border-radius: 20px;
+    }
+
+    .meta-chip span {
+      display: block;
+      color: var(--muted);
+      font-size: 11px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+
+    .meta-chip strong {
+      display: block;
+      font-size: 18px;
+      line-height: 1.4;
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 32px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 48px;
+      padding: 0 20px;
+      border-radius: 999px;
+      font-weight: 700;
+      font-size: 14px;
+      transition: transform .15s ease, box-shadow .15s ease, background .15s ease;
+    }
+
+    .btn:hover { transform: translateY(-1px); }
+
+    .btn-primary {
+      background: var(--accent);
+      color: #fff;
+      box-shadow: 0 14px 30px rgba(29, 75, 58, 0.22);
+    }
+
+    .btn-secondary {
+      background: transparent;
+      color: var(--ink);
+      border: 1px solid rgba(24, 22, 20, 0.12);
+    }
+
+    .hero-visual {
+      position: relative;
+      overflow: hidden;
+      padding: 32px;
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      gap: 18px;
+      min-height: 520px;
+      background:
+        linear-gradient(160deg, rgba(29, 75, 58, 0.10), rgba(255,255,255,0.55) 45%, rgba(155, 109, 61, 0.08)),
+        rgba(255, 253, 248, 0.9);
+    }
+
+    .visual-note {
+      color: var(--muted);
+      font-size: 12px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+    }
+
+    .bottle-stage {
+      position: relative;
+      min-height: 300px;
+      border-radius: 28px;
+      background:
+        radial-gradient(circle at 65% 28%, rgba(255,255,255,0.95), transparent 28%),
+        linear-gradient(180deg, rgba(29,75,58,0.10), rgba(29,75,58,0.02));
+      overflow: hidden;
+      border: 1px solid rgba(24,22,20,0.07);
+    }
+
+    .bottle {
+      position: absolute;
+      bottom: 26px;
+      right: 58px;
+      width: 148px;
+      height: 290px;
+      background: linear-gradient(180deg, #305947 0%, #173226 100%);
+      border-radius: 34px 34px 22px 22px;
+      box-shadow: 0 30px 60px rgba(23, 50, 38, 0.30);
+    }
+
+    .bottle::before {
+      content: "";
+      position: absolute;
+      left: 42px;
+      top: -54px;
+      width: 64px;
+      height: 78px;
+      border-radius: 20px 20px 12px 12px;
+      background: linear-gradient(180deg, #305947 0%, #173226 100%);
+    }
+
+    .bottle::after {
+      content: "朝霞";
+      position: absolute;
+      left: 26px;
+      top: 66px;
+      width: 96px;
+      height: 148px;
+      background: linear-gradient(180deg, #fbf8f0 0%, #efe6d6 100%);
+      color: var(--ink);
+      border-radius: 14px;
+      display: grid;
+      place-items: center;
+      writing-mode: vertical-rl;
+      text-orientation: mixed;
+      font-family: "Noto Serif JP", serif;
+      font-size: 30px;
+      letter-spacing: 0.14em;
+      box-shadow: 0 16px 28px rgba(24, 22, 20, 0.12);
+    }
+
+    .bottle-shadow {
+      position: absolute;
+      bottom: 8px;
+      right: 18px;
+      width: 220px;
+      height: 32px;
+      border-radius: 50%;
+      background: rgba(24, 22, 20, 0.10);
+      filter: blur(12px);
+    }
+
+    .visual-panels {
+      position: absolute;
+      left: 28px;
+      top: 34px;
+      display: grid;
+      gap: 14px;
+      width: min(52%, 220px);
+    }
+
+    .mini-panel {
+      padding: 14px 16px;
+      border-radius: 18px;
+      background: rgba(255, 253, 248, 0.78);
+      border: 1px solid rgba(24, 22, 20, 0.08);
+      backdrop-filter: blur(8px);
+    }
+
+    .mini-panel span {
+      display: block;
+      color: var(--muted);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      margin-bottom: 6px;
+    }
+
+    .mini-panel strong {
+      display: block;
+      font-family: "Noto Serif JP", serif;
+      font-size: 22px;
+      line-height: 1.3;
+    }
+
+    .visual-footer {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+    }
+
+    .footer-pill {
+      padding: 14px 16px;
+      border-radius: 18px;
+      background: rgba(255,255,255,0.66);
+      border: 1px solid rgba(24, 22, 20, 0.07);
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .footer-pill strong {
+      display: block;
+      color: var(--ink);
+      font-size: 16px;
+      margin-top: 4px;
+    }
+
+    .section {
+      padding: 12px 0 22px;
+    }
+
+    .section-top {
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      gap: 20px;
+      margin-bottom: 22px;
+    }
+
+    .section-kicker {
+      color: var(--bronze);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+    }
+
+    .section h2 {
+      margin: 10px 0 0;
+      font-family: "Noto Serif JP", serif;
+      font-size: clamp(28px, 4vw, 42px);
+      line-height: 1.2;
+      letter-spacing: 0.06em;
+    }
+
+    .section-text {
+      max-width: 40em;
+      margin: 0;
+      color: var(--muted);
+    }
+
+    .products-grid,
+    .thought-grid,
+    .cta-grid {
+      display: grid;
+      gap: 18px;
+    }
+
+    .products-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .product-card,
+    .thought-card,
+    .cta-card {
+      background: rgba(255, 253, 248, 0.88);
+      border: 1px solid rgba(24, 22, 20, 0.08);
+      border-radius: 26px;
+      box-shadow: var(--shadow);
+    }
+
+    .product-card {
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .product-top {
+      display: flex;
+      align-items: start;
+      justify-content: space-between;
+      gap: 14px;
+    }
+
+    .product-tag {
+      display: inline-flex;
+      width: fit-content;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .product-price {
+      color: var(--bronze);
+      font-size: 14px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .product-card h3 {
+      margin: 0;
+      font-family: "Noto Serif JP", serif;
+      font-size: 28px;
+      letter-spacing: 0.05em;
+    }
+
+    .product-copy {
+      margin: 0;
+      color: var(--muted);
+      font-size: 15px;
+    }
+
+    .flavor-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .flavor-row span {
+      display: inline-flex;
+      align-items: center;
+      min-height: 34px;
+      padding: 0 12px;
+      border-radius: 999px;
+      background: #f1ede5;
+      color: #463f37;
+      font-size: 13px;
+    }
+
+    .product-footer {
+      margin-top: auto;
+      padding-top: 16px;
+      border-top: 1px solid rgba(24, 22, 20, 0.08);
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .thought-wrap {
+      margin-top: 6px;
+      padding: 22px;
+      border-radius: 32px;
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.58), rgba(255, 255, 255, 0.46));
+      border: 1px solid rgba(24, 22, 20, 0.07);
+    }
+
+    .thought-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .thought-card {
+      padding: 24px;
+      box-shadow: none;
+      background: rgba(255, 255, 255, 0.62);
+    }
+
+    .thought-card span {
+      display: inline-block;
+      margin-bottom: 10px;
+      color: var(--bronze);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+    }
+
+    .thought-card h3 {
+      margin: 0 0 10px;
+      font-size: 24px;
+      font-family: "Noto Serif JP", serif;
+      letter-spacing: 0.04em;
+    }
+
+    .thought-card p {
+      margin: 0;
+      color: var(--muted);
+    }
+
+    .info-band {
+      margin: 34px 0 22px;
+      padding: 24px 28px;
+      border-radius: 30px;
+      background: linear-gradient(135deg, rgba(29,75,58,0.96), rgba(21,58,46,0.96));
+      color: rgba(255,255,255,0.86);
+      box-shadow: 0 24px 50px rgba(29, 75, 58, 0.20);
+    }
+
+    .info-grid {
+      display: grid;
+      grid-template-columns: 1.2fr 1fr 1fr 1fr;
+      gap: 18px;
+      align-items: start;
+    }
+
+    .info-item span {
+      display: block;
+      margin-bottom: 6px;
+      color: rgba(255,255,255,0.66);
+      font-size: 12px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+    }
+
+    .info-item strong,
+    .info-item div {
+      display: block;
+      font-size: 16px;
+      line-height: 1.7;
+      font-weight: 500;
+    }
+
+    .cta-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      margin-top: 20px;
+      padding-bottom: 30px;
+    }
+
+    .cta-card {
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      transition: transform .15s ease, border-color .15s ease;
+    }
+
+    .cta-card:hover {
+      transform: translateY(-2px);
+      border-color: rgba(29, 75, 58, 0.22);
+    }
+
+    .cta-card span {
+      color: var(--bronze);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+    }
+
+    .cta-card strong {
+      font-size: 24px;
+      font-family: "Noto Serif JP", serif;
+      letter-spacing: 0.05em;
+    }
+
+    .cta-card p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .cta-arrow {
+      margin-top: auto;
+      color: var(--accent);
+      font-weight: 700;
+    }
+
+    footer {
+      padding: 18px 0 40px;
+      border-top: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .footer-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
+
+    @media (max-width: 1080px) {
+      .hero-grid,
+      .products-grid,
+      .thought-grid,
+      .cta-grid,
+      .info-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .hero-copy,
+      .hero-visual {
+        min-height: auto;
+      }
+
+      .visual-panels {
+        width: min(56%, 260px);
+      }
+    }
+
+    @media (max-width: 760px) {
+      .wrap { width: min(100% - 24px, 1200px); }
+      .site-header { padding-top: 16px; }
+      .header-row { align-items: start; }
+      .nav { gap: 12px 14px; font-size: 13px; }
+      .hero-copy,
+      .hero-visual,
+      .product-card,
+      .thought-card,
+      .cta-card,
+      .info-band {
+        border-radius: 22px;
+      }
+      .hero-copy { padding: 28px 22px 24px; }
+      .hero-visual { padding: 20px; }
+      .visual-panels {
+        position: static;
+        width: 100%;
+      }
+      .bottle-stage { min-height: 260px; }
+      .bottle {
+        right: 26px;
+        width: 122px;
+        height: 240px;
+      }
+      .bottle::before {
+        left: 34px;
+        width: 54px;
+        height: 68px;
+      }
+      .bottle::after {
+        left: 20px;
+        top: 52px;
+        width: 82px;
+        height: 126px;
+        font-size: 25px;
+      }
+      h1 { font-size: 44px; }
+      .hero-meta { grid-template-columns: 1fr; }
+      .section-top { display: block; }
+      .info-band { padding: 20px; }
+      .footer-row { align-items: start; }
+    }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <div class="wrap">
+      <div class="header-row">
+        <a class="brand" href="#top" aria-label="田中酒造 トップへ戻る">
+          <div class="brand-mark">田</div>
+          <div class="brand-copy">
+            <strong>田中酒造</strong>
+            <span>Niigata Craft Sake</span>
+          </div>
+        </a>
+        <nav class="nav" aria-label="主要メニュー">
+          <a href="#products">銘柄</a>
+          <a href="#thought">蔵の思想</a>
+          <a href="#guide">ご案内</a>
+          <a href="#info">蔵情報</a>
+        </nav>
+      </div>
+    </div>
+  </header>
+
+  <main id="top">
+    <section class="hero">
+      <div class="wrap">
+        <div class="hero-grid">
+          <div class="hero-copy">
+            <div>
+              <div class="eyebrow">Modern Craft Brewery</div>
+              <h1>田中酒造</h1>
+              <p class="hero-lead">雪国のやわらかな水と米の旨みを、軽やかな余韻に仕立てる。毎日の食卓に自然となじむ、新潟の現代的な日本酒です。</p>
+              <div class="hero-meta">
+                <div class="meta-chip">
+                  <span>Founded</span>
+                  <strong>1908年創業</strong>
+                </div>
+                <div class="meta-chip">
+                  <span>Style</span>
+                  <strong>食中に寄り添う端正な味</strong>
+                </div>
+                <div class="meta-chip">
+                  <span>Origin</span>
+                  <strong>新潟県新潟市</strong>
+                </div>
+              </div>
+            </div>
+            <div class="hero-actions">
+              <a class="btn btn-primary" href="#products">代表銘柄を見る</a>
+              <a class="btn btn-secondary" href="#guide">ご購入・見学のご案内</a>
+            </div>
+          </div>
+
+          <div class="hero-visual" aria-hidden="true">
+            <div class="visual-note">Selected bottle / Tanaka Shuzo</div>
+            <div class="bottle-stage">
+              <div class="visual-panels">
+                <div class="mini-panel">
+                  <span>Signature</span>
+                  <strong>純米吟醸 朝霞</strong>
+                </div>
+                <div class="mini-panel">
+                  <span>Taste</span>
+                  <strong>澄んだ香りと軽い切れ</strong>
+                </div>
+              </div>
+              <div class="bottle-shadow"></div>
+              <div class="bottle"></div>
+            </div>
+            <div class="visual-footer">
+              <div class="footer-pill">Brewed with<strong>雪解けの仕込み水</strong></div>
+              <div class="footer-pill">Designed for<strong>日々の食卓</strong></div>
+              <div class="footer-pill">Seasonal line<strong>限定酒あり</strong></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="products">
+      <div class="wrap">
+        <div class="section-top">
+          <div>
+            <div class="section-kicker">Featured Labels</div>
+            <h2>代表銘柄</h2>
+          </div>
+          <p class="section-text">説明を長く並べず、味わいと使いどころがすぐ伝わる構成にしています。現代クラフトらしく、軽やかで選びやすい見せ方です。</p>
+        </div>
+        <div class="products-grid">
+          <article class="product-card">
+            <div class="product-top">
+              <div class="product-tag">やや辛口</div>
+              <div class="product-price">税込 1,980円</div>
+            </div>
+            <h3>朝霞</h3>
+            <p class="product-copy">みずみずしい吟醸香と澄んだ後味。白身魚や旬菜の小鉢にすっと寄り添う定番酒です。</p>
+            <div class="flavor-row">
+              <span>吟醸香</span>
+              <span>720ml</span>
+              <span>軽い切れ</span>
+            </div>
+            <div class="product-footer">
+              <div>純米吟醸</div>
+              <div>食中向け</div>
+            </div>
+          </article>
+
+          <article class="product-card">
+            <div class="product-top">
+              <div class="product-tag">旨口</div>
+              <div class="product-price">税込 1,650円</div>
+            </div>
+            <h3>蔵の音</h3>
+            <p class="product-copy">米のふくらみを感じつつ、重くなりすぎない設計。煮物や焼き魚と相性のよい一本です。</p>
+            <div class="flavor-row">
+              <span>米の旨み</span>
+              <span>720ml</span>
+              <span>やわらかい余韻</span>
+            </div>
+            <div class="product-footer">
+              <div>特別純米</div>
+              <div>定番酒</div>
+            </div>
+          </article>
+
+          <article class="product-card">
+            <div class="product-top">
+              <div class="product-tag">季節限定</div>
+              <div class="product-price">税込 1,320円</div>
+            </div>
+            <h3>雪あかり</h3>
+            <p class="product-copy">やさしい甘みと微かな発泡感。食前の一杯や和の甘味と合わせやすい季節酒です。</p>
+            <div class="flavor-row">
+              <span>にごり酒</span>
+              <span>500ml</span>
+              <span>軽やかな甘み</span>
+            </div>
+            <div class="product-footer">
+              <div>冬季限定</div>
+              <div>贈り物にも</div>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="thought">
+      <div class="wrap">
+        <div class="section-top">
+          <div>
+            <div class="section-kicker">Brewery Thought</div>
+            <h2>蔵の思想</h2>
+          </div>
+          <p class="section-text">商品説明の前に、どんな考え方で造っているかを端的に見せることで、ブランドサイトとしての芯をつくります。</p>
+        </div>
+        <div class="thought-wrap">
+          <div class="thought-grid">
+            <article class="thought-card">
+              <span>01</span>
+              <h3>雪解けの水</h3>
+              <p>角を立てないやわらかな仕込み水を生かし、香りも口当たりも澄んだ印象へ整えています。</p>
+            </article>
+            <article class="thought-card">
+              <span>02</span>
+              <h3>食卓の余白</h3>
+              <p>主張しすぎず、料理の香りや温度を受け止める余韻を大切にし、毎日飲みやすい酒質を目指します。</p>
+            </article>
+            <article class="thought-card">
+              <span>03</span>
+              <h3>季節の更新</h3>
+              <p>春夏秋冬で味わいの表情を少しずつ変え、その時季に合う限定酒や提案を届けています。</p>
+            </article>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="wrap" id="info">
+      <div class="info-band">
+        <div class="info-grid">
+          <div class="info-item">
+            <span>Address</span>
+            <div>〒950-0000<br>新潟県新潟市中央区蔵町 1-2-3</div>
+          </div>
+          <div class="info-item">
+            <span>Open</span>
+            <strong>9:30〜17:30</strong>
+          </div>
+          <div class="info-item">
+            <span>Closed</span>
+            <strong>日曜日・祝日</strong>
+          </div>
+          <div class="info-item">
+            <span>Contact</span>
+            <div>025-123-4567<br>info@tanakashuzo.jp</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="guide">
+      <div class="wrap">
+        <div class="section-top">
+          <div>
+            <div class="section-kicker">Guide</div>
+            <h2>ご案内</h2>
+          </div>
+          <p class="section-text">ボタンを散らさず、最後に必要な導線をまとめています。現代クラフトらしい、すっきりした終わり方です。</p>
+        </div>
+        <div class="cta-grid">
+          <a class="cta-card" href="mailto:info@tanakashuzo.jp?subject=%E5%95%86%E5%93%81%E3%81%AB%E3%81%A4%E3%81%84%E3%81%A6">
+            <span>Products</span>
+            <strong>商品を見る</strong>
+            <p>定番酒や季節酒、贈答向けの商品案内をご覧いただけます。</p>
+            <div class="cta-arrow">詳しく見る →</div>
+          </a>
+          <a class="cta-card" href="mailto:info@tanakashuzo.jp?subject=%E5%8F%96%E6%89%B1%E5%BA%97%E3%81%AE%E3%81%94%E6%A1%88%E5%86%85">
+            <span>Stockists</span>
+            <strong>取扱店のご案内</strong>
+            <p>お近くの販売店やご購入方法についてご案内します。</p>
+            <div class="cta-arrow">お問い合わせ →</div>
+          </a>
+          <a class="cta-card" href="mailto:info@tanakashuzo.jp?subject=%E8%A6%8B%E5%AD%A6%E3%81%AB%E3%81%A4%E3%81%84%E3%81%A6">
+            <span>Visit</span>
+            <strong>ご見学について</strong>
+            <p>蔵見学やご来訪のご相談を受け付けています。</p>
+            <div class="cta-arrow">お問い合わせ →</div>
+          </a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="wrap footer-row">
+      <div>田中酒造 | Niigata Craft Sake</div>
+      <div>新潟の食卓に、軽やかな一杯を。</div>
+    </div>
+  </footer>
+</body>
+</html>
