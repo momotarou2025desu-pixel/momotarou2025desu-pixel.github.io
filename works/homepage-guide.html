@@ -3,11 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>完全無料ホームページ作成 | ChatGPTの達人</title>
+  <title>ホームページ公開までの流れ | ChatGPTの達人</title>
   <meta name="description" content="GitHubでホームページを公開する最短手順を案内するページ">
-  <meta property="og:title" content="完全無料ホームページ作成 | ChatGPTの達人">
+  <meta property="og:title" content="ホームページ公開までの流れ | ChatGPTの達人">
   <meta property="og:description" content="GitHubでホームページを公開する最短手順を案内するページ">
-  <meta name="twitter:title" content="完全無料ホームページ作成 | ChatGPTの達人">
+  <meta name="twitter:title" content="ホームページ公開までの流れ | ChatGPTの達人">
   <meta name="twitter:description" content="GitHubでホームページを公開する最短手順を案内するページ">
   <style>
     :root {
@@ -30,35 +30,48 @@
     a { color: inherit; text-decoration: none; }
     .page {
       min-height: 100vh;
-      padding: 56px 16px 64px;
+      padding: 28px 16px 64px;
     }
     .wrap {
       width: min(100%, 860px);
       margin: 0 auto;
     }
+    .topbar {
+      display: flex;
+      justify-content: flex-end;
+      margin-bottom: 20px;
+    }
+    .home-link {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 104px;
+      padding: 12px 20px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: #fff;
+      color: var(--text);
+      font-size: 0.98rem;
+      font-weight: 700;
+      box-shadow: 0 1px 2px rgba(0,0,0,.03);
+      transition: background .15s ease, transform .15s ease, border-color .15s ease;
+    }
+    .home-link:hover {
+      background: var(--blue-soft);
+      border-color: var(--blue);
+      transform: translateY(-1px);
+    }
     .hero {
       display: grid;
-      gap: 24px;
+      gap: 10px;
       justify-items: center;
       text-align: center;
-      margin-bottom: 28px;
-    }
-    .brand {
-      font-size: .95rem;
-      color: var(--blue);
-      font-weight: 700;
-      letter-spacing: .04em;
+      margin-bottom: 24px;
     }
     h1 {
       margin: 0;
       font-size: clamp(1.8rem, 3.8vw, 2.8rem);
       line-height: 1.25;
-    }
-    .lead {
-      margin: 0;
-      color: var(--muted);
-      font-size: 1rem;
-      line-height: 1.8;
     }
     .card {
       background: var(--card);
@@ -66,11 +79,6 @@
       border-radius: 28px;
       box-shadow: var(--shadow);
       padding: 28px 24px;
-    }
-    .section-title {
-      margin: 0 0 18px;
-      font-size: 1.3rem;
-      font-weight: 700;
     }
     .steps {
       margin: 0;
@@ -86,15 +94,6 @@
     }
     .num {
       display: none;
-    }
-    .note {
-      margin-top: 18px;
-      padding: 16px 18px;
-      border-radius: 18px;
-      background: #fff8e1;
-      border: 1px solid #f0df9a;
-      line-height: 1.8;
-      font-size: .98rem;
     }
     .actions {
       margin-top: 28px;
@@ -120,29 +119,28 @@
       border-color: var(--blue);
       transform: translateY(-1px);
     }
-    .button.secondary {
-      color: var(--text);
-      background: transparent;
-    }
     @media (max-width: 560px) {
-      .page { padding-top: 32px; }
+      .page { padding-top: 20px; }
       .card { padding: 22px 16px; border-radius: 22px; }
       .steps { padding-left: 1.4em; }
       .steps li { margin-bottom: 8px; }
+      .topbar { margin-bottom: 14px; }
+      .home-link { min-width: 92px; padding: 10px 18px; }
     }
   </style>
 </head>
 <body>
   <main class="page">
     <div class="wrap">
+      <div class="topbar">
+        <a class="home-link" href="../index.html">Home</a>
+      </div>
+
       <section class="hero">
-        <div class="brand">ChatGPTの達人</div>
-        <h1>完全無料ホームページ作成</h1>
-        <p class="lead">GitHubにホームページを入れて公開するまでの流れを、最短でまとめています。</p>
+        <h1>ホームページ公開までの流れ</h1>
       </section>
 
       <section class="card">
-        <h2 class="section-title">公開までの流れ</h2>
         <ol class="steps">
           <li><span class="num">1</span><span>GitHubに登録してログイン</span></li>
           <li><span class="num">2</span><span>Create repositoryで保存場所を作る</span></li>
@@ -153,9 +151,8 @@
         </ol>
 
         <div class="actions">
-          <a class="button" href="chatgpt-homepage-example.html">ChatGPTへの実例</a>
+          <a class="button" href="chatgpt-homepage-example.html">ChatGPTで公開実例</a>
           <a class="button" href="design-translation-example.html">デザイン、翻訳機能などの搭載実例</a>
-          <a class="button secondary" href="../index.html">トップへ戻る</a>
         </div>
       </section>
     </div>
