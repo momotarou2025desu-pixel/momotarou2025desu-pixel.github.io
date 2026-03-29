@@ -54,7 +54,7 @@ img { max-width:100%; display:block; }
   border-bottom:1px solid var(--line);
 }
 .topbar-inner {
-  display:flex; align-items:center; justify-content:flex-start; gap:12px;
+  display:flex; align-items:center; justify-content:space-between; gap:12px;
   padding:10px 0;
 }
 .brand { display:inline-flex; align-items:center; gap:10px; font-weight:800; font-size:16px; }
@@ -310,7 +310,7 @@ footer {
 <body>
 <header class="topbar">
   <div class="wrap topbar-inner">
-    <a class="home-link" href="../index.html">Home</a>
+    <div style="display:flex; align-items:center; gap:12px; min-width:0; flex:1 1 auto;">
     <a class="brand" href="#top">
       <img class="brand-icon" src="data:image/png;base64,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" alt="Window Rec のプログラムアイコン">
       <span>Window Rec</span>
@@ -320,6 +320,8 @@ footer {
       <a href="#download">ダウンロード</a>
       <a href="#faq">よくある質問</a>
     </nav>
+    </div>
+    <a class="home-link" href="../index.html">Home</a>
   </div>
 </header>
 
