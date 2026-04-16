@@ -4,373 +4,235 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>ホームページ公開までの流れ | ChatGPTの達人</title>
-  <meta name="description" content="GitHubでホームページを最短で公開する流れを、公開手順と実例だけに絞って案内するページ">
+  <meta name="description" content="GitHubでホームページを公開する最短手順と公開実例を案内するページ">
   <meta property="og:title" content="ホームページ公開までの流れ | ChatGPTの達人">
-  <meta property="og:description" content="GitHubでホームページを最短で公開する流れを、公開手順と実例だけに絞って案内するページ">
+  <meta property="og:description" content="GitHubでホームページを公開する最短手順と公開実例を案内するページ">
   <meta name="twitter:title" content="ホームページ公開までの流れ | ChatGPTの達人">
-  <meta name="twitter:description" content="GitHubでホームページを最短で公開する流れを、公開手順と実例だけに絞って案内するページ">
+  <meta name="twitter:description" content="GitHubでホームページを公開する最短手順と公開実例を案内するページ">
   <style>
     :root {
-      --bg:#f4f7fb;
-      --panel:#ffffff;
-      --line:#dbe5f4;
-      --text:#102038;
-      --muted:#55647a;
-      --blue:#2563eb;
-      --blue-2:#1451d8;
-      --shadow:0 18px 42px rgba(7,26,55,.10);
-      --wrap:1140px;
+      --bg: #f8f9fa;
+      --card: #ffffff;
+      --text: #202124;
+      --muted: #5f6368;
+      --line: #dadce0;
+      --blue: #1a73e8;
+      --blue-soft: #e8f0fe;
+      --shadow: 0 10px 30px rgba(32, 33, 36, 0.08);
     }
-    * { box-sizing:border-box; }
-    html { scroll-behavior:smooth; }
+    * { box-sizing: border-box; }
     body {
-      margin:0;
-      font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Hiragino Sans","Yu Gothic UI","Meiryo",sans-serif;
-      color:var(--text);
-      background:
-        radial-gradient(circle at top left, rgba(37,99,235,.10), transparent 26%),
-        linear-gradient(180deg, #f8fbff 0%, #f4f7fb 100%);
-      line-height:1.75;
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, "Hiragino Sans", "Yu Gothic", sans-serif;
     }
-    a { color:inherit; text-decoration:none; }
-    .wrap { width:min(calc(100% - 28px), var(--wrap)); margin:0 auto; }
-
+    a { color: inherit; text-decoration: none; }
+    .page {
+      min-height: 100vh;
+      padding: 28px 16px 64px;
+    }
+    .wrap {
+      width: min(100%, 1080px);
+      margin: 0 auto;
+    }
     .topbar {
-      position:sticky; top:0; z-index:20;
-      background:rgba(255,255,255,.90);
-      backdrop-filter:blur(12px);
-      border-bottom:1px solid var(--line);
+      display: flex;
+      justify-content: flex-end;
+      margin-bottom: 20px;
     }
-    .topbar-inner {
-      display:flex; align-items:center; justify-content:space-between; gap:18px;
-      padding:12px 0;
+    .home-link {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 104px;
+      padding: 12px 20px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: #fff;
+      color: var(--text);
+      font-size: 0.98rem;
+      font-weight: 700;
+      box-shadow: 0 1px 2px rgba(0,0,0,.03);
+      transition: background .15s ease, transform .15s ease, border-color .15s ease;
     }
-    .brand {
-      display:flex; align-items:center; gap:14px;
+    .home-link:hover {
+      background: var(--blue-soft);
+      border-color: var(--blue);
+      transform: translateY(-1px);
     }
-    .brand-icon {
-      width:50px; height:50px; border-radius:16px;
-      box-shadow:0 10px 24px rgba(14,42,88,.16);
-      overflow:hidden; flex:0 0 auto;
-      background:#fff;
-      object-fit:contain;
-    }
-    .brand-text {
-      display:flex; flex-direction:column; line-height:1.15;
-    }
-    .brand-text strong {
-      font-size:20px; font-weight:900;
-    }
-    .brand-text span {
-      color:var(--muted); font-size:12px; font-weight:800;
-    }
-    .nav {
-      display:flex; flex-wrap:wrap; gap:8px;
-      align-items:center; justify-content:flex-end;
-    }
-    .nav a {
-      padding:9px 14px; border-radius:999px;
-      font-size:13px; font-weight:800; color:var(--muted);
-    }
-    .nav a:hover {
-      background:#eef4ff; color:var(--blue-2);
-    }
-
-    main section { padding:38px 0; }
-    .hero { padding-top:24px; }
-    .hero-copy {
-      background:var(--panel);
-      border:1px solid var(--line);
-      border-radius:32px;
-      box-shadow:var(--shadow);
-      padding:30px;
-    }
-    .badges {
-      display:flex; flex-wrap:wrap; gap:8px;
-      margin-bottom:16px;
-    }
-    .badge {
-      display:inline-flex; align-items:center; justify-content:center;
-      min-height:34px; padding:0 14px;
-      border-radius:999px;
-      background:#eef4ff;
-      border:1px solid #d8e6ff;
-      color:var(--blue-2);
-      font-size:12px; font-weight:900;
+    .hero {
+      display: grid;
+      gap: 10px;
+      justify-items: center;
+      text-align: center;
+      margin-bottom: 24px;
     }
     h1 {
-      margin:0 0 14px;
-      font-size:clamp(34px, 5.4vw, 52px);
-      line-height:1.12;
-      letter-spacing:-.03em;
+      margin: 0;
+      font-size: clamp(1.8rem, 3.8vw, 2.8rem);
+      line-height: 1.25;
     }
-    .lead {
-      margin:0;
-      color:var(--muted);
-      font-size:17px;
-      max-width:42em;
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 28px;
+      box-shadow: var(--shadow);
+      padding: 28px 24px;
     }
-    .cta-row {
-      display:flex; flex-wrap:wrap; gap:12px;
-      margin-top:24px;
+    .steps {
+      margin: 0;
+      padding-left: 1.6em;
+      line-height: 1.9;
+      font-size: 1rem;
     }
-    .cta {
-      display:inline-flex; align-items:center; justify-content:center;
-      min-height:50px; padding:0 20px;
-      border-radius:999px;
-      font-size:15px; font-weight:900;
-      border:1px solid var(--line);
-      background:#fff;
+    .steps li {
+      margin: 0 0 10px;
+      padding: 0;
+      border: none;
+      background: transparent;
     }
-    .cta.primary {
-      background:linear-gradient(135deg, var(--blue), #4e8dff);
-      color:#fff;
-      border:none;
-      box-shadow:0 14px 28px rgba(37,99,235,.24);
+    .num { display: none; }
+    .examples {
+      margin-top: 30px;
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 18px;
     }
-    .cta.secondary:hover { background:#eef4ff; color:var(--blue-2); }
-
-    .block-head {
-      max-width:760px;
-      margin-bottom:18px;
+    .example-card {
+      display: grid;
+      gap: 14px;
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      background: #fff;
+      box-shadow: 0 1px 2px rgba(0,0,0,.03);
+      transition: transform .15s ease, border-color .15s ease, box-shadow .15s ease;
     }
-    .kicker {
-      margin:0 0 8px;
-      color:var(--blue-2);
-      font-size:12px; font-weight:900;
-      letter-spacing:.08em;
-      text-transform:uppercase;
+    .example-card:hover {
+      transform: translateY(-1px);
+      border-color: var(--blue);
+      box-shadow: 0 10px 24px rgba(32,33,36,.08);
     }
-    h2 {
-      margin:0 0 10px;
-      font-size:clamp(26px, 3.5vw, 36px);
-      line-height:1.2;
-      letter-spacing:-.02em;
+    .example-image {
+      aspect-ratio: 16 / 9;
+      width: 100%;
+      object-fit: cover;
+      object-position: top center;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: #eef2f7;
     }
-    .desc {
-      margin:0;
-      color:var(--muted);
-      font-size:15px;
+    .example-body {
+      display: grid;
+      gap: 8px;
+      min-height: 120px;
     }
-
-    .flow { display:grid; gap:16px; }
-    .step {
-      display:grid;
-      grid-template-columns:auto 1fr;
-      gap:14px;
-      padding:20px;
-      background:var(--panel);
-      border:1px solid var(--line);
-      border-radius:26px;
-      box-shadow:var(--shadow);
+    .example-title {
+      margin: 0;
+      font-size: 1.15rem;
+      line-height: 1.45;
     }
-    .step-no {
-      width:42px; height:42px;
-      display:grid; place-items:center;
-      border-radius:999px;
-      background:linear-gradient(135deg, var(--blue), #60a5fa);
-      color:#fff;
-      font-size:16px; font-weight:900;
+    .example-desc {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.7;
+      font-size: 0.96rem;
     }
-    .step h3 {
-      margin:2px 0 6px;
-      font-size:20px;
-      line-height:1.35;
+    .open-button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 132px;
+      padding: 14px 22px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: #fff;
+      color: var(--blue);
+      font-size: 1rem;
+      font-weight: 700;
+      transition: background .15s ease, transform .15s ease, border-color .15s ease;
     }
-    .step p {
-      margin:0;
-      color:var(--muted);
-      font-size:15px;
+    .open-button:hover {
+      background: var(--blue-soft);
+      border-color: var(--blue);
+      transform: translateY(-1px);
     }
-    .note {
-      margin-top:14px;
-      padding:14px 16px;
-      border-radius:20px;
-      background:#eef4ff;
-      border:1px solid #dbe7ff;
-      color:var(--muted);
-      font-size:14px;
+    @media (max-width: 800px) {
+      .examples { grid-template-columns: 1fr; }
     }
-
-    .example-grid {
-      display:grid;
-      grid-template-columns:1fr 1fr;
-      gap:16px;
-    }
-    .example-link {
-      display:block;
-      background:var(--panel);
-      border:1px solid var(--line);
-      border-radius:28px;
-      box-shadow:var(--shadow);
-      padding:22px 22px 20px;
-      transition:transform .18s ease, box-shadow .18s ease, border-color .18s ease;
-    }
-    .example-link:hover {
-      transform:translateY(-2px);
-      border-color:#bfd5ff;
-      box-shadow:0 22px 44px rgba(7,26,55,.12);
-    }
-    .example-kicker {
-      display:inline-flex;
-      min-height:30px;
-      align-items:center;
-      padding:0 12px;
-      border-radius:999px;
-      background:#eef4ff;
-      border:1px solid #d8e6ff;
-      color:var(--blue-2);
-      font-size:12px;
-      font-weight:900;
-      margin-bottom:12px;
-    }
-    .example-link strong {
-      display:block;
-      font-size:22px;
-      line-height:1.35;
-      margin-bottom:8px;
-    }
-    .example-link span {
-      display:block;
-      color:var(--muted);
-      font-size:15px;
-      line-height:1.7;
-    }
-
-    @media (max-width: 920px) {
-      .example-grid { grid-template-columns:1fr; }
-    }
-    @media (max-width: 640px) {
-      .topbar-inner { align-items:flex-start; }
-      .hero-copy { padding:24px; }
-      .step { grid-template-columns:1fr; }
-      .brand-text strong { font-size:18px; }
+    @media (max-width: 560px) {
+      .page { padding-top: 20px; }
+      .card { padding: 22px 16px; border-radius: 22px; }
+      .steps { padding-left: 1.4em; }
+      .steps li { margin-bottom: 8px; }
+      .topbar { margin-bottom: 14px; }
+      .home-link { min-width: 92px; padding: 10px 18px; }
+      .example-card { padding: 12px; border-radius: 20px; }
+      .example-body { min-height: auto; }
     }
   </style>
 </head>
 <body>
-  <header class="topbar">
-    <div class="wrap topbar-inner">
-      <div class="brand" aria-label="ChatGPTの達人">
-        <img class="brand-icon" src="../assets/tatsujin_icon_transparent.png" alt="ChatGPTの達人 アイコン">
-        <div class="brand-text">
-          <strong>ホームページ公開までの流れ</strong>
-          <span>No.1 / GitHub Pages で最短公開</span>
-        </div>
+  <main class="page">
+    <div class="wrap">
+      <div class="topbar">
+        <a class="home-link" href="../index.html">Home</a>
       </div>
-      <nav class="nav" aria-label="ページ内リンク">
-        <a href="#flow">公開手順</a>
-        <a href="#examples">実例</a>
-        <a href="../index.html">Home</a>
-      </nav>
+
+      <section class="hero">
+        <h1>ホームページ公開までの流れ</h1>
+      </section>
+
+      <section class="card">
+        <ol class="steps">
+          <li><span class="num">1</span><span>GitHubに登録してログイン</span></li>
+          <li><span class="num">2</span><span>Create repositoryで保存場所を作る</span></li>
+          <li><span class="num">3</span><span>Add file → Upload filesでホームページのHTMLを入れる</span></li>
+          <li><span class="num">4</span><span>Commit changesで確定する</span></li>
+          <li><span class="num">5</span><span>Settings → Pagesで公開URLを確認する</span></li>
+          <li><span class="num">6</span><span>わからなければ、Alt+PrintScreenで今の画面をコピーして、AIさんにCtrl+Vで貼り付ける</span></li>
+        </ol>
+
+        <div class="examples">
+          <article class="example-card">
+            <img class="example-image" src="../assets/examples/sample-tanaka-shuzo.png" alt="見本1 田中酒造のホームページ画像">
+            <div class="example-body">
+              <h2 class="example-title">見本1：田中酒造</h2>
+              <p class="example-desc">和モダンで落ち着いた酒蔵サイト見本。</p>
+            </div>
+            <a class="open-button" href="created-sample-01.html">開く</a>
+          </article>
+
+          <article class="example-card">
+            <img class="example-image" src="../assets/examples/sample-maruzen.png" alt="見本2 まる膳のホームページ画像">
+            <div class="example-body">
+              <h2 class="example-title">見本2：まる膳</h2>
+              <p class="example-desc">言語選択と地図導線を組み込んだ飲食店サイト見本。</p>
+            </div>
+            <a class="open-button" href="created-sample-02.html">開く</a>
+          </article>
+
+          <article class="example-card">
+            <img class="example-image" src="../assets/examples/example-chatgpt-publish.png" alt="実例1 ChatGPTの公開相談画面">
+            <div class="example-body">
+              <h2 class="example-title">実例1</h2>
+              <p class="example-desc">ChatGPTに相談しながら公開まで進めた実例。</p>
+            </div>
+            <a class="open-button" href="chatgpt-homepage-example.html">開く</a>
+          </article>
+
+          <article class="example-card">
+            <img class="example-image" src="../assets/examples/example-chatgpt-multilang.png" alt="実例2 ChatGPTの多言語相談画面">
+            <div class="example-body">
+              <h2 class="example-title">実例2</h2>
+              <p class="example-desc">ChatGPTで多言語切替を相談した実例。</p>
+            </div>
+            <a class="open-button" href="design-translation-example.html">開く</a>
+          </article>
+        </div>
+      </section>
     </div>
-  </header>
-
-  <main>
-    <section class="hero">
-      <div class="wrap">
-        <div class="hero-copy">
-          <div class="badges">
-            <span class="badge">No.1 完全無料ホームページ作成</span>
-            <span class="badge">GitHub Pages</span>
-            <span class="badge">最短公開</span>
-          </div>
-          <h1>ホームページを、<br>最短で公開する。</h1>
-          <p class="lead">GitHub に HTML を入れて、公開URLを確認するまでの流れだけを残した案内ページです。上から順に進めれば、そのまま公開確認まで進めます。</p>
-          <div class="cta-row">
-            <a class="cta primary" href="#flow">公開手順を見る</a>
-            <a class="cta secondary" href="#examples">実例を見る</a>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section id="flow">
-      <div class="wrap">
-        <div class="block-head">
-          <p class="kicker">Flow</p>
-          <h2>公開手順</h2>
-          <p class="desc">登録から公開URL確認まで、必要な操作だけを上から順に並べています。</p>
-        </div>
-        <div class="flow">
-          <article class="step">
-            <div class="step-no">1</div>
-            <div>
-              <h3>GitHub に登録してログイン</h3>
-              <p>最初に GitHub のアカウントへ入ります。ここから公開作業を始めます。</p>
-            </div>
-          </article>
-          <article class="step">
-            <div class="step-no">2</div>
-            <div>
-              <h3>Create repository で保存場所を作る</h3>
-              <p>HTML を置く保存場所を先に作ります。公開用の土台はここです。</p>
-            </div>
-          </article>
-          <article class="step">
-            <div class="step-no">3</div>
-            <div>
-              <h3>Add file → Upload files でホームページの HTML を入れる</h3>
-              <p>作った保存場所に、公開したい HTML をそのまま入れます。</p>
-            </div>
-          </article>
-          <article class="step">
-            <div class="step-no">4</div>
-            <div>
-              <h3>Commit changes で確定する</h3>
-              <p>アップロードした内容をここで確定します。反映の入口になる操作です。</p>
-            </div>
-          </article>
-          <article class="step">
-            <div class="step-no">5</div>
-            <div>
-              <h3>Settings → Pages で公開URLを確認する</h3>
-              <p>公開後に使うURLは Pages 画面で見ます。公開確認もここが基準です。</p>
-            </div>
-          </article>
-          <article class="step">
-            <div class="step-no">6</div>
-            <div>
-              <h3>わからなければ、Alt+PrintScreenで今の画面をコピーして、AIさんにCtrl+Vで貼り付ける</h3>
-              <p>迷った画面をそのまま見せる形で進めれば、操作を絞って確認できます。</p>
-            </div>
-          </article>
-        </div>
-        <div class="note">最初は公開まで通すことを優先し、細かな整形や追加機能は公開確認のあとに進めると安定します。</div>
-      </div>
-    </section>
-
-    <section id="examples">
-      <div class="wrap">
-        <div class="block-head">
-          <p class="kicker">Examples</p>
-          <h2>公開実例</h2>
-          <p class="desc">そのまま見本ページへ移動して、実際の見え方を確認できます。</p>
-        </div>
-        <div class="example-grid">
-          <a class="example-link" href="chatgpt-homepage-example.html">
-            <span class="example-kicker">実例 1</span>
-            <strong>ChatGPTで公開実例</strong>
-            <span>公開後の見え方を、そのままページとして確認できます。</span>
-          </a>
-          <a class="example-link" href="design-translation-example.html">
-            <span class="example-kicker">実例 2</span>
-            <strong>デザイン、翻訳機能などの搭載実例</strong>
-            <span>複数機能を載せた見せ方の例です。</span>
-          </a>
-          <a class="example-link" href="created-sample-01.html">
-            <span class="example-kicker">見本 1</span>
-            <strong>作成された見本１</strong>
-            <span>作成済み見本をそのまま開いて確認できます。</span>
-          </a>
-          <a class="example-link" href="created-sample-02.html">
-            <span class="example-kicker">見本 2</span>
-            <strong>作成された見本２</strong>
-            <span>別の見本ページも同じ導線で見られます。</span>
-          </a>
-        </div>
-      </div>
-    </section>
   </main>
 </body>
 </html>
