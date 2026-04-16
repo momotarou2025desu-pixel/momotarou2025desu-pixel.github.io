@@ -4,25 +4,21 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>ホームページ公開までの流れ | ChatGPTの達人</title>
-  <meta name="description" content="GitHubでホームページを最短で公開する流れを、特長・公開手順・実例つきで案内するページ">
+  <meta name="description" content="GitHubでホームページを最短で公開する流れを、公開手順と実例だけに絞って案内するページ">
   <meta property="og:title" content="ホームページ公開までの流れ | ChatGPTの達人">
-  <meta property="og:description" content="GitHubでホームページを最短で公開する流れを、特長・公開手順・実例つきで案内するページ">
+  <meta property="og:description" content="GitHubでホームページを最短で公開する流れを、公開手順と実例だけに絞って案内するページ">
   <meta name="twitter:title" content="ホームページ公開までの流れ | ChatGPTの達人">
-  <meta name="twitter:description" content="GitHubでホームページを最短で公開する流れを、特長・公開手順・実例つきで案内するページ">
+  <meta name="twitter:description" content="GitHubでホームページを最短で公開する流れを、公開手順と実例だけに絞って案内するページ">
   <style>
     :root {
       --bg:#f4f7fb;
       --panel:#ffffff;
-      --panel-2:#f0f5ff;
       --line:#dbe5f4;
       --text:#102038;
       --muted:#55647a;
-      --navy:#052447;
-      --navy-2:#0a315c;
       --blue:#2563eb;
       --blue-2:#1451d8;
       --shadow:0 18px 42px rgba(7,26,55,.10);
-      --radius:28px;
       --wrap:1140px;
     }
     * { box-sizing:border-box; }
@@ -36,7 +32,6 @@
         linear-gradient(180deg, #f8fbff 0%, #f4f7fb 100%);
       line-height:1.75;
     }
-    img { display:block; max-width:100%; height:auto; }
     a { color:inherit; text-decoration:none; }
     .wrap { width:min(calc(100% - 28px), var(--wrap)); margin:0 auto; }
 
@@ -71,33 +66,25 @@
     }
     .nav {
       display:flex; flex-wrap:wrap; gap:8px;
-      align-items:center;
-      justify-content:flex-end;
+      align-items:center; justify-content:flex-end;
     }
     .nav a {
       padding:9px 14px; border-radius:999px;
       font-size:13px; font-weight:800; color:var(--muted);
     }
     .nav a:hover {
-      background:var(--panel-2); color:var(--blue-2);
+      background:#eef4ff; color:var(--blue-2);
     }
 
     main section { padding:38px 0; }
     .hero { padding-top:24px; }
-    .hero-shell {
-      display:grid;
-      grid-template-columns:1.02fr .98fr;
-      gap:24px;
-      align-items:stretch;
-    }
-    .hero-copy,
-    .hero-media {
+    .hero-copy {
       background:var(--panel);
       border:1px solid var(--line);
       border-radius:32px;
       box-shadow:var(--shadow);
+      padding:30px;
     }
-    .hero-copy { padding:30px; }
     .badges {
       display:flex; flex-wrap:wrap; gap:8px;
       margin-bottom:16px;
@@ -121,24 +108,7 @@
       margin:0;
       color:var(--muted);
       font-size:17px;
-      max-width:32em;
-    }
-    .point-list {
-      margin:20px 0 0;
-      padding:0;
-      list-style:none;
-      display:grid;
-      gap:12px;
-    }
-    .point-list li {
-      display:flex; gap:12px; align-items:flex-start;
-      font-size:15px; font-weight:800;
-    }
-    .point-list .check {
-      width:26px; height:26px; border-radius:999px;
-      display:grid; place-items:center;
-      background:#eaf2ff; color:var(--blue-2);
-      flex:0 0 auto; margin-top:1px;
+      max-width:42em;
     }
     .cta-row {
       display:flex; flex-wrap:wrap; gap:12px;
@@ -158,79 +128,7 @@
       border:none;
       box-shadow:0 14px 28px rgba(37,99,235,.24);
     }
-    .cta.secondary:hover { background:var(--panel-2); color:var(--blue-2); }
-
-    .hero-media {
-      overflow:hidden;
-      background:linear-gradient(180deg, var(--navy), var(--navy-2));
-      padding:18px;
-      color:#fff;
-    }
-    .screen {
-      border-radius:24px;
-      border:1px solid rgba(255,255,255,.12);
-      background:rgba(255,255,255,.06);
-      padding:18px;
-      display:grid;
-      gap:14px;
-      min-height:100%;
-    }
-    .screen-head {
-      display:flex; align-items:center; justify-content:space-between; gap:12px;
-      font-weight:800; font-size:14px;
-      color:#d9e7ff;
-    }
-    .screen-title {
-      font-size:22px; font-weight:900; line-height:1.35;
-      color:#fff;
-      margin:0;
-    }
-    .screen-sub {
-      margin:0;
-      color:#d9e7ff;
-      font-size:14px;
-      line-height:1.7;
-    }
-    .mini-steps {
-      display:grid;
-      gap:10px;
-      margin-top:4px;
-    }
-    .mini-step {
-      display:grid;
-      grid-template-columns:auto 1fr;
-      gap:10px;
-      align-items:start;
-      padding:12px 14px;
-      border-radius:18px;
-      background:rgba(255,255,255,.08);
-      border:1px solid rgba(255,255,255,.10);
-    }
-    .mini-step-no {
-      width:28px; height:28px; border-radius:999px;
-      display:grid; place-items:center;
-      background:#fff; color:var(--navy-2);
-      font-weight:900; font-size:13px;
-    }
-    .mini-step strong {
-      display:block;
-      font-size:14px;
-      line-height:1.45;
-      color:#fff;
-    }
-    .mini-step span {
-      display:block;
-      font-size:12px;
-      line-height:1.6;
-      color:#d9e7ff;
-      margin-top:2px;
-    }
-    .hero-note {
-      margin:2px 2px 0;
-      color:#d9e7ff;
-      font-size:13px;
-      font-weight:700;
-    }
+    .cta.secondary:hover { background:#eef4ff; color:var(--blue-2); }
 
     .block-head {
       max-width:760px;
@@ -250,38 +148,6 @@
       letter-spacing:-.02em;
     }
     .desc {
-      margin:0;
-      color:var(--muted);
-      font-size:15px;
-    }
-
-    .feature-grid {
-      display:grid;
-      grid-template-columns:1fr 1fr;
-      gap:16px;
-    }
-    .card {
-      overflow:hidden;
-      background:var(--panel);
-      border:1px solid var(--line);
-      border-radius:28px;
-      box-shadow:var(--shadow);
-    }
-    .card-body { padding:18px 20px 22px; }
-    .card-badge {
-      width:48px; height:48px; border-radius:18px;
-      display:grid; place-items:center;
-      margin-bottom:12px;
-      background:#eef4ff; color:var(--blue-2);
-      font-weight:900; font-size:20px;
-      border:1px solid #d8e6ff;
-    }
-    .card-body h3 {
-      margin:0 0 8px;
-      font-size:22px;
-      line-height:1.35;
-    }
-    .card-body p {
       margin:0;
       color:var(--muted);
       font-size:15px;
@@ -320,7 +186,7 @@
       margin-top:14px;
       padding:14px 16px;
       border-radius:20px;
-      background:var(--panel-2);
+      background:#eef4ff;
       border:1px solid #dbe7ff;
       color:var(--muted);
       font-size:14px;
@@ -371,26 +237,13 @@
       line-height:1.7;
     }
 
-    footer { padding:0 0 34px; }
-    .footer-box {
-      border-top:1px solid var(--line);
-      padding-top:14px;
-      color:var(--muted);
-      font-size:13px;
-    }
-
     @media (max-width: 920px) {
-      .hero-shell,
-      .feature-grid,
-      .example-grid {
-        grid-template-columns:1fr;
-      }
+      .example-grid { grid-template-columns:1fr; }
     }
     @media (max-width: 640px) {
       .topbar-inner { align-items:flex-start; }
       .hero-copy { padding:24px; }
       .step { grid-template-columns:1fr; }
-      .screen { padding:16px; }
       .brand-text strong { font-size:18px; }
     }
   </style>
@@ -406,7 +259,6 @@
         </div>
       </div>
       <nav class="nav" aria-label="ページ内リンク">
-        <a href="#features">特長</a>
         <a href="#flow">公開手順</a>
         <a href="#examples">実例</a>
         <a href="../index.html">Home</a>
@@ -416,7 +268,7 @@
 
   <main>
     <section class="hero">
-      <div class="wrap hero-shell">
+      <div class="wrap">
         <div class="hero-copy">
           <div class="badges">
             <span class="badge">No.1 完全無料ホームページ作成</span>
@@ -424,87 +276,11 @@
             <span class="badge">最短公開</span>
           </div>
           <h1>ホームページを、<br>最短で公開する。</h1>
-          <p class="lead">GitHub に HTML を入れて、公開URLを確認するまでの流れを、最小の手順だけでまとめた案内ページです。特長を見てから、そのまま公開手順へ進めます。</p>
-          <ul class="point-list">
-            <li><span class="check">✓</span><div>難しい設定を増やさず、GitHub Pages の基本手順だけで公開できます。</div></li>
-            <li><span class="check">✓</span><div>最初に見るべき操作を4つの特長カードで短く整理しています。</div></li>
-            <li><span class="check">✓</span><div>下に進むだけで、登録から公開URL確認まで一気に追えます。</div></li>
-            <li><span class="check">✓</span><div>実例ページにもそのまま移動できるので、完成形を見ながら進められます。</div></li>
-          </ul>
+          <p class="lead">GitHub に HTML を入れて、公開URLを確認するまでの流れだけを残した案内ページです。上から順に進めれば、そのまま公開確認まで進めます。</p>
           <div class="cta-row">
             <a class="cta primary" href="#flow">公開手順を見る</a>
             <a class="cta secondary" href="#examples">実例を見る</a>
           </div>
-        </div>
-
-        <div class="hero-media">
-          <div class="screen">
-            <div class="screen-head">
-              <span>最短公開の流れ</span>
-              <span>6 steps</span>
-            </div>
-            <p class="screen-title">登録 → 保存場所作成 → HTML投入 → 公開確認</p>
-            <p class="screen-sub">No.2 / No.3 と同じ見せ方にそろえて、公開前に迷いやすい部分を上から順に見られる構成にしています。</p>
-            <div class="mini-steps">
-              <div class="mini-step">
-                <div class="mini-step-no">1</div>
-                <div><strong>GitHub に登録してログイン</strong><span>公開作業の入口です。</span></div>
-              </div>
-              <div class="mini-step">
-                <div class="mini-step-no">2</div>
-                <div><strong>Create repository で保存場所を作る</strong><span>HTML を置く場所を先に作ります。</span></div>
-              </div>
-              <div class="mini-step">
-                <div class="mini-step-no">3</div>
-                <div><strong>Add file → Upload files</strong><span>ホームページの HTML を入れます。</span></div>
-              </div>
-              <div class="mini-step">
-                <div class="mini-step-no">4</div>
-                <div><strong>Settings → Pages で公開URL確認</strong><span>公開後のURLをここで見ます。</span></div>
-              </div>
-            </div>
-            <p class="hero-note">わからない時は、画面を貼り付けてそのまま確認できます。</p>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section id="features">
-      <div class="wrap">
-        <div class="block-head">
-          <p class="kicker">Features</p>
-          <h2>先に押さえると進めやすい4つの特長</h2>
-          <p class="desc">No.1 も No.2 / No.3 と同じように、特長 → 手順 → 実例の流れで見られるように整理しました。</p>
-        </div>
-        <div class="feature-grid">
-          <article class="card">
-            <div class="card-body">
-              <div class="card-badge">1</div>
-              <h3>保存場所を先に作るだけでよい</h3>
-              <p>最初に repository を作れば、その後は HTML を入れて確定する流れで進められます。公開設定もあとから確認できます。</p>
-            </div>
-          </article>
-          <article class="card">
-            <div class="card-body">
-              <div class="card-badge">2</div>
-              <h3>HTML 1枚でも公開できる</h3>
-              <p>まずはホームページの HTML を1つ入れるだけで十分です。最初から複雑な構成にしなくても公開確認できます。</p>
-            </div>
-          </article>
-          <article class="card">
-            <div class="card-body">
-              <div class="card-badge">3</div>
-              <h3>公開URLは GitHub 側で確認できる</h3>
-              <p>Pages の画面で公開URLを見る形なので、公開後の確認先がはっきりしています。トップURLを見失いにくい構成です。</p>
-            </div>
-          </article>
-          <article class="card">
-            <div class="card-body">
-              <div class="card-badge">4</div>
-              <h3>迷った時は画面貼り付けで進められる</h3>
-              <p>画面を Alt+PrintScreen でコピーして貼り付ければ、その画面の操作だけを見て進められます。長い説明を読む必要がありません。</p>
-            </div>
-          </article>
         </div>
       </div>
     </section>
@@ -596,9 +372,5 @@
       </div>
     </section>
   </main>
-
-  <footer>
-    <div class="wrap footer-box">ChatGPTの達人 / No.1 完全無料ホームページ作成</div>
-  </footer>
 </body>
 </html>
