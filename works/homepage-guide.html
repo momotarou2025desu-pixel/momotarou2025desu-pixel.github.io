@@ -123,59 +123,16 @@
       border: 1px solid var(--line);
       border-radius: 18px;
       background: #eef2f7;
-      cursor: zoom-in;
+      cursor: pointer;
       transition: transform .15s ease, box-shadow .15s ease;
+    }
+    .example-thumb-link {
+      display: block;
+      text-decoration: none;
     }
     .example-image:hover {
       transform: translateY(-1px);
       box-shadow: 0 12px 24px rgba(32,33,36,.12);
-    }
-    body.lightbox-open { overflow: hidden; }
-    .lightbox[hidden] { display: none; }
-    .lightbox {
-      position: fixed;
-      inset: 0;
-      z-index: 1000;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 24px;
-      background: rgba(15, 23, 42, .84);
-    }
-    .lightbox-inner {
-      position: relative;
-      width: 100%;
-      height: 100%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    .lightbox-image {
-      max-width: min(96vw, 1600px);
-      max-height: 88vh;
-      width: auto;
-      height: auto;
-      border-radius: 18px;
-      box-shadow: 0 24px 56px rgba(0,0,0,.45);
-      background: #111827;
-    }
-    .lightbox-close {
-      position: absolute;
-      top: 8px;
-      right: 8px;
-      width: 46px;
-      height: 46px;
-      border: none;
-      border-radius: 999px;
-      background: rgba(255,255,255,.18);
-      color: #fff;
-      font-size: 28px;
-      line-height: 1;
-      cursor: pointer;
-      backdrop-filter: blur(8px);
-    }
-    .lightbox-close:hover {
-      background: rgba(255,255,255,.28);
     }
     .example-body {
       display: grid;
@@ -254,7 +211,7 @@
 
         <div class="examples">
           <article class="example-card">
-            <img class="example-image" src="../assets/examples/sample-tanaka-shuzo.png" alt="見本1 田中酒造のホームページ画像" data-fullsrc="../assets/examples/sample-tanaka-shuzo.png">
+            <a class="example-thumb-link" href="created-sample-01.html"><img class="example-image" src="../assets/examples/sample-tanaka-shuzo.png" alt="見本1 田中酒造のホームページ画像"></a>
             <div class="example-body">
               <h2 class="example-title">見本1：田中酒造</h2>
               <p class="example-desc">和モダンで落ち着いた酒蔵サイト見本。</p>
@@ -263,7 +220,7 @@
           </article>
 
           <article class="example-card">
-            <img class="example-image" src="../assets/examples/sample-maruzen.png" alt="見本2 まる膳のホームページ画像" data-fullsrc="../assets/examples/sample-maruzen.png">
+            <a class="example-thumb-link" href="created-sample-02.html"><img class="example-image" src="../assets/examples/sample-maruzen.png" alt="見本2 まる膳のホームページ画像"></a>
             <div class="example-body">
               <h2 class="example-title">見本2：まる膳</h2>
               <p class="example-desc">言語選択と地図導線を組み込んだ飲食店サイト見本。</p>
@@ -272,7 +229,7 @@
           </article>
 
           <article class="example-card">
-            <img class="example-image" src="../assets/examples/example-chatgpt-publish.png" alt="実例1 ChatGPTの公開相談画面" data-fullsrc="../assets/examples/example-chatgpt-publish.png">
+            <a class="example-thumb-link" href="chatgpt-homepage-example.html"><img class="example-image" src="../assets/examples/example-chatgpt-publish.png" alt="実例1 ChatGPTの公開相談画面"></a>
             <div class="example-body">
               <h2 class="example-title">実例1</h2>
               <p class="example-desc">ChatGPTに相談しながら公開まで進めた実例。</p>
@@ -281,7 +238,7 @@
           </article>
 
           <article class="example-card">
-            <img class="example-image" src="../assets/examples/example-chatgpt-multilang.png" alt="実例2 ChatGPTの多言語相談画面" data-fullsrc="../assets/examples/example-chatgpt-multilang.png">
+            <a class="example-thumb-link" href="design-translation-example.html"><img class="example-image" src="../assets/examples/example-chatgpt-multilang.png" alt="実例2 ChatGPTの多言語相談画面"></a>
             <div class="example-body">
               <h2 class="example-title">実例2</h2>
               <p class="example-desc">ChatGPTで多言語切替を相談した実例。</p>
@@ -293,47 +250,7 @@
     </div>
   </main>
 
-  <div class="lightbox" id="exampleLightbox" hidden>
-    <div class="lightbox-inner">
-      <button class="lightbox-close" type="button" aria-label="閉じる">×</button>
-      <img class="lightbox-image" src="" alt="拡大画像">
-    </div>
-  </div>
 
-  <script>
-    (function () {
-      const lightbox = document.getElementById('exampleLightbox');
-      const lightboxImage = lightbox.querySelector('.lightbox-image');
-      const closeButton = lightbox.querySelector('.lightbox-close');
-      const thumbs = document.querySelectorAll('.example-image');
-
-      const closeLightbox = function () {
-        lightbox.hidden = true;
-        lightboxImage.src = '';
-        lightboxImage.alt = '拡大画像';
-        document.body.classList.remove('lightbox-open');
-      };
-
-      thumbs.forEach(function (thumb) {
-        thumb.addEventListener('click', function () {
-          lightboxImage.src = thumb.dataset.fullsrc || thumb.src;
-          lightboxImage.alt = thumb.alt || '拡大画像';
-          lightbox.hidden = false;
-          document.body.classList.add('lightbox-open');
-        });
-      });
-
-      closeButton.addEventListener('click', closeLightbox);
-      lightbox.addEventListener('click', function (event) {
-        if (event.target === lightbox || event.target === lightbox.querySelector('.lightbox-inner')) {
-          closeLightbox();
-        }
-      });
-      document.addEventListener('keydown', function (event) {
-        if (event.key === 'Escape' && !lightbox.hidden) closeLightbox();
-      });
-    })();
-  </script>
 
 </body>
 </html>
