@@ -12,6 +12,7 @@
   --text:#102038;
   --muted:#5a6a80;
   --blue:#2563eb;
+  --blue-soft:#eef5ff;
   --warn-bg:#fff8e1;
   --warn-line:#f0cf72;
   --shadow:0 18px 42px rgba(7,26,55,.10);
@@ -35,49 +36,22 @@ a { color:inherit; text-decoration:none; }
   backdrop-filter:blur(12px);
   border-bottom:1px solid var(--line);
 }
-.topbar-inner {
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:16px;
-  padding:14px 0;
-}
-.brand strong {
-  display:block;
-  font-size:30px;
-  line-height:1.12;
-  letter-spacing:-.03em;
-}
+.topbar-inner { display:flex; align-items:center; justify-content:space-between; gap:16px; padding:14px 0; }
+.brand strong { display:block; font-size:30px; line-height:1.12; letter-spacing:-.03em; }
 .nav { display:flex; gap:10px; flex-wrap:wrap; }
-.nav a {
-  padding:9px 14px;
-  border-radius:999px;
-  color:var(--muted);
-  font-size:13px;
-  font-weight:800;
-}
+.nav a { padding:9px 14px; border-radius:999px; color:var(--muted); font-size:13px; font-weight:800; }
 .nav a:hover { background:#edf4ff; color:var(--blue); }
-main section { padding:30px 0; }
-.hero-card {
+main section { padding:24px 0; }
+.hero-card,.step-card {
   background:var(--panel);
   border:1px solid var(--line);
   border-radius:30px;
   box-shadow:var(--shadow);
   padding:26px;
-  margin-top:24px;
 }
-.hero-card h1 {
-  margin:0 0 22px;
-  font-size:clamp(28px,4.8vw,46px);
-  line-height:1.18;
-  letter-spacing:-.03em;
-}
-.check-text {
-  margin:0;
-  color:#445469;
-  font-size:16px;
-  font-weight:800;
-}
+.hero-card { margin-top:24px; }
+.hero-card h1 { margin:0 0 22px; font-size:clamp(28px,4.8vw,46px); line-height:1.18; letter-spacing:-.03em; }
+.check-text { margin:0; color:#445469; font-size:16px; font-weight:800; }
 .question {
   margin:14px 0 0;
   padding:18px 20px;
@@ -98,24 +72,36 @@ main section { padding:30px 0; }
   color:#5f4800;
   font-weight:900;
 }
-@media (max-width: 900px) {
-  .topbar-inner { align-items:flex-start; }
+.step-head { margin-bottom:16px; }
+.step-head h2 { margin:0; font-size:clamp(24px,3.2vw,34px); line-height:1.25; }
+.step-head p { margin:8px 0 0; color:var(--muted); }
+.mock-screen {
+  border:1px solid var(--line);
+  border-radius:22px;
+  background:#f8fafc;
+  padding:20px;
+  margin-top:18px;
 }
-@media (max-width: 620px) {
-  .hero-card { padding:22px; }
-  .brand strong { font-size:24px; }
-}
+.mock-title { font-size:22px; font-weight:900; margin-bottom:14px; }
+.mock-row { display:flex; align-items:center; justify-content:space-between; gap:16px; padding:13px 14px; background:#fff; border:1px solid var(--line); border-radius:14px; margin-top:10px; }
+.mock-label { font-weight:900; }
+.plus-button { display:inline-grid; place-items:center; width:46px; height:46px; border:1px solid var(--line); border-radius:999px; background:#fff; font-size:28px; font-weight:500; }
+.form-grid { display:grid; gap:12px; margin-top:18px; }
+.field { padding:14px 16px; border:1px solid var(--line); border-radius:14px; background:#fff; }
+.field strong { display:block; margin-bottom:4px; }
+.code-value { word-break:break-all; font-family:ui-monospace,SFMono-Regular,Consolas,monospace; color:#183153; }
+.check-box { padding:14px 16px; border:1px solid #f1d0b8; border-radius:14px; background:#fff8f3; font-weight:800; }
+.create-button { display:inline-block; margin-top:16px; padding:12px 22px; border-radius:999px; background:#111; color:#fff; font-weight:900; }
+.note { margin:16px 0 0; color:#445469; }
+@media (max-width:900px){ .topbar-inner{align-items:flex-start;} }
+@media (max-width:620px){ .hero-card,.step-card{padding:20px;} .brand strong{font-size:23px;} .mock-row{align-items:flex-start;} }
 </style>
 </head>
 <body>
 <header class="topbar">
   <div class="wrap topbar-inner">
-    <div class="brand">
-      <strong>No.5 ChatGPTからDiscordを操作</strong>
-    </div>
-    <nav class="nav" aria-label="ページ内リンク">
-      <a href="../index.html">Home</a>
-    </nav>
+    <div class="brand"><strong>No.5 ChatGPTからDiscordを操作</strong></div>
+    <nav class="nav" aria-label="ページ内リンク"><a href="../index.html">Home</a></nav>
   </div>
 </header>
 <main>
@@ -126,6 +112,48 @@ main section { padding:30px 0; }
         <p class="check-text">以下の質問をお使いのChatGPTに張り付け確認してください</p>
         <p class="question">「ChatGPTでカスタムMCPアプリを追加できるプランは？」</p>
         <p class="warning">対応プラン以外の方は、このNo.5の実験を試すことはできません。</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <div class="step-card">
+        <div class="step-head">
+          <h2>1. プラグイン作成画面を開く</h2>
+          <p>左メニューの「プラグイン」を選び、プラグイン検索欄の右にある「＋」ボタンを押してください。</p>
+        </div>
+        <div class="mock-screen" aria-label="プラグイン画面イメージ">
+          <div class="mock-title">プラグイン</div>
+          <div class="mock-row">
+            <div><span class="mock-label">プラグインを検索</span><br><span style="color:#6b7280">インストール済みのプラグイン一覧</span></div>
+            <div class="plus-button">＋</div>
+          </div>
+        </div>
+        <p class="warning">「＋」ボタンが表示されない場合は、カスタムMCPアプリを追加できる対応条件（プラン・ワークスペース権限など）を確認してください。</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <div class="step-card">
+        <div class="step-head">
+          <h2>2. momotarou Bridge v0.6を登録する</h2>
+          <p>「新規プラグイン」画面で、以下の内容を入力します。</p>
+        </div>
+        <div class="mock-screen" aria-label="新規プラグイン設定イメージ">
+          <div class="mock-title">新規プラグイン</div>
+          <div class="form-grid">
+            <div class="field"><strong>名前</strong>momotarou Bridge v0.6</div>
+            <div class="field"><strong>接続</strong>サーバーのURL</div>
+            <div class="field"><strong>サーバーのURL</strong><span class="code-value">https://momo-bridge-server-test.onrender.com/mcp/0c347d7c53a1febff49f7a41fa617124/</span></div>
+            <div class="field"><strong>認証</strong>認証なし</div>
+            <div class="check-box">☑ 「理解したうえで、続行します」にチェック</div>
+          </div>
+          <span class="create-button">作成する</span>
+        </div>
+        <p class="note">ここまでで、momotarou Bridge v0.6をChatGPTへ登録する操作は完了です。Discordの読み取り・書き込み実験は次の段階で行います。</p>
       </div>
     </div>
   </section>
