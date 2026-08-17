@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ChatGPTからDiscordを操作</title>
+<style>
+:root {
+  --bg:#f4f7fb;
+  --panel:#ffffff;
+  --line:#dbe5f4;
+  --text:#102038;
+  --muted:#5a6a80;
+  --blue:#2563eb;
+  --warn-bg:#fff8e1;
+  --warn-line:#f0cf72;
+  --shadow:0 18px 42px rgba(7,26,55,.10);
+  --wrap:1180px;
+}
+* { box-sizing:border-box; }
+body {
+  margin:0;
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Hiragino Sans","Yu Gothic UI","Meiryo",sans-serif;
+  color:var(--text);
+  background:linear-gradient(180deg,#f8fbff 0%,#f4f7fb 100%);
+  line-height:1.75;
+}
+a { color:inherit; text-decoration:none; }
+.wrap { width:min(calc(100% - 28px), var(--wrap)); margin:0 auto; }
+.topbar {
+  position:sticky;
+  top:0;
+  z-index:20;
+  background:rgba(255,255,255,.92);
+  backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--line);
+}
+.topbar-inner {
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:16px;
+  padding:14px 0;
+}
+.brand strong {
+  display:block;
+  font-size:30px;
+  line-height:1.12;
+  letter-spacing:-.03em;
+}
+.nav { display:flex; gap:10px; flex-wrap:wrap; }
+.nav a {
+  padding:9px 14px;
+  border-radius:999px;
+  color:var(--muted);
+  font-size:13px;
+  font-weight:800;
+}
+.nav a:hover { background:#edf4ff; color:var(--blue); }
+main section { padding:30px 0; }
+.hero-card {
+  background:var(--panel);
+  border:1px solid var(--line);
+  border-radius:30px;
+  box-shadow:var(--shadow);
+  padding:26px;
+  margin-top:24px;
+}
+.hero-card h1 {
+  margin:0 0 22px;
+  font-size:clamp(28px,4.8vw,46px);
+  line-height:1.18;
+  letter-spacing:-.03em;
+}
+.check-text {
+  margin:0;
+  color:#445469;
+  font-size:16px;
+  font-weight:800;
+}
+.question {
+  margin:14px 0 0;
+  padding:18px 20px;
+  border:1px solid var(--line);
+  border-radius:18px;
+  background:#f8fbff;
+  color:var(--text);
+  font-size:clamp(18px,2.4vw,24px);
+  font-weight:900;
+  line-height:1.6;
+}
+.warning {
+  margin:18px 0 0;
+  padding:14px 16px;
+  border:1px solid var(--warn-line);
+  border-radius:14px;
+  background:var(--warn-bg);
+  color:#5f4800;
+  font-weight:900;
+}
+@media (max-width: 900px) {
+  .topbar-inner { align-items:flex-start; }
+}
+@media (max-width: 620px) {
+  .hero-card { padding:22px; }
+  .brand strong { font-size:24px; }
+}
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="wrap topbar-inner">
+    <div class="brand">
+      <strong>No.5 ChatGPTからDiscordを操作</strong>
+    </div>
+    <nav class="nav" aria-label="ページ内リンク">
+      <a href="../index.html">Home</a>
+    </nav>
+  </div>
+</header>
+<main>
+  <section>
+    <div class="wrap">
+      <div class="hero-card">
+        <h1>まず、お使いのChatGPTで確認してください。</h1>
+        <p class="check-text">以下の質問をお使いのChatGPTに張り付け確認してください</p>
+        <p class="question">「ChatGPTでカスタムMCPアプリを追加できるプランは？」</p>
+        <p class="warning">対応プラン以外の方は、このNo.5の実験を試すことはできません。</p>
+      </div>
+    </div>
+  </section>
+</main>
+</body>
+</html>
