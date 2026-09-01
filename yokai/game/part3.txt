@@ -1,0 +1,455 @@
+efeatTimer = window.setTimeout(() => {
+        if (flowState === FLOW.BOSS && boss && !boss.alive) {
+          setClear();
+        }
+      }, 850);
+    }
+  }
+
+  // クリア時だけ、一定時間後にタイトルへ戻す。
+  function scheduleReturnToTitle() {
+    if (autoRestartTimer) clearTimeout(autoRestartTimer);
+    autoRestartTimer = window.setTimeout(() => {
+      if (flowState === FLOW.CLEAR) showTitleScreen();
+    }, 5000);
+  }
+
+  // GAME OVER後は5秒後に「再挑戦」ではなく各戦闘の初期画面へ戻す。
+  function scheduleGameOverReturnToReady() {
+    if (autoRestartTimer) clearTimeout(autoRestartTimer);
+
+    autoRestartTimer = window.setTimeout(() => {
+      autoRestartTimer = 0;
+
+      if (flowState === FLOW.GAMEOVER_BOSS) {
+        enterBossReadyScreen(bossStartLife());
+        return;
+      }
+
+      if (flowState === FLOW.GAMEOVER_MINIONS) {
+        showTitleScreen();
+      }
+    }, 5000);
+  }
+
+  function setGameOver() {
+    if (flowState !== FLOW.MINIONS && flowState !== FLOW.BOSS) return;
+
+    flowState = flowState === FLOW.BOSS ? FLOW.GAMEOVER_BOSS : FLOW.GAMEOVER_MINIONS;
+    resultStartedAt = performance.now();
+    // GAME OVERから5秒間は、タップ／クリックですぐ再戦できる。
+    restartReadyAt = resultStartedAt;
+
+    const type = Math.floor(Math.random() * failSoundTexts.length);
+    terminalSoundText = failSoundTexts[type];
+    terminalTextStartAt = performance.now();
+    playFailSound(type);
+
+    // LIFE 0で初めてGAME OVER。
+    // 5秒以内にタップ／クリックすれば即再戦。
+    // 何もしなければ、通常戦は通常タイトル、ボス戦はボス専用初期画面へ戻る。
+    scheduleGameOverReturnToReady();
+
+    updateHud();
+  }
+
+  function setClear() {
+    if (flowState !== FLOW.BOSS) return;
+
+    // 一周クリアしたら救済カウントは終了。次のゲームはLIFE 1から。
+    normalLossCount = 0;
+    bossLossCount = 0;
+
+    flowState = FLOW.CLEAR;
+    resultStartedAt = performance.now();
+    // クリア画面も表示直後から操作すれば再戦できる。
+    restartReadyAt = resultStartedAt;
+    terminalSoundText = "";
+    terminalTextStartAt = 0;
+    updateHud();
+
+    // 火眼坊（かがんぼう）の断末魔を少し残してから、クリア音と文字を同時に出す。
+    clearTimer = window.setTimeout(() => {
+      if (flowState !== FLOW.CLEAR) return;
+      const type = Math.floor(Math.random() * clearSoundTexts.length);
+      terminalSoundText = clearSoundTexts[type];
+      terminalTextStartAt = performance.now();
+      playClearSound(type);
+    }, 260);
+
+    scheduleReturnToTitle();
+  }
+
+  // ============================================================
+  // 8. 更新・当たり判定
+  // ============================================================
+
+  function update(timestamp) {
+    // 終了後も描画ループだけ継続し、悲鳴文字のフェードを見せる。
+    floatingTexts = floatingTexts.filter(f => timestamp - f.born < f.duration);
+
+    if (flowState !== FLOW.MINIONS && flowState !== FLOW.BOSS) return;
+
+    player.x = Math.max(0, Math.min(W - player.w, player.x));
+
+    if (player.cooldown > 0) player.cooldown--;
+
+    bullets.forEach(b => b.y -= b.speed);
+    bullets = bullets.filter(b => b.y + b.h > 0);
+
+    enemyBullets.forEach(b => {
+      b.x += b.vx || 0;
+      b.y += b.speed;
+    });
+    enemyBullets = enemyBullets.filter(b =>
+      b.y < H + 30 && b.x > -40 && b.x < W + 40
+    );
+
+    if (flowState === FLOW.MINIONS) {
+      const aliveEnemies = enemies.filter(e => e.alive);
+
+      // 通常戦は序盤をゆっくり、数が減るにつれて少しだけ速くする。
+      if (aliveEnemies.length <= 7) {
+        enemySpeed = 0.95;
+      } else if (aliveEnemies.length <= 14) {
+        enemySpeed = 0.80;
+      } else {
+        enemySpeed = 0.65;
+      }
+
+      let shouldDrop = false;
+      for (const e of aliveEnemies) {
+        const nextX = e.x + enemyDir * enemySpeed;
+        if (nextX <= 8 || nextX + e.w >= W - 8) {
+          shouldDrop = true;
+          break;
+        }
+      }
+
+      if (shouldDrop) {
+        enemyDir *= -1;
+        aliveEnemies.forEach(e => e.y += 18);
+      } else {
+        aliveEnemies.forEach(e => e.x += enemyDir * enemySpeed);
+      }
+
+      for (const b of bullets) {
+        for (const e of enemies) {
+          if (e.alive && rectHit(b, e)) {
+            killEnemy(e, timestamp);
+            b.y = -100;
+            break;
+          }
+        }
+      }
+
+      bullets = bullets.filter(b => b.y > -50);
+
+      if (enemies.every(e => !e.alive)) {
+        enterBossReadyAfterMinions();
+        return;
+      }
+
+      for (const e of enemies) {
+        if (!e.alive) continue;
+        if (
+          timestamp >= playerInvulnerableUntil &&
+          (e.y + e.h >= player.y || rectHit(e, player))
+        ) {
+          damagePlayer(timestamp, "enemyLine");
+          return;
+        }
+      }
+
+      enemyShoot(timestamp);
+    } else if (flowState === FLOW.BOSS) {
+      updateBoss(timestamp);
+
+      if (boss && boss.alive) {
+        for (const b of bullets) {
+          if (b.y > -50 && rectHit(b, boss)) {
+            hitBoss(timestamp);
+            b.y = -100;
+            if (!boss.alive) break;
+          }
+        }
+        bullets = bullets.filter(b => b.y > -50);
+      }
+    }
+
+    for (const b of enemyBullets) {
+      if (timestamp >= playerInvulnerableUntil && rectHit(b, player)) {
+        damagePlayer(timestamp, "bullet");
+        return;
+      }
+    }
+
+    updateHud();
+  }
+
+  // ============================================================
+  // 9. 描画
+  // ============================================================
+
+  function drawPlayer(timestamp) {
+    if (
+      timestamp < playerInvulnerableUntil &&
+      Math.floor(timestamp / 90) % 2 === 0
+    ) {
+      return;
+    }
+    // 退魔用のお札台。小さくても「和」のシルエットが分かる形。
+    const x = player.x;
+    const y = player.y;
+
+    ctx.save();
+
+    // 青い鬼火
+    const flame = (fx, fy, s=1) => {
+      ctx.fillStyle = "rgba(40,190,255,.30)";
+      ctx.beginPath();
+      ctx.arc(fx, fy, 8*s, 0, Math.PI*2);
+      ctx.fill();
+
+      ctx.fillStyle = "#49dfff";
+      ctx.beginPath();
+      ctx.moveTo(fx, fy-10*s);
+      ctx.quadraticCurveTo(fx+8*s, fy-1*s, fx, fy+8*s);
+      ctx.quadraticCurveTo(fx-8*s, fy-1*s, fx, fy-10*s);
+      ctx.fill();
+
+      ctx.fillStyle = "#d8ffff";
+      ctx.beginPath();
+      ctx.arc(fx, fy+1*s, 3*s, 0, Math.PI*2);
+      ctx.fill();
+    };
+
+    flame(x + 5, y + 9, .72);
+    flame(x + player.w - 5, y + 9, .72);
+
+    // 赤い台座
+    ctx.fillStyle = "#ba1c1c";
+    ctx.fillRect(x + 5, y + 15, player.w - 10, 7);
+    ctx.fillRect(x + 10, y + 9, player.w - 20, 7);
+
+    // 白いお札
+    ctx.fillStyle = "#f7f1d4";
+    ctx.fillRect(x + 16, y - 4, player.w - 32, 22);
+    ctx.fillStyle = "#1c1520";
+    ctx.fillRect(x + player.w/2 - 2, y, 4, 10);
+    ctx.fillRect(x + player.w/2 - 6, y + 3, 12, 3);
+
+    // 先端
+    ctx.fillStyle = "#ffcf47";
+    ctx.fillRect(x + player.w/2 - 3, y - 11, 6, 8);
+
+    ctx.restore();
+  }
+
+  function drawGhostFlame(x, y, scale, alpha=1) {
+    ctx.save();
+    ctx.globalAlpha = alpha;
+
+    ctx.fillStyle = "rgba(41,180,255,.24)";
+    ctx.beginPath();
+    ctx.arc(x, y, 8*scale, 0, Math.PI*2);
+    ctx.fill();
+
+    ctx.fillStyle = "#1ca8ff";
+    ctx.beginPath();
+    ctx.moveTo(x, y - 10*scale);
+    ctx.quadraticCurveTo(x + 8*scale, y - 1*scale, x + 3*scale, y + 8*scale);
+    ctx.quadraticCurveTo(x, y + 4*scale, x - 3*scale, y + 8*scale);
+    ctx.quadraticCurveTo(x - 8*scale, y - 1*scale, x, y - 10*scale);
+    ctx.fill();
+
+    ctx.fillStyle = "#c9fbff";
+    ctx.beginPath();
+    ctx.arc(x, y + 1*scale, 2.5*scale, 0, Math.PI*2);
+    ctx.fill();
+
+    ctx.restore();
+  }
+
+  function drawEnemy(e, timestamp) {
+    // 実際のゲームサイズで読めるよう、線を太くして要素を絞った目だま妖怪。
+    const bob = Math.sin(timestamp * 0.0036 + e.phase) * 3;
+    const cx = e.x + e.w / 2;
+    const cy = e.y + e.h / 2 - 4 + bob;
+
+    // それぞれ別の周期で瞬き。閉じている時間は短い。
+    const blinkPhase = (timestamp * 0.001 + e.id * 0.41) % 4.8;
+    const blink = blinkPhase > 4.48;
+    const look = Math.sin(timestamp * 0.0018 + e.phase) * 3.4;
+
+    // 左右の鬼火と下の尾
+    drawGhostFlame(e.x + 7, cy + 8, .55, .92);
+    drawGhostFlame(e.x + e.w - 7, cy + 8, .55, .92);
+
+    ctx.save();
+
+    // 青い尾
+    ctx.strokeStyle = "#18baff";
+    ctx.lineWidth = 4;
+    ctx.lineCap = "round";
+    ctx.beginPath();
+    ctx.moveTo(cx, cy + 17);
+    ctx.bezierCurveTo(cx - 8, cy + 24, cx + 9, cy + 29, cx - 2, cy + 36);
+    ctx.stroke();
+
+    // 黒い外周
+    ctx.fillStyle = "#12131d";
+    ctx.beginPath();
+    ctx.ellipse(cx, cy, 22, 19, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    // 白目
+    ctx.fillStyle = "#f6f0df";
+    ctx.beginPath();
+    ctx.ellipse(cx, cy, 19, blink ? 3.2 : 16, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    if (!blink) {
+      // 白目の薄い影
+      ctx.strokeStyle = "#bfc4cb";
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.ellipse(cx, cy, 18, 15, 0, 0, Math.PI * 2);
+      ctx.stroke();
+
+      // 血管は3本だけ。小サイズでも妖怪感が残る。
+      ctx.strokeStyle = "#e54b4b";
+      ctx.lineWidth = 1.5;
+      [
+        [-14,-8,-9,-4],
+        [13,-7,9,-3],
+        [-13,9,-8,6]
+      ].forEach(v => {
+        ctx.beginPath();
+        ctx.moveTo(cx + v[0], cy + v[1]);
+        ctx.lineTo(cx + v[2], cy + v[3]);
+        ctx.stroke();
+      });
+
+      // 赤い虹彩
+      ctx.fillStyle = "#d71920";
+      ctx.beginPath();
+      ctx.arc(cx + look, cy, 10.5, 0, Math.PI * 2);
+      ctx.fill();
+
+      // 内側の赤
+      ctx.fillStyle = "#ff3a32";
+      ctx.beginPath();
+      ctx.arc(cx + look, cy, 7.5, 0, Math.PI * 2);
+      ctx.fill();
+
+      // 黒い瞳
+      ctx.fillStyle = "#09060b";
+      ctx.beginPath();
+      ctx.arc(cx + look, cy, 4.8, 0, Math.PI * 2);
+      ctx.fill();
+
+      // ハイライト
+      ctx.fillStyle = "#fff";
+      ctx.fillRect(cx + look - 3, cy - 6, 3.2, 3.2);
+    } else {
+      // まばたきの赤い一本線
+      ctx.strokeStyle = "#d71920";
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.moveTo(cx - 12, cy);
+      ctx.lineTo(cx + 12, cy);
+      ctx.stroke();
+    }
+
+    ctx.restore();
+  }
+
+  function drawBoss(timestamp) {
+    if (!boss || !boss.alive) return;
+
+    const cx = boss.x + boss.w / 2;
+    const bob = boss.y >= boss.baseY ? Math.sin(timestamp * 0.0027) * 5 : 0;
+    const cy = boss.y + boss.h / 2 - 2 + bob;
+    const flash = timestamp < boss.hitFlashUntil;
+
+    ctx.save();
+    ctx.imageSmoothingEnabled = false;
+
+    if (flash) {
+      ctx.filter = "brightness(1.22) saturate(1.12)";
+    }
+
+    // 透過化したボス画像を中央基準で描画
+    ctx.drawImage(
+      bossSprite,
+      Math.round(cx - boss.w / 2),
+      Math.round(cy - boss.h / 2),
+      boss.w,
+      boss.h
+    );
+
+    // 被弾時の見やすさを少し上げるため、うっすら白フラッシュを重ねる
+    if (flash) {
+      ctx.globalCompositeOperation = "screen";
+      ctx.globalAlpha = 0.18;
+      ctx.fillStyle = "#ffffff";
+      ctx.fillRect(
+        Math.round(cx - boss.w / 2),
+        Math.round(cy - boss.h / 2),
+        boss.w,
+        boss.h
+      );
+    }
+
+    ctx.restore();
+  }
+
+  function drawBossHp() {
+    if (!boss || flowState !== FLOW.BOSS || !boss.alive) return;
+
+    const barW = Math.min(380, W - 70);
+    const barH = 16;
+    const x = (W - barW) / 2;
+    const y = 18;
+    const ratio = boss.hp / boss.maxHp;
+
+    ctx.save();
+    ctx.textAlign = "center";
+    ctx.font = '800 18px "Yu Gothic", sans-serif';
+    ctx.lineWidth = 4;
+    ctx.strokeStyle = "rgba(0,0,0,.75)";
+    ctx.fillStyle = "#fff4cf";
+    ctx.strokeText("火眼坊（かがんぼう）", W / 2, y + 17);
+    ctx.fillText("火眼坊（かがんぼう）", W / 2, y + 17);
+
+    ctx.fillStyle = "rgba(0,0,0,.68)";
+    ctx.fillRect(x - 3, y + 26, barW + 6, barH + 6);
+    ctx.fillStyle = "#3a1115";
+    ctx.fillRect(x, y + 29, barW, barH);
+    ctx.fillStyle = ratio > .35 ? "#ef3944" : "#ffb33f";
+    ctx.fillRect(x, y + 29, barW * ratio, barH);
+    ctx.strokeStyle = "#fff3d0";
+    ctx.lineWidth = 2;
+    ctx.strokeRect(x, y + 29, barW, barH);
+    ctx.restore();
+  }
+
+  function drawFloatingTexts(timestamp) {
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+
+    for (const f of floatingTexts) {
+      const p = Math.max(0, Math.min(1, (timestamp - f.born) / f.duration));
+      const alpha = p < .60 ? 1 : 1 - ((p - .60) / .40);
+      const rise = 38 * p;
+      const size = 28 + Math.sin(Math.min(1, p * 3) * Math.PI) * 8;
+
+      ctx.save();
+      ctx.globalAlpha = Math.max(0, alpha);
+      ctx.font = `900 ${size}px "Yu Gothic", sans-serif`;
+      ctx.lineWidth = 6;
+      ctx.strokeStyle = "#000";
+      ctx.fillStyle = "#fff";
+      ctx.strokeText(f.text, f.x, f.y - rise);
+      ctx.fillText(f.text, f
