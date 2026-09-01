@@ -1,0 +1,419 @@
+.x, f.y - rise);
+      ctx.restore();
+    }
+  }
+
+  function drawNormalBackground() {
+    // スマホ縦長の夜の和風背景。月・山・鳥居・社・灯籠は当たり判定のない背景。
+    const grad = ctx.createLinearGradient(0, 0, 0, H);
+    grad.addColorStop(0, "#07142c");
+    grad.addColorStop(.58, "#0c2140");
+    grad.addColorStop(1, "#071018");
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, W, H);
+
+    // 星
+    ctx.fillStyle = "rgba(154,208,255,.72)";
+    for (let i = 0; i < 60; i++) {
+      const x = (i * 97 + 31) % W;
+      const y = 35 + ((i * 83) % Math.floor(H * .50));
+      const s = i % 8 === 0 ? 2 : 1;
+      ctx.fillRect(x, y, s, s);
+    }
+
+    // 月
+    const moonX = W * .82;
+    const moonY = 92;
+    ctx.fillStyle = "#f8dc76";
+    ctx.beginPath();
+    ctx.arc(moonX, moonY, 31, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.fillStyle = "rgba(180,130,55,.20)";
+    ctx.beginPath();
+    ctx.arc(moonX - 10, moonY - 9, 7, 0, Math.PI * 2);
+    ctx.arc(moonX + 10, moonY + 10, 5, 0, Math.PI * 2);
+    ctx.fill();
+
+    // 遠景の山
+    const mountainY = H * .60;
+    ctx.fillStyle = "#0a1722";
+    ctx.beginPath();
+    ctx.moveTo(0, mountainY + 55);
+    ctx.lineTo(W * .12, mountainY - 20);
+    ctx.lineTo(W * .23, mountainY + 34);
+    ctx.lineTo(W * .39, mountainY - 75);
+    ctx.lineTo(W * .54, mountainY + 26);
+    ctx.lineTo(W * .69, mountainY - 38);
+    ctx.lineTo(W * .83, mountainY + 31);
+    ctx.lineTo(W, mountainY - 54);
+    ctx.lineTo(W, H);
+    ctx.lineTo(0, H);
+    ctx.closePath();
+    ctx.fill();
+
+    // 地面
+    const groundY = H - 110;
+    ctx.fillStyle = "#07100e";
+    ctx.fillRect(0, groundY, W, H - groundY);
+
+    // 左の鳥居
+    const tx = 42;
+    const ty = H * .69;
+    ctx.fillStyle = "#08100f";
+    ctx.fillRect(tx, ty, 10, 150);
+    ctx.fillRect(tx + 69, ty, 10, 150);
+    ctx.fillRect(tx - 15, ty - 8, 108, 9);
+    ctx.fillRect(tx - 4, ty + 15, 86, 7);
+    ctx.fillRect(tx - 21, ty - 17, 120, 7);
+
+    // 右の社・塔シルエット
+    const px = W - 95;
+    const py = H * .67;
+    ctx.fillStyle = "#070d0e";
+    ctx.fillRect(px + 24, py + 10, 23, 170);
+    for (let i = 0; i < 4; i++) {
+      const yy = py + 25 + i * 34;
+      const half = 34 - i * 4;
+      ctx.beginPath();
+      ctx.moveTo(px + 36, yy - 20);
+      ctx.lineTo(px + 36 - half, yy);
+      ctx.lineTo(px + 36 + half, yy);
+      ctx.closePath();
+      ctx.fill();
+    }
+    ctx.fillRect(px + 34, py - 10, 4, 35);
+
+    // 石灯籠
+    const lantern = (x, y) => {
+      ctx.fillStyle = "#101713";
+      ctx.fillRect(x - 5, y + 25, 10, 48);
+      ctx.fillRect(x - 12, y + 17, 24, 8);
+      ctx.fillRect(x - 9, y, 18, 19);
+      ctx.fillStyle = "rgba(255,183,60,.78)";
+      ctx.fillRect(x - 4, y + 5, 8, 9);
+      ctx.fillStyle = "#101713";
+      ctx.beginPath();
+      ctx.moveTo(x - 14, y);
+      ctx.lineTo(x, y - 12);
+      ctx.lineTo(x + 14, y);
+      ctx.closePath();
+      ctx.fill();
+    };
+
+    lantern(W * .34, H - 178);
+    lantern(W * .68, H - 178);
+  }
+
+  function drawClearBackground(timestamp) {
+    const pulse = (Math.sin(timestamp * 0.004) + 1) * 0.5;
+
+    const grad = ctx.createRadialGradient(W / 2, H / 2, 20, W / 2, H / 2, 520);
+    grad.addColorStop(0, pulse > .5 ? "#17a995" : "#119884");
+    grad.addColorStop(.48, "#0b756d");
+    grad.addColorStop(1, "#063b3f");
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, W, H);
+
+    // レトロな放射線。
+    ctx.save();
+    ctx.translate(W / 2, H / 2);
+    for (let i = 0; i < 24; i++) {
+      const a1 = (Math.PI * 2 / 24) * i;
+      const a2 = a1 + Math.PI / 24;
+      const length = 700;
+
+      ctx.beginPath();
+      ctx.moveTo(0, 0);
+      ctx.lineTo(Math.cos(a1) * length, Math.sin(a1) * length);
+      ctx.lineTo(Math.cos(a2) * length, Math.sin(a2) * length);
+      ctx.closePath();
+      ctx.fillStyle = i % 2 === 0
+        ? "rgba(255,255,255,0.075)"
+        : "rgba(0,0,0,0.035)";
+      ctx.fill();
+    }
+    ctx.restore();
+  }
+
+  function drawFailBackground(timestamp) {
+    const pulse = (Math.sin(timestamp * 0.010) + 1) * 0.5;
+    const grad = ctx.createLinearGradient(0, 0, 0, H);
+    grad.addColorStop(0, pulse > .5 ? "#a91520" : "#8e1018");
+    grad.addColorStop(.50, "#651016");
+    grad.addColorStop(1, "#2a0508");
+
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, W, H);
+
+    // 横走査線ノイズ。
+    for (let y = 0; y < H; y += 8) {
+      ctx.fillStyle = y % 16 === 0
+        ? "rgba(255,255,255,0.035)"
+        : "rgba(0,0,0,0.09)";
+      ctx.fillRect(0, y, W, 3);
+    }
+
+    // 少量のグリッチ帯。
+    const shift = Math.round(Math.sin(timestamp * .025) * 18);
+    ctx.fillStyle = "rgba(255,220,200,0.07)";
+    ctx.fillRect(shift, 118, W, 7);
+    ctx.fillRect(-shift, 372, W, 5);
+  }
+
+  function fitTerminalFont(text, maxWidth) {
+    let size = 74;
+    ctx.font = `900 ${size}px "Yu Gothic", "Hiragino Kaku Gothic ProN", sans-serif`;
+
+    while (size > 34 && ctx.measureText(text).width > maxWidth) {
+      size -= 2;
+      ctx.font = `900 ${size}px "Yu Gothic", "Hiragino Kaku Gothic ProN", sans-serif`;
+    }
+    return size;
+  }
+
+  function drawTerminalSoundText(timestamp) {
+    if (!terminalSoundText || !terminalTextStartAt) return;
+
+    const elapsed = Math.max(0, timestamp - terminalTextStartAt);
+    const pop = Math.min(1, elapsed / 170);
+    const scale = pop < 1 ? .66 + .44 * pop : 1;
+    const shakeX = (flowState === FLOW.GAMEOVER_MINIONS || flowState === FLOW.GAMEOVER_BOSS) ? Math.sin(timestamp * .075) * 3 : 0;
+
+    ctx.save();
+    ctx.translate(W / 2 + shakeX, H / 2 - 5);
+    ctx.scale(scale, scale);
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+
+    const size = fitTerminalFont(terminalSoundText, W * .88);
+    ctx.font = `900 ${size}px "Yu Gothic", "Hiragino Kaku Gothic ProN", sans-serif`;
+    ctx.lineJoin = "round";
+    ctx.lineWidth = Math.max(7, size * .12);
+
+    if (flowState === FLOW.CLEAR) {
+      ctx.strokeStyle = "#06433f";
+      ctx.fillStyle = "#fff36d";
+      ctx.shadowColor = "rgba(255,255,255,.42)";
+      ctx.shadowBlur = 18;
+    } else {
+      ctx.strokeStyle = "#3a0307";
+      ctx.fillStyle = "#fff0c8";
+      ctx.shadowColor = "rgba(255,70,50,.42)";
+      ctx.shadowBlur = 16;
+    }
+
+    ctx.strokeText(terminalSoundText, 0, 0);
+    ctx.fillText(terminalSoundText, 0, 0);
+    ctx.restore();
+  }
+
+  function drawRestartHint(timestamp) {
+    if (!restartReadyAt || timestamp < restartReadyAt) return;
+
+    ctx.save();
+    ctx.textAlign = "center";
+    ctx.textBaseline = "alphabetic";
+    ctx.lineWidth = 5;
+    ctx.strokeStyle = "rgba(0,0,0,.55)";
+    ctx.fillStyle = "rgba(255,255,255,.92)";
+
+    // クリア／敗北とも、結果画面では再戦だけを案内する。
+    // 5秒後に初期画面へ戻ることは表示せず、動作だけで処理する。
+    const msg = `${primaryActionWord()}で再戦`;
+    ctx.font = '700 20px "Yu Gothic", sans-serif';
+    ctx.strokeText(msg, W / 2, H - 54);
+    ctx.fillText(msg, W / 2, H - 54);
+    ctx.restore();
+  }
+
+  function drawTitleScreen(timestamp) {
+    drawNormalBackground();
+
+    // タイトル画面中央に火眼坊系の妖怪を1体表示
+    const sample = {
+      x: W / 2 - 42,
+      y: 245,
+      w: 84,
+      h: 70,
+      id: 0,
+      phase: 0,
+      alive: true
+    };
+    drawEnemy(sample, timestamp);
+
+    ctx.save();
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+
+    ctx.font = '900 58px "Yu Gothic", "Hiragino Kaku Gothic ProN", sans-serif';
+    ctx.lineWidth = 10;
+    ctx.strokeStyle = "#071018";
+    ctx.fillStyle = "#fff4c7";
+    ctx.strokeText("妖怪退治", W / 2, 125);
+    ctx.fillText("妖怪退治", W / 2, 125);
+
+    ctx.font = '800 27px "Yu Gothic", sans-serif';
+    ctx.lineWidth = 6;
+    ctx.strokeStyle = "rgba(0,0,0,.75)";
+    ctx.fillStyle = "#8feaff";
+    ctx.strokeText("火眼坊（かがんぼう）を退治せよ！", W / 2, 410);
+    ctx.fillText("火眼坊（かがんぼう）を退治せよ！", W / 2, 410);
+
+    const blink = (Math.sin(timestamp * .005) + 1) * .5;
+    ctx.globalAlpha = .55 + blink * .45;
+    ctx.font = '800 25px "Yu Gothic", sans-serif';
+    ctx.fillStyle = "#ffffff";
+    ctx.strokeStyle = "rgba(0,0,0,.75)";
+    const startMsg = `${primaryActionWord()}で開始`;
+    ctx.strokeText(startMsg, W / 2, 555);
+    ctx.fillText(startMsg, W / 2, 555);
+
+    ctx.globalAlpha = 1;
+    ctx.font = '600 17px "Yu Gothic", sans-serif';
+    ctx.fillStyle = "#c6d6e6";
+    if (isMobileGameLayout()) {
+      ctx.fillText("下の操作帯を左右スライド・押している間は連射", W / 2, 640);
+    } else {
+      ctx.fillText("マウス移動＋クリックで発射", W / 2, 640);
+    }
+
+    ctx.restore();
+  }
+
+  function drawBossReadyScreen(timestamp) {
+    drawNormalBackground();
+
+    ctx.save();
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+
+    ctx.font = '900 48px "Yu Gothic", "Hiragino Kaku Gothic ProN", sans-serif';
+    ctx.lineWidth = 9;
+    ctx.strokeStyle = "#071018";
+    ctx.fillStyle = "#fff0c8";
+    ctx.strokeText("火眼坊戦", W / 2, 108);
+    ctx.fillText("火眼坊戦", W / 2, 108);
+
+    const size = Math.min(285, W * 0.55);
+    const bob = Math.sin(timestamp * 0.0025) * 5;
+    const x = W / 2 - size / 2;
+    const y = 185 + bob;
+
+    ctx.imageSmoothingEnabled = false;
+    ctx.drawImage(bossSprite, Math.round(x), Math.round(y), Math.round(size), Math.round(size));
+
+    ctx.font = '800 24px "Yu Gothic", sans-serif';
+    ctx.lineWidth = 6;
+    ctx.strokeStyle = "rgba(0,0,0,.78)";
+    ctx.fillStyle = "#ffe7a4";
+    ctx.strokeText(`LIFE ${Math.max(0, life)} で挑戦`, W / 2, 510);
+    ctx.fillText(`LIFE ${Math.max(0, life)} で挑戦`, W / 2, 510);
+
+    const blink = (Math.sin(timestamp * .005) + 1) * .5;
+    ctx.globalAlpha = .55 + blink * .45;
+    ctx.font = '800 25px "Yu Gothic", sans-serif';
+    ctx.fillStyle = "#ffffff";
+    ctx.strokeStyle = "rgba(0,0,0,.78)";
+    const startMsg = `${primaryActionWord()}で開始`;
+    ctx.strokeText(startMsg, W / 2, 590);
+    ctx.fillText(startMsg, W / 2, 590);
+
+    ctx.restore();
+  }
+
+  function draw(timestamp) {
+    ctx.clearRect(0, 0, W, H);
+
+    if (flowState === FLOW.TITLE) {
+      drawTitleScreen(timestamp);
+      return;
+    }
+
+    if (flowState === FLOW.BOSS_READY) {
+      drawBossReadyScreen(timestamp);
+      return;
+    }
+
+    if (flowState === FLOW.CLEAR) {
+      drawClearBackground(timestamp);
+
+      // 最後の目だま妖怪の悲鳴文字は、クリア演出に切り替わるまで残す。
+      if (!terminalSoundText) drawFloatingTexts(timestamp);
+
+      drawTerminalSoundText(timestamp);
+      drawRestartHint(timestamp);
+      return;
+    }
+
+    if (flowState === FLOW.GAMEOVER_MINIONS || flowState === FLOW.GAMEOVER_BOSS) {
+      drawFailBackground(timestamp);
+      drawTerminalSoundText(timestamp);
+      drawRestartHint(timestamp);
+      return;
+    }
+
+    drawNormalBackground();
+    drawPlayer(timestamp);
+
+    if (flowState === FLOW.MINIONS) {
+      enemies.forEach(e => {
+        if (e.alive) drawEnemy(e, timestamp);
+      });
+    } else if (flowState === FLOW.BOSS) {
+      drawBoss(timestamp);
+      drawBossHp();
+    }
+
+    // お札弾
+    bullets.forEach(b => {
+      ctx.fillStyle = "#ffe7a4";
+      ctx.fillRect(b.x - 1, b.y, b.w + 2, b.h);
+      ctx.fillStyle = "#b42323";
+      ctx.fillRect(b.x + 1, b.y + 3, b.w - 2, 3);
+    });
+
+    // 妖怪弾
+    enemyBullets.forEach(b => {
+      if (flowState === FLOW.BOSS) {
+        ctx.fillStyle = "rgba(39,196,255,.28)";
+        ctx.fillRect(b.x - 3, b.y - 2, b.w + 6, b.h + 4);
+      }
+      ctx.fillStyle = "#27c4ff";
+      ctx.fillRect(b.x, b.y, b.w, b.h);
+      ctx.fillStyle = "#d6ffff";
+      ctx.fillRect(b.x + 2, b.y + 2, 2, 5);
+    });
+
+    drawFloatingTexts(timestamp);
+  }
+
+  function loop(timestamp) {
+    update(timestamp);
+    draw(timestamp);
+    animationId = requestAnimationFrame(loop);
+  }
+
+
+  // ============================================================
+  // 10. PC・スマホ操作
+  // ============================================================
+
+  function getTouchPadX(e) {
+    const rect = touchPad.getBoundingClientRect();
+    return (e.clientX - rect.left) * (canvas.width / rect.width);
+  }
+
+  // GAME OVER後の5秒以内に操作された場合は、初期画面を挟まずその場で再戦する。
+  function retryBossBattleImmediately({ preserveTouch = false } = {}) {
+    const checkpointScore = bossCheckpointScore;
+    const retryLife = bossStartLife();
+
+    prepareStandaloneBattle({ preserveTouch });
+    score = checkpointScore;
+    bossCheckpointScore = checkpointScore;
+    activateBossBattle(performance.now(), retryLife);
+    startGameLoop();
+  }
+
+  functi
