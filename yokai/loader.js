@@ -9,8 +9,46 @@
     if (!response.ok) throw new Error(`${path}: ${response.status}`);
     return response.text();
   })).then((chunks) => {
+    let source = chunks.join("");
+
+    const oldDesktopSize = `  function syncCanvasLogicalSize() {
+    if (!isMobileGameLayout()) {
+      if (canvas.width !== 540 || canvas.height !== 960) {
+        canvas.width = 540;
+        canvas.height = 960;
+        W = 540;
+        H = 960;
+      }
+      return;
+    }`;
+
+    const newDesktopSize = `  function syncCanvasLogicalSize() {
+    if (!isMobileGameLayout()) {
+      const nextW = 720;
+      const nextH = 720;
+
+      if (canvas.width !== nextW || canvas.height !== nextH) {
+        canvas.width = nextW;
+        canvas.height = nextH;
+        W = nextW;
+        H = nextH;
+
+        if (player) {
+          player.x = Math.max(0, Math.min(W - player.w, player.x));
+          player.y = H - 82;
+        }
+      }
+      return;
+    }`;
+
+    if (!source.includes(oldDesktopSize)) {
+      throw new Error("PC layout patch target not found");
+    }
+
+    source = source.replace(oldDesktopSize, newDesktopSize);
+
     const script = document.createElement("script");
-    script.textContent = chunks.join("");
+    script.textContent = source;
     document.body.appendChild(script);
   }).catch((error) => {
     console.error(error);
