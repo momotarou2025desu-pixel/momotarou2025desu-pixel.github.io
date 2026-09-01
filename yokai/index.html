@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>妖怪退治 - 火眼坊（かがんぼう）</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="wrap">
+    <div class="topbar">
+      <span id="lifeDisplay" class="life-display">LIFE 1</span>
+      <h1>妖怪退治</h1>
+      <button id="collectionBtn" class="collection-btn" type="button">妖怪コレクション</button>
+    </div>
+
+    <div class="info">
+      <span id="score">SCORE: 0</span>
+      <span id="status">READY</span>
+    </div>
+
+    <div id="gameUnit" class="game-unit">
+      <canvas id="game" width="540" height="960" aria-label="火眼坊（かがんぼう）を退治するレトロゲーム"></canvas>
+
+      <div id="touchPad" class="touch-pad" aria-label="スマホ操作エリア">
+        <div class="touch-pad-label">←　スライドして移動　→</div>
+        <div class="touch-pad-sub">指を置いている間は自動でお札を発射</div>
+      </div>
+    </div>
+
+    <div id="titleActions" class="controls title-actions">
+      <button id="bossTestBtn" type="button">クリア確認（火眼坊出現）</button>
+    </div>
+
+    <p class="note">
+      スマホではゲーム画面と操作帯を一体化し、ブラウザで現在見えている下端まで自動で広げます。<br>
+      下端の操作帯を左右にスライドして移動し、触れている間は自動連射します。<br>
+      28体を倒すと巨大な火眼坊（かがんぼう）が出現します。撃破でクリアです。<br>
+      初期画面の「クリア確認（火眼坊出現）」ボタンで、雑魚戦を飛ばして火眼坊確認もできます。ボス画像を使用しています。結果画面では操作するとすぐ再戦できます。
+    </p>
+  </div>
+
+  <div id="collectionOverlay" class="collection-overlay" hidden>
+    <section class="collection-panel" role="dialog" aria-modal="true" aria-labelledby="collectionTitle">
+      <header class="collection-header">
+        <h2 id="collectionTitle">妖怪コレクション</h2>
+        <button id="collectionCloseBtn" class="collection-close-btn" type="button" aria-label="妖怪コレクションを閉じる">×</button>
+      </header>
+
+      <div class="collection-grid" aria-label="妖怪カード一覧">
+        <article id="kaganboCollectionItem" class="collection-card" role="button" tabindex="0" aria-label="火眼坊（かがんぼう）のカードを拡大表示">
+          <img id="kaganboCollectionCard" src="images/kaganbo_collection_card.webp" alt="火眼坊（かがんぼう）の妖怪カード">
+        </article>
+      </div>
+    </section>
+  </div>
+
+  <div id="cardDetailOverlay" class="card-detail-overlay" hidden aria-hidden="true">
+    <div class="card-detail-frame" role="dialog" aria-modal="true" aria-label="火眼坊（かがんぼう）のカード拡大表示">
+      <button id="cardDetailCloseBtn" class="card-detail-close" type="button" aria-label="カード拡大表示を閉じる">×</button>
+      <img id="cardDetailImage" class="card-detail-image" alt="火眼坊（かがんぼう）の妖怪カード 拡大表示">
+    </div>
+  </div>
+  <script src="loader.js"></script>
+</body>
+</html>
