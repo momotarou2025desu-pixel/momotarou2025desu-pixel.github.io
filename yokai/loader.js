@@ -53,7 +53,7 @@
   const COLLECTION_STORAGE_KEY = "yokai_taiji_collection_v1";
   let unlockedYokai = new Set();
 
-  // 通常戦はStage1→Stage2の順に進む。Stage2だけ敵の移動式を変える。
+  // ステージ進行はコレクションをそのままクリア記録として使う。
   let currentStage = 1;
   let stageStartedAt = 0;
 
@@ -113,14 +113,14 @@
     }
     source = source.replace(clearAnchor, clearCode);
 
-    // 通常戦開始時は必ずStage1から。
+    // 火眼坊がコレクションにあればStage1クリア済みとしてStage2から始める。
     const startNormalAnchor = `    flowState = FLOW.MINIONS;
     enemyDir = 1;
     enemySpeed = 0.65;
     lastEnemyShot = 0;
     bossCheckpointScore = 0;`;
     const startNormalCode = `    flowState = FLOW.MINIONS;
-    currentStage = 1;
+    currentStage = unlockedYokai.has("kaganbo") ? 2 : 1;
     stageStartedAt = performance.now();
     enemyDir = 1;
     enemySpeed = 0.65;
@@ -132,19 +132,11 @@
     }
     source = source.replace(startNormalAnchor, startNormalCode);
 
-    // Stage2開始。敵数・攻撃・当たり判定はStage1と同じで、移動だけ変える。
+    // Stage2は敵数・攻撃・当たり判定を変えず、移動だけ八の字＋下降にする。
     const stage2FunctionAnchor = `  function normalStartLife() {
     return 1 + Math.floor(normalLossCount / 2);
   }`;
-    const stage2FunctionCode = `  function startStage2(timestamp) {
-    currentStage = 2;
-    stageStartedAt = timestamp;
-    clearProjectiles();
-    enemyDir = 1;
-    enemySpeed = 0.65;
-    lastEnemyShot = timestamp;
-    createMinionFormation();
-
+    const stage2FunctionCode = `  function initializeStage2Formation() {
     enemies.forEach(e => {
       e.baseX = e.x;
       e.baseY = e.y;
@@ -156,7 +148,6 @@
     const t = Math.max(0, (timestamp - stageStartedAt) / 1000);
 
     for (const e of aliveEnemies) {
-      // Xは一周期、Yは二周期にして八の字を作りながら少しずつ下降する。
       const phase = e.phase || 0;
       const waveX = Math.sin(t * 1.75 + phase) * 30;
       const waveY = Math.sin(t * 3.50 + phase) * 14;
@@ -177,6 +168,27 @@
       throw new Error("Stage2 function patch target not found");
     }
     source = source.replace(stage2FunctionAnchor, stage2FunctionCode);
+
+    // Stage2を直接開始する場合だけ、生成した隊列の基準座標を保存する。
+    const formationAnchor = `    // 通常戦の開始ライフ。2敗ごとに上限なく1ずつ増える。
+    life = normalStartLife();
+    createMinionFormation();
+
+    startGameLoop();`;
+    const formationCode = `    // 通常戦の開始ライフ。2敗ごとに上限なく1ずつ増える。
+    life = normalStartLife();
+    createMinionFormation();
+
+    if (currentStage === 2) {
+      initializeStage2Formation();
+    }
+
+    startGameLoop();`;
+
+    if (!source.includes(formationAnchor)) {
+      throw new Error("Stage2 formation patch target not found");
+    }
+    source = source.replace(formationAnchor, formationCode);
 
     // LIFEを失って敵を上へ戻す処理は、Stage2の基準オフセットにも反映する。
     const respawnAnchor = `    if (source === "enemyLine" && flowState === FLOW.MINIONS) {
@@ -199,7 +211,7 @@
     }
     source = source.replace(respawnAnchor, respawnCode);
 
-    // 既存のStage1移動をそのまま残し、Stage2の時だけ八の字移動に切り替える。
+    // 既存のStage1移動はそのまま。Stage2だけ八の字移動へ切り替える。
     const movementAnchor = `      let shouldDrop = false;
       for (const e of aliveEnemies) {
         const nextX = e.x + enemyDir * enemySpeed;
@@ -239,25 +251,6 @@
       throw new Error("Stage2 movement patch target not found");
     }
     source = source.replace(movementAnchor, movementCode);
-
-    // Stage1の28体を倒したらStage2へ。Stage2の28体を倒したら従来どおりボスへ。
-    const stageClearAnchor = `      if (enemies.every(e => !e.alive)) {
-        enterBossReadyAfterMinions();
-        return;
-      }`;
-    const stageClearCode = `      if (enemies.every(e => !e.alive)) {
-        if (currentStage === 1) {
-          startStage2(timestamp);
-        } else {
-          enterBossReadyAfterMinions();
-        }
-        return;
-      }`;
-
-    if (!source.includes(stageClearAnchor)) {
-      throw new Error("Stage clear patch target not found");
-    }
-    source = source.replace(stageClearAnchor, stageClearCode);
 
     const script = document.createElement("script");
     script.textContent = source;
