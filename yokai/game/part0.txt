@@ -1,0 +1,303 @@
+(() => {
+  const canvas = document.getElementById("game");
+  const ctx = canvas.getContext("2d");
+  const scoreEl = document.getElementById("score");
+  const statusEl = document.getElementById("status");
+  const lifeDisplay = document.getElementById("lifeDisplay");
+  const gameUnit = document.getElementById("gameUnit");
+  const titleActions = document.getElementById("titleActions");
+  const bossTestBtn = document.getElementById("bossTestBtn");
+  const collectionBtn = document.getElementById("collectionBtn");
+  const collectionOverlay = document.getElementById("collectionOverlay");
+  const collectionCloseBtn = document.getElementById("collectionCloseBtn");
+  const kaganboCollectionItem = document.getElementById("kaganboCollectionItem");
+  const kaganboCollectionCard = document.getElementById("kaganboCollectionCard");
+  const cardDetailOverlay = document.getElementById("cardDetailOverlay");
+  const cardDetailCloseBtn = document.getElementById("cardDetailCloseBtn");
+  const cardDetailImage = document.getElementById("cardDetailImage");
+  const touchPad = document.getElementById("touchPad");
+const bossSprite = new Image();
+  bossSprite.src = "images/kaganbo_boss.webp";
+
+  let W = canvas.width;
+  let H = canvas.height;
+
+  let player;
+  let bullets;
+  let enemies;
+  let enemyBullets;
+  let floatingTexts;
+  let score;
+
+  // ゲーム進行はこの7状態だけで管理する。
+  const FLOW = Object.freeze({
+    TITLE: "title",
+    MINIONS: "minions",
+    BOSS_READY: "boss_ready",
+    BOSS: "boss",
+    GAMEOVER_MINIONS: "gameover_minions",
+    GAMEOVER_BOSS: "gameover_boss",
+    CLEAR: "clear"
+  });
+  let flowState = FLOW.TITLE;
+
+  let enemyDir;
+  let enemySpeed;
+  let lastEnemyShot;
+  let boss = null;
+  let bossLastShot = 0;
+  let bossDefeatTimer = 0;
+  let bossCheckpointScore = 0;
+
+  // 救済ライフ
+  // 通常戦: 2回GAME OVERごとに +1
+  // 火眼坊戦: 3回GAME OVERごとに +1
+  // 上限なし
+  let life = 1;
+  let normalLossCount = 0;
+  let bossLossCount = 0;
+  let playerInvulnerableUntil = 0;
+
+  let animationId = 0;
+  let clearTimer = 0;
+  let autoRestartTimer = 0;
+  let terminalSoundText = "";
+  let terminalTextStartAt = 0;
+  let restartReadyAt = 0;
+  let resultStartedAt = 0;
+
+  // スマホ用：相対ドラッグ＋タッチ中の自動連射
+  let touchPointerId = null;
+  let touchLastX = 0;
+  let touchActive = false;
+  let touchFireTimer = 0;
+  let touchReleaseTimer = 0;
+  const TOUCH_FIRE_MS = 280;
+  const TOUCH_RELEASE_GRACE_MS = 1000;
+
+  const clearSoundTexts = [
+    "ピロリロリロ……ピーン！",
+    "テッ・テッ・テッ・テレー！",
+    "ピピピピピピ……ポーン！",
+    "キュイーン↑ ピロリン♪",
+    "ドゥルルルル……ピン！",
+    "ピッ、ピッ、ピッ、ピロリローン！",
+    "テレレレッ・テッテレー！",
+    "ピピッ！ ピピッ！ ピーーン！",
+    "キュルルルルル↑ パーン！",
+    "ポヨッ・ピロッ・ピーン！"
+  ];
+
+  const failSoundTexts = [
+    "ピロロロロ……ブー！",
+    "テッ・テッ・テッ……ボン",
+    "キュウウウン↓……ブッ",
+    "ピピピ……プツン",
+    "テレレレレ↓ ブーッ",
+    "ビヨヨヨーン↓",
+    "ピッ……ピッ……ブブー！",
+    "ギュルルルル……ボフッ",
+    "ポン・ポン・ポン……プー",
+    "ピーーー……ヒュン↓"
+  ];
+
+  // ============================================================
+  // 1. 定数・状態 / サウンド定義
+  // ============================================================
+
+  // 30種類の電子悲鳴
+  const screamSounds = [
+    { text:"ギャッ！",       dur:.24, f1:820,  f2:430, wave:"sawtooth", wob:28,  wr:19, noise:.10,  shape:"drop" },
+    { text:"ギャー！",       dur:.62, f1:760,  f2:330, wave:"sawtooth", wob:45,  wr:12, noise:.13,  shape:"drop" },
+    { text:"ギャアアー！",   dur:.92, f1:900,  f2:190, wave:"sawtooth", wob:62,  wr:10, noise:.14,  shape:"drop" },
+    { text:"ギャアァ……！", dur:1.18, f1:720,  f2:120, wave:"triangle", wob:70,  wr:7,  noise:.17,  shape:"fade" },
+    { text:"ウワッ！",       dur:.28, f1:540,  f2:260, wave:"square",   wob:20,  wr:15, noise:.08,  shape:"drop" },
+    { text:"ウワー！",       dur:.70, f1:620,  f2:150, wave:"triangle", wob:35,  wr:8,  noise:.13,  shape:"drop" },
+    { text:"ウワアアア！",   dur:1.02, f1:840, f2:90,  wave:"sawtooth",wob:75,  wr:6,  noise:.18,  shape:"dive" },
+    { text:"ウギャッ！",     dur:.33, f1:260,  f2:720, wave:"square",   wob:44,  wr:18, noise:.11,  shape:"riseCut" },
+    { text:"ウギャー！",     dur:.82, f1:500,  f2:210, wave:"square",   wob:88,  wr:9,  noise:.20,  shape:"rough" },
+    { text:"ヒィッ！",       dur:.25, f1:1450, f2:980, wave:"triangle", wob:80,  wr:24, noise:.035, shape:"drop" },
+    { text:"ヒィー！",       dur:.62, f1:1320, f2:1050,wave:"triangle", wob:92,  wr:20, noise:.04,  shape:"sustain" },
+    { text:"ヒイイィ！",     dur:.88, f1:1260, f2:880, wave:"triangle", wob:145, wr:23, noise:.045, shape:"tremble" },
+    { text:"ヒャッ！",       dur:.28, f1:780,  f2:1250,wave:"square",   wob:40,  wr:22, noise:.05,  shape:"jump" },
+    { text:"ヒャアー！",     dur:.74, f1:1180, f2:210, wave:"sawtooth", wob:60,  wr:12, noise:.11,  shape:"dive" },
+    { text:"アッ！",         dur:.16, f1:600,  f2:330, wave:"square",   wob:8,   wr:12, noise:.06,  shape:"drop" },
+    { text:"アーッ！",       dur:.60, f1:520,  f2:390, wave:"triangle", wob:28,  wr:8,  noise:.08,  shape:"sustain" },
+    { text:"ア゛ッ！",       dur:.27, f1:330,  f2:120, wave:"sawtooth", wob:55,  wr:16, noise:.21,  shape:"rough" },
+    { text:"ア゛ーッ！",     dur:.78, f1:390,  f2:95,  wave:"sawtooth", wob:95,  wr:11, noise:.25,  shape:"rough" },
+    { text:"ア゛ア゛ア゛！", dur:1.02, f1:430, f2:130, wave:"square",   wob:64,  wr:8,  noise:.22,  shape:"chop" },
+    { text:"グワッ！",       dur:.26, f1:260,  f2:85,  wave:"square",   wob:20,  wr:13, noise:.15,  shape:"drop" },
+    { text:"グワー！",       dur:.72, f1:350,  f2:75,  wave:"sawtooth", wob:48,  wr:7,  noise:.18,  shape:"drop" },
+    { text:"グエッ！",       dur:.34, f1:430,  f2:150, wave:"square",   wob:105, wr:20, noise:.20,  shape:"crush" },
+    { text:"グエーッ！",     dur:.70, f1:260,  f2:520, wave:"sawtooth", wob:55,  wr:10, noise:.17,  shape:"riseDrop" },
+    { text:"ゲッ！",         dur:.18, f1:410,  f2:190, wave:"square",   wob:12,  wr:16, noise:.09,  shape:"drop" },
+    { text:"ゲエエッ！",     dur:.76, f1:450,  f2:210, wave:"sawtooth", wob:130, wr:17, noise:.22,  shape:"tremble" },
+    { text:"ギョエッ！",     dur:.42, f1:320,  f2:980, wave:"square",   wob:65,  wr:18, noise:.08,  shape:"jump" },
+    { text:"ギョエー！",     dur:.78, f1:420,  f2:250, wave:"square",   wob:70,  wr:15, noise:.09,  shape:"zigzag" },
+    { text:"ホギャッ！",     dur:.38, f1:180,  f2:920, wave:"sawtooth", wob:35,  wr:17, noise:.11,  shape:"riseCut" },
+    { text:"ノワーッ！",     dur:.82, f1:570,  f2:105, wave:"triangle", wob:120, wr:5,  noise:.12,  shape:"warble" },
+    { text:"ピギャー！",     dur:.72, f1:1650, f2:520, wave:"square",   wob:110, wr:25, noise:.025, shape:"dive" }
+  ];
+
+  // ============================================================
+  // 2. 音
+  // ============================================================
+  let audioCtx = null;
+  let activeScreamGroups = [];
+  let terminalNodes = [];
+
+  function ensureAudio() {
+    if (!window.AudioContext && !window.webkitAudioContext) return null;
+    if (!audioCtx) {
+      const AudioCtor = window.AudioContext || window.webkitAudioContext;
+      audioCtx = new AudioCtor();
+    }
+    if (audioCtx.state === "suspended") {
+      audioCtx.resume().catch(() => {});
+    }
+    return audioCtx;
+  }
+
+  function stopNodes(nodes) {
+    for (const node of nodes) {
+      try { node.stop(); } catch (_) {}
+      try { node.disconnect(); } catch (_) {}
+    }
+  }
+
+  function stopAllGameAudio() {
+    for (const group of activeScreamGroups) stopNodes(group.nodes);
+    activeScreamGroups = [];
+    stopNodes(terminalNodes);
+    terminalNodes = [];
+  }
+
+  function makeNoiseBuffer(audio, duration) {
+    const len = Math.max(1, Math.floor(audio.sampleRate * duration));
+    const buf = audio.createBuffer(1, len, audio.sampleRate);
+    const data = buf.getChannelData(0);
+    let last = 0;
+
+    for (let i = 0; i < len; i++) {
+      const white = Math.random() * 2 - 1;
+      last = last * .80 + white * .20;
+      data[i] = last;
+    }
+    return buf;
+  }
+
+  function setScreamPitchShape(osc, s, t) {
+    const end = t + s.dur;
+    osc.frequency.cancelScheduledValues(t);
+    osc.frequency.setValueAtTime(Math.max(55, s.f1), t);
+
+    switch (s.shape) {
+      case "riseCut":
+        osc.frequency.exponentialRampToValueAtTime(Math.max(60, s.f2), t + s.dur * .72);
+        osc.frequency.exponentialRampToValueAtTime(Math.max(55, s.f2 * .72), end);
+        break;
+
+      case "jump":
+        osc.frequency.linearRampToValueAtTime(s.f1 * .82, t + s.dur * .18);
+        osc.frequency.linearRampToValueAtTime(s.f2, t + s.dur * .38);
+        osc.frequency.linearRampToValueAtTime(Math.max(60, s.f2 * .66), end);
+        break;
+
+      case "riseDrop":
+        osc.frequency.linearRampToValueAtTime(s.f2, t + s.dur * .42);
+        osc.frequency.exponentialRampToValueAtTime(Math.max(65, s.f1 * .42), end);
+        break;
+
+      case "zigzag":
+        osc.frequency.setValueAtTime(s.f1, t);
+        osc.frequency.linearRampToValueAtTime(s.f1 * 1.75, t + s.dur * .17);
+        osc.frequency.linearRampToValueAtTime(s.f1 * .72, t + s.dur * .34);
+        osc.frequency.linearRampToValueAtTime(s.f1 * 1.45, t + s.dur * .52);
+        osc.frequency.linearRampToValueAtTime(s.f1 * .60, t + s.dur * .71);
+        osc.frequency.exponentialRampToValueAtTime(Math.max(60, s.f2), end);
+        break;
+
+      case "warble":
+        osc.frequency.linearRampToValueAtTime(s.f1 * 1.18, t + s.dur * .20);
+        osc.frequency.linearRampToValueAtTime(s.f1 * .75, t + s.dur * .40);
+        osc.frequency.linearRampToValueAtTime(s.f1, t + s.dur * .58);
+        osc.frequency.exponentialRampToValueAtTime(Math.max(55, s.f2), end);
+        break;
+
+      case "crush":
+        osc.frequency.linearRampToValueAtTime(s.f1 * .60, t + s.dur * .42);
+        osc.frequency.linearRampToValueAtTime(s.f1 * 1.12, t + s.dur * .60);
+        osc.frequency.exponentialRampToValueAtTime(Math.max(55, s.f2), end);
+        break;
+
+      default:
+        osc.frequency.exponentialRampToValueAtTime(Math.max(55, s.f2), end);
+        break;
+    }
+  }
+
+  function playScream(s) {
+    const audio = ensureAudio();
+    if (!audio || audio.state !== "running") return;
+
+    // 連続撃破時に悲鳴が増えすぎないよう、同時最大4つ。
+    activeScreamGroups = activeScreamGroups.filter(g => g.endTime > audio.currentTime);
+    if (activeScreamGroups.length >= 4) {
+      const oldest = activeScreamGroups.shift();
+      if (oldest) stopNodes(oldest.nodes);
+    }
+
+    const t = audio.currentTime + .005;
+    const end = t + s.dur;
+    const sources = [];
+
+    const master = audio.createGain();
+    const comp = audio.createDynamicsCompressor();
+    comp.threshold.value = -18;
+    comp.knee.value = 16;
+    comp.ratio.value = 4;
+    comp.attack.value = .003;
+    comp.release.value = .12;
+    master.connect(comp);
+    comp.connect(audio.destination);
+
+    master.gain.setValueAtTime(.0001, t);
+    master.gain.exponentialRampToValueAtTime(.105, t + Math.min(.025, s.dur * .12));
+
+    if (s.shape === "chop") {
+      const marks = [0.18,0.27,0.42,0.51,0.68,0.76,0.90];
+      let up = false;
+      for (const m of marks) {
+        master.gain.linearRampToValueAtTime(up ? .10 : .006, t + s.dur * m);
+        up = !up;
+      }
+      master.gain.exponentialRampToValueAtTime(.0001, end);
+    } else if (s.shape === "fade") {
+      master.gain.setValueAtTime(.105, t + s.dur * .48);
+      master.gain.exponentialRampToValueAtTime(.0001, end);
+    } else {
+      master.gain.setValueAtTime(.105, t + s.dur * .70);
+      master.gain.exponentialRampToValueAtTime(.0001, end);
+    }
+
+    const filter = audio.createBiquadFilter();
+    filter.type = s.f1 > 1000 ? "highpass" : "bandpass";
+    filter.frequency.setValueAtTime(s.f1 > 1000 ? 900 : 900, t);
+    if (filter.type === "bandpass") {
+      filter.frequency.linearRampToValueAtTime(500 + Math.min(800, s.f1 * .45), end);
+      filter.Q.value = s.shape === "rough" ? .65 : 1.15;
+    }
+    filter.connect(master);
+
+    const osc = audio.createOscillator();
+    osc.type = s.wave;
+    setScreamPitchShape(osc, s, t);
+
+    const oscGain = audio.createGain();
+    oscGain.gain.value = s.f1 > 1200 ? .21 : .35;
+    osc.connect(oscGain);
+    oscGain.connect(filter);
+
+    const sub = audio.createOscillator();
+    sub.type = s.shape === "rough" ? "square" : "triangle";
+    sub.f
