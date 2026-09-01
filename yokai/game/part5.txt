@@ -1,0 +1,296 @@
+on restartFromResult({ preserveTouch = false } = {}) {
+    const now = performance.now();
+    if (now < restartReadyAt) return;
+
+    if (flowState === FLOW.GAMEOVER_BOSS) {
+      // 再戦できるのはGAME OVERから5秒以内だけ。
+      if (now - resultStartedAt < 5000) {
+        retryBossBattleImmediately({ preserveTouch });
+      } else {
+        enterBossReadyScreen(bossStartLife());
+      }
+      return;
+    }
+
+    if (flowState === FLOW.GAMEOVER_MINIONS) {
+      // 再戦できるのはGAME OVERから5秒以内だけ。
+      if (now - resultStartedAt < 5000) {
+        startNormalBattle({ preserveTouch });
+      } else {
+        showTitleScreen();
+      }
+      return;
+    }
+
+    if (flowState === FLOW.CLEAR) {
+      // クリア後も5秒以内ならその場で最初から再戦。
+      // 5秒を過ぎた場合は通常の初期画面へ戻る。
+      if (now - resultStartedAt < 5000) {
+        startNormalBattle({ preserveTouch });
+      } else {
+        showTitleScreen();
+      }
+    }
+  }
+
+  function handleResultOrTitlePointer({ preserveTouch = false } = {}) {
+    if (flowState === FLOW.TITLE) {
+      startNormalBattle({ preserveTouch });
+      return true;
+    }
+
+    if (flowState === FLOW.BOSS_READY) {
+      beginBossBattleFromReady();
+      return true;
+    }
+
+    if (flowState === FLOW.CLEAR || flowState === FLOW.GAMEOVER_MINIONS || flowState === FLOW.GAMEOVER_BOSS) {
+      restartFromResult({ preserveTouch });
+      return true;
+    }
+
+    return false;
+  }
+
+  function getCanvasPointer(e) {
+    const rect = canvas.getBoundingClientRect();
+    return {
+      x: (e.clientX - rect.left) * (canvas.width / rect.width),
+      y: (e.clientY - rect.top) * (canvas.height / rect.height)
+    };
+  }
+
+  function movePlayerToMouse(e) {
+    if (flowState !== FLOW.MINIONS && flowState !== FLOW.BOSS) return;
+
+    const p = getCanvasPointer(e);
+    player.x = Math.max(
+      0,
+      Math.min(W - player.w, p.x - player.w / 2)
+    );
+  }
+
+  function clearTouchReleaseTimer() {
+    if (touchReleaseTimer) {
+      clearTimeout(touchReleaseTimer);
+      touchReleaseTimer = 0;
+    }
+  }
+
+  function stopTouchControl() {
+    clearTouchReleaseTimer();
+    touchActive = false;
+    touchPointerId = null;
+
+    if (touchFireTimer) {
+      clearInterval(touchFireTimer);
+      touchFireTimer = 0;
+    }
+  }
+
+  // スマホでは、本当に指を離した pointerup だけを終了判定に使う。
+  // pointercancel / lostpointercapture はブラウザ都合で発生することがあるため、
+  // それだけでは押下・自動連射状態を切らない。
+  function scheduleTouchControlStop(pointerId) {
+    if (pointerId !== touchPointerId) return;
+
+    clearTouchReleaseTimer();
+    touchReleaseTimer = window.setTimeout(() => {
+      touchReleaseTimer = 0;
+      if (pointerId === touchPointerId) {
+        stopTouchControl();
+      }
+    }, TOUCH_RELEASE_GRACE_MS);
+  }
+
+  function startTouchControl(e) {
+    if (flowState !== FLOW.MINIONS && flowState !== FLOW.BOSS) return;
+
+    // 1秒の離指猶予中に再タッチされた場合は、押下継続として扱う。
+    clearTouchReleaseTimer();
+    touchPointerId = e.pointerId;
+    touchLastX = getTouchPadX(e);
+    touchActive = true;
+
+    // Pointer Captureは使わない。
+    // 操作開始後のmove/upはwindowで受けるため、操作帯から指が外れても追従する。
+
+    // 押した瞬間にも1発。
+    shoot();
+
+    if (touchFireTimer) clearInterval(touchFireTimer);
+    touchFireTimer = setInterval(() => {
+      if (touchActive && (flowState === FLOW.MINIONS || flowState === FLOW.BOSS)) {
+        shoot();
+      }
+    }, TOUCH_FIRE_MS);
+  }
+
+  function movePlayerByTouch(e) {
+    if (!touchActive || e.pointerId !== touchPointerId) return;
+    if (flowState !== FLOW.MINIONS && flowState !== FLOW.BOSS) return;
+
+    const currentX = getTouchPadX(e);
+    const dx = currentX - touchLastX;
+
+    // 操作帯を基準にした横方向の相対移動。
+    // イベント自体はwindowで受けるため、指が操作帯の外へ少し出ても動き続ける。
+    player.x = Math.max(
+      0,
+      Math.min(W - player.w, player.x + dx)
+    );
+
+    touchLastX = currentX;
+  }
+
+  // ============================================================
+  // 11. イベント登録
+  // ============================================================
+
+  // PC: キャンバス上をマウスで操作
+  canvas.addEventListener("pointermove", (e) => {
+    if (e.pointerType === "mouse" && (flowState === FLOW.MINIONS || flowState === FLOW.BOSS)) {
+      movePlayerToMouse(e);
+    }
+  });
+
+  canvas.addEventListener("pointerdown", (e) => {
+    e.preventDefault();
+    ensureAudio();
+
+    if (handleResultOrTitlePointer()) return;
+
+    if (flowState !== FLOW.MINIONS && flowState !== FLOW.BOSS) return;
+
+    if (e.pointerType === "mouse") {
+      movePlayerToMouse(e);
+      shoot();
+    }
+  });
+
+  // スマホ: 発射台の下の操作帯だけで移動・自動連射
+  // タイトル画面やボス初期画面を押した場合も、同じpointerdownを
+  // そのまま戦闘中の「押している状態」へ引き継ぐ。
+  touchPad.addEventListener("pointerdown", (e) => {
+    e.preventDefault();
+    ensureAudio();
+
+    // 画面切替が起きてもここではreturnしない。
+    // 切替後が戦闘状態なら、同じ指で操作を開始する。
+    handleResultOrTitlePointer({ preserveTouch: true });
+
+    if (flowState !== FLOW.MINIONS && flowState !== FLOW.BOSS) return;
+    if (e.pointerType === "mouse") return;
+
+    startTouchControl(e);
+  });
+
+  // 操作開始後は画面全体でpointermoveを拾う。
+  // touchPadから指が外れても同じpointerIdなら移動を継続する。
+  window.addEventListener("pointermove", (e) => {
+    if (e.pointerType === "mouse") return;
+    if (!touchActive || e.pointerId !== touchPointerId) return;
+    e.preventDefault();
+
+    // pointerup後の1秒猶予中に同じ指の入力が再開した場合は、離指判定を取り消す。
+    clearTouchReleaseTimer();
+    movePlayerByTouch(e);
+  }, { passive: false });
+
+  // 本当に指を離したpointerupだけ、1秒後の解除判定を開始する。
+  window.addEventListener("pointerup", (e) => {
+    if (e.pointerType === "mouse") return;
+    if (e.pointerId === touchPointerId) {
+      scheduleTouchControlStop(e.pointerId);
+    }
+  });
+
+  // pointercancelはブラウザ都合の一時中断として扱い、操作状態を維持する。
+  window.addEventListener("pointercancel", (e) => {
+    if (e.pointerType === "mouse") return;
+    if (e.pointerId === touchPointerId) {
+      clearTouchReleaseTimer();
+    }
+  });
+
+  window.addEventListener("blur", stopTouchControl);
+  window.addEventListener("resize", scheduleViewportFit);
+  window.addEventListener("orientationchange", scheduleViewportFit);
+
+  if (window.visualViewport) {
+    window.visualViewport.addEventListener("resize", scheduleViewportFit);
+    window.visualViewport.addEventListener("scroll", scheduleViewportFit);
+  }
+
+  collectionBtn.addEventListener("click", (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    openCollection();
+  });
+
+  collectionCloseBtn.addEventListener("click", (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    closeCollection();
+  });
+
+  kaganboCollectionItem.addEventListener("click", (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    openCardDetail();
+  });
+
+  kaganboCollectionItem.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      openCardDetail();
+    }
+  });
+
+  cardDetailCloseBtn.addEventListener("click", (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    closeCardDetail();
+  });
+
+  cardDetailOverlay.addEventListener("pointerdown", (e) => {
+    if (e.target === cardDetailOverlay) {
+      closeCardDetail();
+    }
+  });
+
+  cardDetailImage.addEventListener("pointerdown", (e) => {
+    e.stopPropagation();
+  });
+
+  collectionOverlay.addEventListener("pointerdown", (e) => {
+    if (e.target === collectionOverlay) {
+      closeCollection();
+    }
+  });
+
+  window.addEventListener("keydown", (e) => {
+    if (e.key !== "Escape") return;
+
+    if (cardDetailOpen) {
+      closeCardDetail();
+      return;
+    }
+
+    if (collectionOpen) {
+      closeCollection();
+    }
+  });
+
+  bossTestBtn.addEventListener("click", (e) => {
+    e.preventDefault();
+    ensureAudio();
+    if (flowState !== FLOW.TITLE) return;
+    startBossTest();
+  });
+
+  requestAnimationFrame(() => {
+    fitGameUnitToVisibleViewport();
+    requestAnimationFrame(showTitleScreen);
+  });
+})();
