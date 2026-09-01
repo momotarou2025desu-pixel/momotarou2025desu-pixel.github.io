@@ -1,0 +1,73 @@
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: #05070c;
+  color: #fff;
+  font-family: Arial, "Yu Gothic", "Hiragino Kaku Gothic ProN", sans-serif;
+  min-height: 100svh;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding:
+    max(8px, env(safe-area-inset-top))
+    max(8px, env(safe-area-inset-right))
+    max(8px, env(safe-area-inset-bottom))
+    max(8px, env(safe-area-inset-left));
+  overflow-x: hidden;
+}
+.wrap { width: min(100%, 430px); text-align: center; }
+h1 { margin: 0; font-size: clamp(24px, 4vw, 40px); white-space: nowrap; }
+.topbar { width: 100%; margin: 0 auto 10px; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 8px; }
+.life-display { justify-self: start; min-width: 0; color: #ffe9a8; font-weight: 900; font-size: clamp(12px, 2.8vw, 16px); white-space: nowrap; text-shadow: 0 2px 0 #000; }
+.collection-btn { justify-self: end; min-width: 0; min-height: 38px; padding: 7px 11px; border-color: #3b6f94; background: #0c2235; color: #dff7ff; font-size: clamp(11px, 2.4vw, 15px); white-space: nowrap; }
+.collection-btn:hover { background: #12324d; }
+.info { display: flex; justify-content: center; gap: 24px; flex-wrap: wrap; margin-bottom: 10px; font-weight: 700; }
+.game-unit { width: 100%; margin: 0 auto; }
+canvas { width: 100%; height: auto; aspect-ratio: 9 / 16; background: #000; border: 2px solid #3d4658; border-radius: 10px; display: block; margin: 0; touch-action: none; cursor: crosshair; }
+.controls { margin-top: 12px; display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; }
+button { min-width: 120px; min-height: 44px; border: 1px solid #5a6680; border-radius: 10px; background: #141a26; color: #fff; font-weight: 700; cursor: pointer; padding: 10px 16px; }
+button:hover { background: #1e2635; }
+.title-actions { margin-top: 10px; }
+.title-actions[hidden] { display: none; }
+#bossTestBtn { background: #392100; border-color: #8a5b14; color: #ffe6b5; }
+#bossTestBtn:hover { background: #533108; }
+.note { margin: 10px 0 0; color: #aeb8cc; font-size: 13px; line-height: 1.6; }
+.touch-pad { display: none; width: 100%; min-height: 88px; margin: 8px 0 0; box-sizing: border-box; border: 2px solid #2a3347; border-radius: 12px; background: linear-gradient(180deg, #101726 0%, #0a1019 100%); color: #dbe9ff; text-align: center; padding: 14px 12px 12px; user-select: none; -webkit-user-select: none; touch-action: none; }
+.touch-pad-label { font-size: 20px; font-weight: 700; letter-spacing: 0.04em; color: #fff; }
+.touch-pad-sub { margin-top: 8px; font-size: 13px; color: #9eb6d8; }
+.collection-overlay { position: fixed; inset: 0; z-index: 1000; display: grid; place-items: center; padding: max(8px, env(safe-area-inset-top)) 8px max(8px, env(safe-area-inset-bottom)); background: rgba(0,0,0,.86); backdrop-filter: blur(5px); }
+.collection-overlay[hidden] { display: none; }
+.collection-panel { position: relative; width: min(94vw, 720px); height: min(94svh, 1180px); overflow-y: auto; overscroll-behavior: contain; border: 2px solid #334a67; border-radius: 18px; background: radial-gradient(circle at 50% 10%, rgba(21,90,150,.22), transparent 36%), linear-gradient(180deg, #081321, #05080e 72%); box-shadow: 0 20px 70px rgba(0,0,0,.72); scrollbar-width: thin; }
+.collection-header { position: sticky; top: 0; z-index: 2; min-height: 64px; display: grid; grid-template-columns: 48px 1fr 48px; align-items: center; padding: 8px 10px; background: rgba(5,11,19,.95); border-bottom: 1px solid #26384e; backdrop-filter: blur(7px); }
+.collection-header h2 { grid-column: 2; margin: 0; font-size: clamp(20px, 5vw, 32px); text-align: center; color: #fff4cf; letter-spacing: .04em; }
+.collection-close-btn { grid-column: 3; justify-self: end; min-width: 42px; width: 42px; min-height: 42px; height: 42px; padding: 0; border-radius: 50%; border: 1px solid #6b7688; background: #151c28; color: #fff; font-size: 30px; line-height: 1; }
+.collection-close-btn:hover { background: #252f40; }
+.collection-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: clamp(7px, 2vw, 14px); align-items: start; padding: clamp(10px, 3vw, 20px); }
+.collection-card { margin: 0; aspect-ratio: 2 / 3; overflow: hidden; border: 1px solid #455e7c; border-radius: clamp(6px, 1.8vw, 12px); background: #03060b; box-shadow: 0 7px 18px rgba(0,0,0,.38); cursor: pointer; transition: transform .14s ease, border-color .14s ease, box-shadow .14s ease; touch-action: manipulation; }
+.collection-card:hover { transform: translateY(-2px); border-color: #78cfff; box-shadow: 0 10px 24px rgba(0,0,0,.46), 0 0 16px rgba(53,177,255,.16); }
+.collection-card:active { transform: scale(.98); }
+.collection-card img { width: 100%; height: 100%; display: block; object-fit: contain; background: #02050a; }
+.card-detail-overlay { position: fixed; inset: 0; z-index: 1200; display: grid; place-items: center; padding: max(18px, env(safe-area-inset-top)) max(12px, env(safe-area-inset-right)) max(18px, env(safe-area-inset-bottom)) max(12px, env(safe-area-inset-left)); background: rgba(0,0,0,.92); backdrop-filter: blur(7px); }
+.card-detail-overlay[hidden] { display: none; }
+.card-detail-frame { position: relative; width: min(90vw, 620px); height: min(90svh, 930px); display: flex; align-items: center; justify-content: center; }
+.card-detail-image { display: block; max-width: 100%; max-height: 100%; width: auto; height: auto; object-fit: contain; border-radius: 14px; box-shadow: 0 20px 70px rgba(0,0,0,.72), 0 0 30px rgba(46,153,255,.22); user-select: none; -webkit-user-drag: none; }
+.card-detail-close { position: absolute; top: -12px; right: -6px; z-index: 2; min-width: 46px; width: 46px; min-height: 46px; height: 46px; padding: 0; border-radius: 50%; border: 1px solid #8490a3; background: rgba(12,18,28,.94); color: #fff; font-size: 31px; line-height: 1; box-shadow: 0 4px 18px rgba(0,0,0,.45); }
+.card-detail-close:hover { background: #273246; }
+body.collection-open { overflow: hidden; }
+@media (max-width: 600px), (pointer: coarse) {
+  body { display: block; padding: max(4px, env(safe-area-inset-top)) max(4px, env(safe-area-inset-right)) 0 max(4px, env(safe-area-inset-left)); }
+  .wrap { width: 100%; max-width: none; }
+  h1 { font-size: clamp(22px, 6vw, 30px); }
+  .topbar { gap: 5px; margin-bottom: 5px; }
+  .collection-btn { padding: 6px 8px; min-height: 38px; font-size: clamp(11px, 3vw, 15px); }
+  .info { gap: 14px; margin-bottom: 5px; font-size: clamp(13px, 3.4vw, 17px); }
+  .game-unit { width: 100%; display: flex; flex-direction: column; min-height: 0; overflow: hidden; border-radius: 12px; }
+  .game-unit canvas { flex: 1 1 auto; min-height: 0; width: 100%; height: 100%; max-width: none; max-height: none; aspect-ratio: auto; border-radius: 11px 11px 0 0; border-bottom: 0; }
+  .touch-pad { display: block; flex: 0 0 auto; width: 100%; min-height: 82px; margin: 0; border-radius: 0 0 11px 11px; padding: 10px 8px max(9px, env(safe-area-inset-bottom)); }
+  .touch-pad-label { font-size: clamp(18px, 5vw, 24px); }
+  .touch-pad-sub { margin-top: 4px; font-size: clamp(11px, 3vw, 14px); }
+  .title-actions { margin: 12px 0 max(14px, env(safe-area-inset-bottom)); }
+  .note { display: none; }
+  .collection-header { min-height: 58px; grid-template-columns: 42px 1fr 42px; }
+  .collection-close-btn { min-width: 38px; width: 38px; min-height: 38px; height: 38px; font-size: 27px; }
+}

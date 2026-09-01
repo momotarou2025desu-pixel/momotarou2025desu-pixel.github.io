@@ -1,0 +1,505 @@
+st available = Math.max(360, Math.floor(viewportHeight - unitTop));
+
+    // game-unitの最下段が、そのままブラウザの見える下端になる。
+    gameUnit.style.height = `${available}px`;
+
+    // flexレイアウト確定後にCanvasの論理比率も同期。
+    requestAnimationFrame(syncCanvasLogicalSize);
+  }
+
+  let viewportFitTimer = 0;
+  function scheduleViewportFit() {
+    if (viewportFitTimer) cancelAnimationFrame(viewportFitTimer);
+    viewportFitTimer = requestAnimationFrame(() => {
+      viewportFitTimer = 0;
+      fitGameUnitToVisibleViewport();
+    });
+  }
+
+  // ============================================================
+  // 4. コレクション画面
+  // ============================================================
+  let collectionOpen = false;
+
+  let cardDetailOpen = false;
+
+  function openCardDetail() {
+    if (!collectionOpen || cardDetailOpen) return;
+
+    cardDetailOpen = true;
+    cardDetailImage.src = kaganboCollectionCard.src;
+    cardDetailOverlay.hidden = false;
+    cardDetailOverlay.setAttribute("aria-hidden", "false");
+  }
+
+  function closeCardDetail() {
+    if (!cardDetailOpen) return;
+
+    cardDetailOpen = false;
+    cardDetailOverlay.hidden = true;
+    cardDetailOverlay.setAttribute("aria-hidden", "true");
+  }
+
+  function openCollection() {
+    if (collectionOpen) return;
+    collectionOpen = true;
+    stopTouchControl();
+
+    stopGameLoop();
+
+    collectionOverlay.hidden = false;
+    document.body.classList.add("collection-open");
+    collectionPanelScrollTop();
+  }
+
+  function collectionPanelScrollTop() {
+    const panel = collectionOverlay.querySelector(".collection-panel");
+    if (panel) panel.scrollTop = 0;
+  }
+
+  function closeCollection() {
+    if (!collectionOpen) return;
+
+    closeCardDetail();
+    collectionOpen = false;
+    collectionOverlay.hidden = true;
+    document.body.classList.remove("collection-open");
+
+    if (!animationId) {
+      animationId = requestAnimationFrame(loop);
+    }
+  }
+
+  // ============================================================
+  // 5. ゲーム共通初期化・状態遷移
+  // ============================================================
+
+  function stopGameLoop() {
+    if (!animationId) return;
+    cancelAnimationFrame(animationId);
+    animationId = 0;
+  }
+
+  function clearGameTimers() {
+    if (clearTimer) clearTimeout(clearTimer);
+    if (autoRestartTimer) clearTimeout(autoRestartTimer);
+    if (bossDefeatTimer) clearTimeout(bossDefeatTimer);
+
+    clearTimer = 0;
+    autoRestartTimer = 0;
+    bossDefeatTimer = 0;
+  }
+
+  function clearBattleTimersAndAudio({ preserveTouch = false } = {}) {
+    // スマホの同じpointerdownから戦闘を開始・再戦する時は、
+    // 物理的に押されている状態を途中で解除しない。
+    if (!preserveTouch) stopTouchControl();
+    syncCanvasLogicalSize();
+    stopGameLoop();
+    clearGameTimers();
+    stopAllGameAudio();
+  }
+
+  function resetResultPresentation() {
+    terminalSoundText = "";
+    terminalTextStartAt = 0;
+    restartReadyAt = 0;
+    resultStartedAt = 0;
+  }
+
+  function createPlayer() {
+    player = {
+      x: W / 2 - 29,
+      y: H - 82,
+      w: 58,
+      h: 26,
+      speed: 6,
+      cooldown: 0
+    };
+  }
+
+  function clearProjectiles() {
+    bullets = [];
+    enemyBullets = [];
+  }
+
+  function resetBattleObjects() {
+    clearProjectiles();
+    enemies = [];
+    floatingTexts = [];
+    boss = null;
+    bossLastShot = 0;
+    playerInvulnerableUntil = 0;
+  }
+
+  // タイトルからの開始、ボス確認、ボス再挑戦に共通する戦闘準備。
+  // 進行状態・スコア・ライフ・敗北回数は各開始処理側で決める。
+  function prepareStandaloneBattle({ preserveTouch = false } = {}) {
+    clearBattleTimersAndAudio({ preserveTouch });
+    createPlayer();
+    resetBattleObjects();
+    resetResultPresentation();
+  }
+
+  function startGameLoop() {
+    updateHud();
+    animationId = requestAnimationFrame(loop);
+  }
+
+  // ============================================================
+  // 6. 通常戦
+  // ============================================================
+
+  function createMinionFormation() {
+    enemies = [];
+
+    // スマホ縦画面でも28体を見やすく収める 7体×4段。
+    const rows = 4;
+    const cols = 7;
+    const ew = 48;
+    const eh = 40;
+    const gapX = 18;
+    const gapY = 22;
+    const totalWidth = cols * ew + (cols - 1) * gapX;
+    const startX = (W - totalWidth) / 2;
+
+    // 月・鳥居・社などはすべて背景。妖怪は画面上部から重なって動ける。
+    const startY = 64;
+
+    for (let r = 0; r < rows; r++) {
+      for (let c = 0; c < cols; c++) {
+        enemies.push({
+          x: startX + c * (ew + gapX),
+          y: startY + r * (eh + gapY),
+          w: ew,
+          h: eh,
+          alive: true,
+          id: r * cols + c,
+          phase: (r * cols + c) * 0.73
+        });
+      }
+    }
+  }
+
+  function showTitleScreen() {
+    clearBattleTimersAndAudio();
+
+    flowState = FLOW.TITLE;
+    resetResultPresentation();
+
+    resetBattleObjects();
+    score = 0;
+    bossCheckpointScore = 0;
+
+    // タイトルでは次の通常戦で使えるライフ数を表示。
+    life = normalStartLife();
+
+    startGameLoop();
+  }
+
+  function startNormalBattle({ preserveTouch = false } = {}) {
+    prepareStandaloneBattle({ preserveTouch });
+
+    score = 0;
+    flowState = FLOW.MINIONS;
+    enemyDir = 1;
+    enemySpeed = 0.65;
+    lastEnemyShot = 0;
+    bossCheckpointScore = 0;
+
+    // 通常戦の開始ライフ。2敗ごとに上限なく1ずつ増える。
+    life = normalStartLife();
+    createMinionFormation();
+
+    startGameLoop();
+  }
+
+  function normalStartLife() {
+    return 1 + Math.floor(normalLossCount / 2);
+  }
+
+  function bossStartLife() {
+    return 1 + Math.floor(bossLossCount / 3);
+  }
+
+  function updateTitleActions() {
+    if (!titleActions) return;
+    titleActions.hidden = flowState !== FLOW.TITLE;
+  }
+
+  function respawnAfterLifeLoss(timestamp, source) {
+    clearProjectiles();
+
+    player.x = W / 2 - player.w / 2;
+    player.y = H - 82;
+    player.cooldown = 0;
+    playerInvulnerableUntil = timestamp + 1000;
+
+    // 妖怪の群れが自機の高さまで降りた場合だけ、
+    // 撃破状況と横位置は保ったまま少し上へ戻して再衝突を防ぐ。
+    if (source === "enemyLine" && flowState === FLOW.MINIONS) {
+      enemies.forEach(e => {
+        if (e.alive) e.y = Math.max(16, e.y - 72);
+      });
+    }
+
+    updateHud();
+  }
+
+  function damagePlayer(timestamp, source = "bullet") {
+    if (flowState !== FLOW.MINIONS && flowState !== FLOW.BOSS) return;
+    if (timestamp < playerInvulnerableUntil) return;
+
+    life -= 1;
+
+    if (life > 0) {
+      respawnAfterLifeLoss(timestamp, source);
+      return;
+    }
+
+    if (flowState === FLOW.BOSS) {
+      bossLossCount += 1;
+    } else {
+      normalLossCount += 1;
+    }
+
+    setGameOver();
+  }
+
+  function updateHud() {
+    scoreEl.textContent = `SCORE: ${score}`;
+    lifeDisplay.textContent = `LIFE ${Math.max(0, life)}`;
+    if (flowState === FLOW.TITLE) statusEl.textContent = "READY";
+    if (flowState === FLOW.MINIONS) statusEl.textContent = "火眼坊退治中";
+    if (flowState === FLOW.BOSS_READY) statusEl.textContent = "火眼坊戦 READY";
+    if (flowState === FLOW.BOSS && boss) {
+      statusEl.textContent = boss.alive
+        ? `火眼坊（かがんぼう） HP ${boss.hp}/${boss.maxHp}`
+        : "火眼坊撃破！";
+    }
+    if (flowState === FLOW.CLEAR) statusEl.textContent = "CLEAR!";
+    if (flowState === FLOW.GAMEOVER_MINIONS || flowState === FLOW.GAMEOVER_BOSS) statusEl.textContent = "GAME OVER";
+    updateTitleActions();
+  }
+
+  function shoot() {
+    if (flowState !== FLOW.MINIONS && flowState !== FLOW.BOSS) return;
+    if (player.cooldown > 0) return;
+
+    bullets.push({
+      x: player.x + player.w / 2 - 3,
+      y: player.y - 12,
+      w: 6,
+      h: 14,
+      speed: 8
+    });
+    player.cooldown = 13;
+  }
+
+  function enemyShoot(timestamp) {
+    if (flowState !== FLOW.MINIONS) return;
+    if (timestamp - lastEnemyShot < 850) return;
+
+    const alive = enemies.filter(e => e.alive);
+    if (!alive.length) return;
+
+    const shooter = alive[Math.floor(Math.random() * alive.length)];
+    enemyBullets.push({
+      x: shooter.x + shooter.w / 2 - 3,
+      y: shooter.y + shooter.h,
+      w: 6,
+      h: 14,
+      speed: 4.2,
+      vx: 0
+    });
+
+    lastEnemyShot = timestamp;
+  }
+
+  function rectHit(a, b) {
+    return (
+      a.x < b.x + b.w &&
+      a.x + a.w > b.x &&
+      a.y < b.y + b.h &&
+      a.y + a.h > b.y
+    );
+  }
+
+  function killEnemy(enemy, timestamp) {
+    enemy.alive = false;
+    score += 100;
+
+    const scream = screamSounds[Math.floor(Math.random() * screamSounds.length)];
+    playScream(scream);
+
+    floatingTexts.push({
+      text: scream.text,
+      x: enemy.x + enemy.w / 2,
+      y: enemy.y + enemy.h / 2,
+      born: timestamp,
+      duration: Math.max(520, Math.min(1000, scream.dur * 900))
+    });
+
+    // 画面上の文字が増えすぎないよう上限を設ける。
+    if (floatingTexts.length > 8) floatingTexts.shift();
+  }
+
+  // ============================================================
+  // 7. ボス戦
+  // ============================================================
+
+  function createBoss(timestamp) {
+    boss = {
+      x: W / 2 - 108,
+      y: -235,
+      // 月も背景なので、火眼坊は月の前まで降りてくる。
+      baseY: 68,
+      w: 216,
+      h: 216,
+      hp: 18,
+      maxHp: 18,
+      alive: true,
+      dir: 1,
+      speed: 1.85,
+      spawnedAt: timestamp,
+      invulnerableUntil: timestamp + 850,
+      hitFlashUntil: 0
+    };
+  }
+
+  // ボス戦そのものを構築する。
+  // 「通常戦突破」「確認用」「再挑戦」の違いは呼び出し側で決める。
+  function activateBossBattle(timestamp, startingLife) {
+    flowState = FLOW.BOSS;
+    life = startingLife;
+    clearProjectiles();
+    bossLastShot = timestamp;
+    playerInvulnerableUntil = timestamp + 700;
+    createBoss(timestamp);
+  }
+
+  // ボス戦の初期画面へ入る。
+  // ここでは火眼坊は動かず、タップされるまで戦闘を開始しない。
+  function enterBossReadyScreen(startingLife) {
+    stopTouchControl();
+
+    if (autoRestartTimer) {
+      clearTimeout(autoRestartTimer);
+      autoRestartTimer = 0;
+    }
+
+    stopAllGameAudio();
+    resetBattleObjects();
+    resetResultPresentation();
+
+    score = bossCheckpointScore;
+    life = startingLife;
+    flowState = FLOW.BOSS_READY;
+    updateHud();
+  }
+
+  // 通常戦28体撃破後は、直接戦闘を始めずボス戦初期画面へ進む。
+  function enterBossReadyAfterMinions() {
+    if (flowState !== FLOW.MINIONS) return;
+
+    bossCheckpointScore = score;
+    normalLossCount = 0;
+    bossLossCount = 0;
+    enterBossReadyScreen(1);
+  }
+
+  // ボス戦初期画面から実際の火眼坊戦を開始する。
+  function beginBossBattleFromReady() {
+    if (flowState !== FLOW.BOSS_READY) return;
+
+    const startingLife = life;
+    createPlayer();
+    clearProjectiles();
+    floatingTexts = [];
+    activateBossBattle(performance.now(), startingLife);
+    updateHud();
+  }
+
+  // タイトル画面の確認ボタンも、まず火眼坊戦の初期画面を表示する。
+  function startBossTest() {
+    prepareStandaloneBattle();
+
+    score = 2800; // 28体ぶんの確認用スコア
+    bossCheckpointScore = score;
+    normalLossCount = 0;
+    bossLossCount = 0;
+
+    enterBossReadyScreen(1);
+    startGameLoop();
+  }
+
+  function bossShoot(timestamp) {
+    if (flowState !== FLOW.BOSS || !boss || !boss.alive) return;
+    if (timestamp < boss.invulnerableUntil) return;
+    if (timestamp - bossLastShot < 850) return;
+
+    const cx = boss.x + boss.w / 2;
+    const y = boss.y + boss.h - 12;
+
+    [
+      { x: cx - 14, vx: -1.15 },
+      { x: cx + 6,  vx:  1.15 }
+    ].forEach(shot => {
+      enemyBullets.push({
+        x: shot.x,
+        y,
+        w: 8,
+        h: 16,
+        speed: 4.0,
+        vx: shot.vx
+      });
+    });
+
+    bossLastShot = timestamp;
+  }
+
+  function updateBoss(timestamp) {
+    if (!boss || !boss.alive) return;
+
+    // 登場時は上からゆっくり降りてくる。
+    if (boss.y < boss.baseY) {
+      boss.y = Math.min(boss.baseY, boss.y + 3.0);
+      return;
+    }
+
+    const nextX = boss.x + boss.dir * boss.speed;
+    if (nextX <= 28 || nextX + boss.w >= W - 28) {
+      boss.dir *= -1;
+    } else {
+      boss.x = nextX;
+    }
+
+    bossShoot(timestamp);
+  }
+
+  function hitBoss(timestamp) {
+    if (!boss || !boss.alive) return;
+    if (timestamp < boss.invulnerableUntil) return;
+
+    boss.hp -= 1;
+    boss.hitFlashUntil = timestamp + 90;
+    score += 50;
+
+    if (boss.hp <= 0) {
+      boss.hp = 0;
+      boss.alive = false;
+      enemyBullets = [];
+      score += 1000;
+
+      const scream = screamSounds[3]; // 長めの「ギャアァ……！」
+      playScream(scream);
+      floatingTexts.push({
+        text: scream.text,
+        x: boss.x + boss.w / 2,
+        y: boss.y + boss.h / 2,
+        born: timestamp,
+        duration: 1200
+      });
+
+      updateHud();
+      bossD
