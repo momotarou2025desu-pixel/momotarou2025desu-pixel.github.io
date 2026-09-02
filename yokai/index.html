@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>妖怪退治 - 火眼坊（かがんぼう）</title>
+  <title>妖怪退治</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
@@ -20,7 +20,7 @@
     </div>
 
     <div id="gameUnit" class="game-unit">
-      <canvas id="game" width="540" height="960" aria-label="火眼坊（かがんぼう）を退治するレトロゲーム"></canvas>
+      <canvas id="game" width="540" height="960" aria-label="妖怪を退治するレトロゲーム"></canvas>
 
       <div id="touchPad" class="touch-pad" aria-label="スマホ操作エリア">
         <div class="touch-pad-label">←　スライドして移動　→</div>
@@ -35,8 +35,8 @@
     <p class="note">
       スマホではゲーム画面と操作帯を一体化し、ブラウザで現在見えている下端まで自動で広げます。<br>
       下端の操作帯を左右にスライドして移動し、触れている間は自動連射します。<br>
-      28体を倒すと巨大な火眼坊（かがんぼう）が出現します。撃破でクリアです。<br>
-      初期画面の「クリア確認（火眼坊出現）」ボタンで、雑魚戦を飛ばして火眼坊確認もできます。ボス画像を使用しています。結果画面では操作するとすぐ再戦できます。
+      通常の妖怪を倒すとボス妖怪が出現します。撃破すると次のステージと妖怪カードが解放されます。<br>
+      初期画面の「クリア確認」ボタンで、そのステージのボス確認もできます。結果画面では操作するとすぐ再戦できます。
     </p>
   </div>
 
@@ -51,18 +51,24 @@
         <article id="kaganboCollectionItem" class="collection-card" role="button" tabindex="0" aria-label="火眼坊（かがんぼう）のカードを拡大表示">
           <img id="kaganboCollectionCard" src="images/kaganbo_collection_card.jpg?v=20260902080411" alt="火眼坊（かがんぼう）の妖怪カード">
         </article>
+
+        <article id="bakenekoCollectionItem" class="collection-card" role="button" tabindex="0" aria-label="化け猫（ばけねこ）のカードを拡大表示" hidden>
+          <img id="bakenekoCollectionCard" src="images/bakeneko_collection_card.jpg?v=202609021330" alt="化け猫（ばけねこ）の妖怪カード">
+        </article>
       </div>
     </section>
   </div>
 
   <div id="cardDetailOverlay" class="card-detail-overlay" hidden aria-hidden="true">
-    <div class="card-detail-frame" role="dialog" aria-modal="true" aria-label="火眼坊（かがんぼう）のカード拡大表示">
+    <div class="card-detail-frame" role="dialog" aria-modal="true" aria-label="妖怪カード拡大表示">
       <button id="cardDetailCloseBtn" class="card-detail-close" type="button" aria-label="カード拡大表示を閉じる">×</button>
-      <img id="cardDetailImage" class="card-detail-image" alt="火眼坊（かがんぼう）の妖怪カード 拡大表示">
+      <img id="cardDetailImage" class="card-detail-image" alt="妖怪カード 拡大表示">
     </div>
   </div>
+
   <script src="bakeneko-roar-fix.js?v=202609021208"></script>
-  <script src="loader.js?v=202609021208"></script>
+  <script src="stage2-boss-patch.js?v=202609021330"></script>
+  <script src="loader.js?v=202609021330"></script>
   <script src="pc-fit.js?v=202609020929"></script>
 </body>
 </html>
