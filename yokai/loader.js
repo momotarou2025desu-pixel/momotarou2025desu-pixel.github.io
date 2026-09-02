@@ -57,6 +57,10 @@
   let currentStage = 1;
   let stageStartedAt = 0;
 
+  // Stage1では、通常隊列から2体ずつが5段目へ降りて前衛になる。
+  let stage1FrontDir = 1;
+  let stage1FrontLineY = 0;
+
   function loadUnlockedYokai() {
     try {
       const saved = JSON.parse(localStorage.getItem(COLLECTION_STORAGE_KEY) || "[]");
@@ -132,11 +136,117 @@
     }
     source = source.replace(startNormalAnchor, startNormalCode);
 
-    // Stage2は敵数・攻撃・当たり判定を変えず、移動だけ八の字＋下降にする。
-    const stage2FunctionAnchor = `  function normalStartLife() {
+    const stageMovementFunctionAnchor = `  function normalStartLife() {
     return 1 + Math.floor(normalLossCount / 2);
   }`;
-    const stage2FunctionCode = `  function initializeStage2Formation() {
+    const stageMovementFunctionCode = `  function deployStage1FrontPair() {
+    if (currentStage !== 1) return;
+    if (enemies.some(e => e.alive && e.stage1FrontState)) return;
+
+    const candidates = enemies.filter(e => e.alive && !e.stage1FrontState);
+    if (!candidates.length) return;
+
+    const topY = Math.min(...candidates.map(e => e.y));
+    const topRow = candidates
+      .filter(e => Math.abs(e.y - topY) < 0.5)
+      .sort((a, b) => a.x - b.x);
+
+    const picks = [];
+
+    if (topRow.length >= 2) {
+      // 7体なら中央を空けた3体目と5体目あたりを選び、左右に間を取る。
+      let leftIndex = Math.floor((topRow.length - 1) / 3);
+      let rightIndex = Math.ceil((topRow.length - 1) * 2 / 3);
+      if (rightIndex === leftIndex) rightIndex = Math.min(topRow.length - 1, leftIndex + 1);
+      picks.push(topRow[leftIndex], topRow[rightIndex]);
+    } else {
+      picks.push(topRow[0]);
+
+      const remaining = candidates.filter(e => e !== topRow[0]);
+      if (remaining.length) {
+        const nextY = Math.min(...remaining.map(e => e.y));
+        const nextRow = remaining
+          .filter(e => Math.abs(e.y - nextY) < 0.5)
+          .sort((a, b) => a.x - b.x);
+        picks.push(nextRow[Math.floor((nextRow.length - 1) / 2)]);
+      }
+    }
+
+    for (const e of picks) {
+      e.stage1FrontState = "descending";
+    }
+  }
+
+  function initializeStage1Formation() {
+    stage1FrontDir = 1;
+
+    // 初期4段の最下段から、ちょうど1段分(40+22)下を前衛ラインにする。
+    const bottomY = Math.max(...enemies.map(e => e.y));
+    stage1FrontLineY = bottomY + 62;
+
+    enemies.forEach(e => {
+      e.stage1FrontState = "";
+    });
+
+    deployStage1FrontPair();
+  }
+
+  function updateStage1Enemies(aliveEnemies) {
+    const formationEnemies = aliveEnemies.filter(e => !e.stage1FrontState);
+
+    // 通常隊列だけが従来どおり左右移動し、端へ着いたら全体を1段階下げる。
+    if (formationEnemies.length) {
+      let shouldDrop = false;
+      for (const e of formationEnemies) {
+        const nextX = e.x + enemyDir * enemySpeed;
+        if (nextX <= 8 || nextX + e.w >= W - 8) {
+          shouldDrop = true;
+          break;
+        }
+      }
+
+      if (shouldDrop) {
+        enemyDir *= -1;
+        formationEnemies.forEach(e => e.y += 18);
+        stage1FrontLineY += 18;
+      } else {
+        formationEnemies.forEach(e => e.x += enemyDir * enemySpeed);
+      }
+    }
+
+    // 選ばれた2体は隊列から外れ、5段目まで縦に降りる。
+    for (const e of aliveEnemies) {
+      if (e.stage1FrontState !== "descending") continue;
+
+      e.y = Math.min(stage1FrontLineY, e.y + 2.2);
+      if (e.y >= stage1FrontLineY - 0.01) {
+        e.y = stage1FrontLineY;
+        e.stage1FrontState = "front";
+      }
+    }
+
+    // 5段目へ着いた前衛は、2体まとめて左右へ往復する。
+    const frontEnemies = aliveEnemies.filter(e => e.stage1FrontState === "front");
+    if (frontEnemies.length) {
+      let shouldReverse = false;
+      for (const e of frontEnemies) {
+        const nextX = e.x + stage1FrontDir * enemySpeed;
+        if (nextX <= 8 || nextX + e.w >= W - 8) {
+          shouldReverse = true;
+          break;
+        }
+      }
+
+      if (shouldReverse) stage1FrontDir *= -1;
+
+      for (const e of frontEnemies) {
+        e.x += stage1FrontDir * enemySpeed;
+        e.y = stage1FrontLineY;
+      }
+    }
+  }
+
+  function initializeStage2Formation() {
     enemies.forEach(e => {
       e.baseX = e.x;
       e.baseY = e.y;
@@ -164,12 +274,12 @@
     return 1 + Math.floor(normalLossCount / 2);
   }`;
 
-    if (!source.includes(stage2FunctionAnchor)) {
-      throw new Error("Stage2 function patch target not found");
+    if (!source.includes(stageMovementFunctionAnchor)) {
+      throw new Error("Stage movement function patch target not found");
     }
-    source = source.replace(stage2FunctionAnchor, stage2FunctionCode);
+    source = source.replace(stageMovementFunctionAnchor, stageMovementFunctionCode);
 
-    // Stage2を直接開始する場合だけ、生成した隊列の基準座標を保存する。
+    // 生成した28体を、開始するステージ専用の移動状態へ初期化する。
     const formationAnchor = `    // 通常戦の開始ライフ。2敗ごとに上限なく1ずつ増える。
     life = normalStartLife();
     createMinionFormation();
@@ -179,24 +289,30 @@
     life = normalStartLife();
     createMinionFormation();
 
-    if (currentStage === 2) {
+    if (currentStage === 1) {
+      initializeStage1Formation();
+    } else if (currentStage === 2) {
       initializeStage2Formation();
     }
 
     startGameLoop();`;
 
     if (!source.includes(formationAnchor)) {
-      throw new Error("Stage2 formation patch target not found");
+      throw new Error("Stage formation patch target not found");
     }
     source = source.replace(formationAnchor, formationCode);
 
-    // LIFEを失って敵を上へ戻す処理は、Stage2の基準オフセットにも反映する。
+    // LIFEを失って敵を上へ戻す処理を、各ステージの基準位置にも反映する。
     const respawnAnchor = `    if (source === "enemyLine" && flowState === FLOW.MINIONS) {
       enemies.forEach(e => {
         if (e.alive) e.y = Math.max(16, e.y - 72);
       });
     }`;
     const respawnCode = `    if (source === "enemyLine" && flowState === FLOW.MINIONS) {
+      if (currentStage === 1) {
+        stage1FrontLineY -= 72;
+      }
+
       enemies.forEach(e => {
         if (!e.alive) return;
         if (currentStage === 2) {
@@ -207,11 +323,11 @@
     }`;
 
     if (!source.includes(respawnAnchor)) {
-      throw new Error("Stage2 respawn patch target not found");
+      throw new Error("Stage respawn patch target not found");
     }
     source = source.replace(respawnAnchor, respawnCode);
 
-    // 既存のStage1移動はそのまま。Stage2だけ八の字移動へ切り替える。
+    // Stage1は前衛2体方式、Stage2は八の字移動。それ以外の戦闘処理は共通。
     const movementAnchor = `      let shouldDrop = false;
       for (const e of aliveEnemies) {
         const nextX = e.x + enemyDir * enemySpeed;
@@ -230,27 +346,31 @@
     const movementCode = `      if (currentStage === 2) {
         updateStage2Enemies(aliveEnemies, timestamp);
       } else {
-        let shouldDrop = false;
-        for (const e of aliveEnemies) {
-          const nextX = e.x + enemyDir * enemySpeed;
-          if (nextX <= 8 || nextX + e.w >= W - 8) {
-            shouldDrop = true;
-            break;
-          }
-        }
-
-        if (shouldDrop) {
-          enemyDir *= -1;
-          aliveEnemies.forEach(e => e.y += 18);
-        } else {
-          aliveEnemies.forEach(e => e.x += enemyDir * enemySpeed);
-        }
+        updateStage1Enemies(aliveEnemies);
       }`;
 
     if (!source.includes(movementAnchor)) {
-      throw new Error("Stage2 movement patch target not found");
+      throw new Error("Stage movement patch target not found");
     }
     source = source.replace(movementAnchor, movementCode);
+
+    // Stage1の前衛2体が両方いなくなったら、その時点の最上段から次の2体を降ろす。
+    const frontRefreshAnchor = `      bullets = bullets.filter(b => b.y > -50);
+
+      if (enemies.every(e => !e.alive)) {`;
+    const frontRefreshCode = `      bullets = bullets.filter(b => b.y > -50);
+
+      if (currentStage === 1) {
+        const hasFront = enemies.some(e => e.alive && e.stage1FrontState);
+        if (!hasFront) deployStage1FrontPair();
+      }
+
+      if (enemies.every(e => !e.alive)) {`;
+
+    if (!source.includes(frontRefreshAnchor)) {
+      throw new Error("Stage1 front refresh patch target not found");
+    }
+    source = source.replace(frontRefreshAnchor, frontRefreshCode);
 
     const script = document.createElement("script");
     script.textContent = source;
