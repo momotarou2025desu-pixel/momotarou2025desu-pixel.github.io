@@ -4,12 +4,15 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>妖怪退治</title>
-  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="style.css?v=202609021758" />
 </head>
 <body>
   <div class="wrap">
     <div class="topbar">
-      <span id="lifeDisplay" class="life-display">LIFE 1</span>
+      <div class="life-controls">
+        <span id="lifeDisplay" class="life-display">LIFE 1</span>
+        <button id="resetProgressBtn" class="reset-progress-btn" type="button">最初から</button>
+      </div>
       <h1>妖怪退治</h1>
       <button id="collectionBtn" class="collection-btn" type="button" hidden>妖怪コレクション</button>
     </div>
@@ -66,7 +69,9 @@
     </div>
   </div>
 
+  <script src="reset-progress.js?v=202609021758"></script>
   <script src="bakeneko-roar-fix.js?v=202609021208"></script>
+  <script src="kaganbo-damage-patch.js?v=202609021758"></script>
   <script src="bakeneko-damage-patch.js?v=202609021655"></script>
   <script src="stage2-boss-patch.js?v=202609021330"></script>
   <script src="stage-title-patch.js?v=202609021358"></script>
