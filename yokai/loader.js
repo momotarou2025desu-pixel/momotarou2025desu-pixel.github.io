@@ -46,6 +46,17 @@
     }
     source = source.replace(oldDesktopSize, newDesktopSize);
 
+    // 石灯籠は背景として沈ませ、敵弾と紛らわしい黄色い灯りを使わない。
+    const lanternGlowAnchor = `      ctx.fillStyle = "rgba(255,183,60,.78)";
+      ctx.fillRect(x - 4, y + 5, 8, 9);`;
+    const lanternGlowCode = `      ctx.fillStyle = "#18201c";
+      ctx.fillRect(x - 4, y + 5, 8, 9);`;
+
+    if (!source.includes(lanternGlowAnchor)) {
+      throw new Error("Lantern color patch target not found");
+    }
+    source = source.replace(lanternGlowAnchor, lanternGlowCode);
+
     const collectionStateAnchor = `  const TOUCH_RELEASE_GRACE_MS = 1000;`;
     const collectionStateCode = `  const TOUCH_RELEASE_GRACE_MS = 1000;
 
@@ -353,6 +364,14 @@
       throw new Error("Stage2 front refresh patch target not found");
     }
     source = source.replace(frontRefreshAnchor, frontRefreshCode);
+
+    // ゲーム領域では右クリックを何の操作にも使わず、ブラウザメニューも出さない。
+    const gameUnitElement = document.getElementById("gameUnit");
+    if (gameUnitElement) {
+      gameUnitElement.addEventListener("contextmenu", (event) => {
+        event.preventDefault();
+      });
+    }
 
     const script = document.createElement("script");
     script.textContent = source;
