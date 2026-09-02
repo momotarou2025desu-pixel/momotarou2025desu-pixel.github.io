@@ -35,14 +35,39 @@
       gap: 8px;
     }
 
-    .life-display {
+    .life-controls {
       justify-self: start;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 4px;
+      min-width: 0;
+    }
+
+    .life-display {
       min-width: 0;
       color: #ffe9a8;
       font-weight: 900;
       font-size: clamp(12px, 2.8vw, 16px);
       white-space: nowrap;
       text-shadow: 0 2px 0 #000;
+    }
+
+    .reset-progress-btn {
+      min-width: 0;
+      min-height: 26px;
+      padding: 3px 8px;
+      border-radius: 7px;
+      border-color: #6f3d45;
+      background: #271318;
+      color: #ffd8d8;
+      font-size: clamp(10px, 2.1vw, 12px);
+      line-height: 1.1;
+      white-space: nowrap;
+    }
+
+    .reset-progress-btn:hover {
+      background: #3a1b22;
     }
 
     .collection-btn {
@@ -365,6 +390,12 @@
       .topbar {
         gap: 5px;
         margin-bottom: 5px;
+      }
+
+      .reset-progress-btn {
+        min-height: 24px;
+        padding: 3px 6px;
+        font-size: clamp(9px, 2.7vw, 11px);
       }
 
       .collection-btn {
