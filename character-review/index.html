@@ -269,6 +269,8 @@
     processedChapter: 1,
     currentChapter: 1,
     confirmed: new Map(),
+    manualConfirmed: new Map(),
+    manualUnconfirmed: new Map(),
     activeTab: "pending",
     checked: new Set()
   };
@@ -448,6 +450,8 @@
     state.pack = null;
     state.reviewFileSha = null;
     state.confirmed = new Map();
+    state.manualConfirmed = new Map();
+    state.manualUnconfirmed = new Map();
     state.checked = new Set();
     state.activeTab = "pending";
     el.candidateSearch.value = "";
@@ -494,6 +498,101 @@
     );
   }
 
+  function allCandidateMaps() {
+    var byId = new Map();
+    var byName = new Map();
+
+    state.pack.chapters.forEach(function (chapter) {
+      (chapter.candidates || []).forEach(function (candidate) {
+        var item = Object.assign({}, candidate, {
+          firstSeenChapter: Number(chapter.number)
+        });
+
+        byId.set(Number(item.id), item);
+
+        if (!byName.has(item.displayName)) {
+          byName.set(item.displayName, item);
+        }
+      });
+    });
+
+    return { byId: byId, byName: byName };
+  }
+
+  function resolveSavedEntry(entry, samePack, maps) {
+    if (!entry) return null;
+
+    if (samePack && maps.byId.has(Number(entry.candidateId))) {
+      return maps.byId.get(Number(entry.candidateId));
+    }
+
+    if (entry.displayName && maps.byName.has(entry.displayName)) {
+      return maps.byName.get(entry.displayName);
+    }
+
+    return null;
+  }
+
+  function algorithmConfirmedIdsThroughProcessedChapter() {
+    var ids = new Set();
+
+    for (var i = 0; i < state.processedChapter && i < state.pack.chapters.length; i++) {
+      var chapter = state.pack.chapters[i];
+
+      if (Array.isArray(chapter.autoConfirmedCandidateIds)) {
+        chapter.autoConfirmedCandidateIds.forEach(function (id) {
+          ids.add(Number(id));
+        });
+      } else {
+        // Compatibility with review packs generated before
+        // auto-confirmation transition events were added.
+        (chapter.candidates || []).forEach(function (candidate) {
+          if (candidate.algorithmStatus === "確定") {
+            ids.add(Number(candidate.id));
+          }
+        });
+      }
+    }
+
+    return ids;
+  }
+
+  function rebuildConfirmed() {
+    var candidateMap = new Map(
+      candidatesThroughProcessedChapter().map(function (candidate) {
+        return [Number(candidate.id), candidate];
+      })
+    );
+    var autoIds = algorithmConfirmedIdsThroughProcessedChapter();
+    var confirmed = new Map();
+
+    autoIds.forEach(function (id) {
+      var candidate = candidateMap.get(Number(id));
+
+      if (!candidate || state.manualUnconfirmed.has(Number(id))) return;
+
+      confirmed.set(Number(id), {
+        candidateId: Number(id),
+        displayName: candidate.displayName,
+        source: "auto"
+      });
+    });
+
+    state.manualConfirmed.forEach(function (entry, id) {
+      var candidate = candidateMap.get(Number(id));
+
+      if (!candidate || state.manualUnconfirmed.has(Number(id))) return;
+
+      confirmed.set(Number(id), {
+        candidateId: Number(id),
+        displayName: candidate.displayName,
+        source: "manual"
+      });
+    });
+
+    state.confirmed = confirmed;
+  }
+
   async function loadReviewState() {
     var path = "review-state/" + state.sourceFile + ".json";
     var url =
@@ -503,11 +602,14 @@
 
     var data = await githubRequest(url, null, true);
 
+    state.manualConfirmed = new Map();
+    state.manualUnconfirmed = new Map();
+
     if (!data) {
       state.reviewFileSha = null;
       state.processedChapter = 1;
       state.currentChapter = 1;
-      state.confirmed = new Map();
+      rebuildConfirmed();
       return;
     }
 
@@ -531,40 +633,37 @@
     );
     state.currentChapter = state.processedChapter;
 
-    var allById = new Map();
-    var allByName = new Map();
-
-    state.pack.chapters.forEach(function (chapter) {
-      (chapter.candidates || []).forEach(function (candidate) {
-        allById.set(Number(candidate.id), candidate);
-        if (!allByName.has(candidate.displayName)) {
-          allByName.set(candidate.displayName, candidate);
-        }
-      });
-    });
-
+    var maps = allCandidateMaps();
     var samePack =
       saved.sourceSha256 === state.pack.sourceSha256 &&
       saved.algorithmVersion === state.pack.algorithmVersion;
 
-    state.confirmed = new Map();
+    function loadEntries(entries, destination) {
+      (entries || []).forEach(function (entry) {
+        var candidate = resolveSavedEntry(entry, samePack, maps);
+        if (!candidate) return;
 
-    (saved.confirmed || []).forEach(function (entry) {
-      var candidate = null;
-
-      if (samePack && allById.has(Number(entry.candidateId))) {
-        candidate = allById.get(Number(entry.candidateId));
-      } else if (entry.displayName && allByName.has(entry.displayName)) {
-        candidate = allByName.get(entry.displayName);
-      }
-
-      if (candidate) {
-        state.confirmed.set(Number(candidate.id), {
+        destination.set(Number(candidate.id), {
           candidateId: Number(candidate.id),
           displayName: candidate.displayName
         });
-      }
+      });
+    }
+
+    if (Number(saved.version) >= 2) {
+      loadEntries(saved.manualConfirmed, state.manualConfirmed);
+      loadEntries(saved.manualUnconfirmed, state.manualUnconfirmed);
+    } else {
+      // Version 1 stored only the user's final confirmed list.
+      // Preserve those choices as manual confirmations.
+      loadEntries(saved.confirmed, state.manualConfirmed);
+    }
+
+    state.manualUnconfirmed.forEach(function (_, id) {
+      state.manualConfirmed.delete(Number(id));
     });
+
+    rebuildConfirmed();
   }
 
   function candidatesThroughProcessedChapter() {
@@ -696,9 +795,20 @@
 
       var meta = document.createElement("div");
       meta.className = "candidate-meta";
-      meta.textContent =
+      var metaText =
         "初出 第" + candidate.firstSeenChapter + "話" +
         (candidate.category ? " / " + candidate.category : "");
+
+      var confirmedEntry = state.confirmed.get(Number(candidate.id));
+      if (confirmedEntry) {
+        metaText += confirmedEntry.source === "auto"
+          ? " / 自動確定"
+          : " / 手動確定";
+      } else if (state.manualUnconfirmed.has(Number(candidate.id))) {
+        metaText += " / 自動確定から未確定へ戻した";
+      }
+
+      meta.textContent = metaText;
 
       body.appendChild(name);
       body.appendChild(meta);
@@ -722,16 +832,22 @@
       "次話を処理（第" + (state.processedChapter + 1) + "話）→";
   }
 
+  function sortedEntries(map) {
+    return Array.from(map.values()).sort(function (a, b) {
+      return Number(a.candidateId) - Number(b.candidateId);
+    });
+  }
+
   function reviewPayload() {
     return {
-      version: 1,
+      version: 2,
       sourceFile: state.sourceFile,
       sourceSha256: state.pack.sourceSha256,
       algorithmVersion: state.pack.algorithmVersion,
       processedChapter: state.processedChapter,
-      confirmed: Array.from(state.confirmed.values()).sort(function (a, b) {
-        return Number(a.candidateId) - Number(b.candidateId);
-      })
+      manualConfirmed: sortedEntries(state.manualConfirmed),
+      manualUnconfirmed: sortedEntries(state.manualUnconfirmed),
+      confirmed: sortedEntries(state.confirmed)
     };
   }
 
@@ -765,6 +881,8 @@
     }
 
     var oldConfirmed = new Map(state.confirmed);
+    var oldManualConfirmed = new Map(state.manualConfirmed);
+    var oldManualUnconfirmed = new Map(state.manualUnconfirmed);
 
     try {
       setBusy(true);
@@ -774,25 +892,48 @@
           return [Number(x.id), x];
         })
       );
+      var autoIds = algorithmConfirmedIdsThroughProcessedChapter();
 
       if (state.activeTab === "pending") {
         state.checked.forEach(function (id) {
-          var candidate = candidateMap.get(Number(id));
-          if (candidate) {
-            state.confirmed.set(Number(id), {
-              candidateId: Number(id),
+          id = Number(id);
+          var candidate = candidateMap.get(id);
+          if (!candidate) return;
+
+          state.manualUnconfirmed.delete(id);
+
+          if (autoIds.has(id)) {
+            state.manualConfirmed.delete(id);
+          } else {
+            state.manualConfirmed.set(id, {
+              candidateId: id,
               displayName: candidate.displayName
             });
           }
         });
 
+        rebuildConfirmed();
         await saveReviewState("Confirm character candidates: " + state.sourceFile);
         setStatus("チェックした候補を確定しました。", "ok");
       } else {
         state.checked.forEach(function (id) {
-          state.confirmed.delete(Number(id));
+          id = Number(id);
+          var candidate = candidateMap.get(id);
+          if (!candidate) return;
+
+          state.manualConfirmed.delete(id);
+
+          if (autoIds.has(id)) {
+            state.manualUnconfirmed.set(id, {
+              candidateId: id,
+              displayName: candidate.displayName
+            });
+          } else {
+            state.manualUnconfirmed.delete(id);
+          }
         });
 
+        rebuildConfirmed();
         await saveReviewState("Unconfirm character candidates: " + state.sourceFile);
         setStatus("チェックした候補を未確定へ戻しました。", "ok");
       }
@@ -801,6 +942,8 @@
       renderCandidates();
     } catch (error) {
       state.confirmed = oldConfirmed;
+      state.manualConfirmed = oldManualConfirmed;
+      state.manualUnconfirmed = oldManualUnconfirmed;
       renderCandidateTabs();
       renderCandidates();
       setStatus("保存失敗: " + error.message, "error");
@@ -820,6 +963,7 @@
       setBusy(true);
       state.processedChapter += 1;
       state.currentChapter = state.processedChapter;
+      rebuildConfirmed();
 
       await saveReviewState(
         "Process chapter " + state.processedChapter + ": " + state.sourceFile
@@ -827,12 +971,13 @@
 
       renderAll();
       setStatus(
-        "第" + state.processedChapter + "話を処理し、新しい候補を未確定リストへ追加しました。",
+        "第" + state.processedChapter + "話を処理しました。新しい候補を追加し、自動確定候補は確定へ反映しました。",
         "ok"
       );
     } catch (error) {
       state.processedChapter = oldProcessed;
       state.currentChapter = oldCurrent;
+      rebuildConfirmed();
       renderAll();
       setStatus("次話処理の保存に失敗しました: " + error.message, "error");
     } finally {
