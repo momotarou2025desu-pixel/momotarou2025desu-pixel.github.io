@@ -126,13 +126,6 @@
     font-family: inherit;
     font-size: 16px;
   }
-  .viewer-footer {
-    border-top: 1px solid var(--border);
-    padding: 10px 12px;
-    display: flex;
-    justify-content: space-between;
-    gap: 8px;
-  }
   .review-panel {
     min-height: 76vh;
     display: flex;
@@ -720,7 +713,6 @@
 
     var prevDisabled = state.currentChapter <= 1;
     el.prevView.disabled = prevDisabled;
-    el.prevViewBottom.disabled = prevDisabled;
   }
 
   function renderCandidateTabs() {
