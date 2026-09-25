@@ -205,6 +205,9 @@
     <select id="sourceSelect" aria-label="本文切り替え"></select>
     <button id="reload" type="button">再読込</button>
     <a href="/corpus-manager/">本文管理へ戻る</a>
+    <a id="speakerReviewLink" href="/speaker-review/">会話 男女判定</a>
+    <a href="http://127.0.0.1:5188/speakers">話者判定を開く</a>
+    <a href="http://127.0.0.1:5188/voices">読み上げ設定を開く</a>
   </div>
   <div id="status" class="status"></div>
 
@@ -480,6 +483,11 @@
     var params = new URLSearchParams(location.search);
     params.set("file", fileName);
     history.replaceState(null, "", location.pathname + "?" + params.toString());
+
+    var speakerLink = document.getElementById("speakerReviewLink");
+    if (speakerLink) {
+      speakerLink.href = "/speaker-review/?file=" + encodeURIComponent(fileName);
+    }
 
     setStatus(
       "第" + state.processedChapter + "話まで処理済み。未確定候補は省略せず全部表示します。",
