@@ -777,6 +777,11 @@
         viewFile(item);
       });
 
+      var review = document.createElement("a");
+      review.className = "link-button";
+      review.textContent = "人物判定";
+      review.href = "/character-review/?file=" + encodeURIComponent(item.name);
+
       var open = document.createElement("a");
       open.className = "link-button";
       open.textContent = "GitHubで開く";
@@ -794,6 +799,7 @@
       });
 
       actions.appendChild(view);
+      actions.appendChild(review);
       actions.appendChild(open);
       actions.appendChild(remove);
       row.appendChild(name);

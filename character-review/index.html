@@ -1,0 +1,913 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>人物判定</title>
+<style>
+  :root {
+    color-scheme: light dark;
+    --bg: #f4f5f7;
+    --panel: #ffffff;
+    --text: #171717;
+    --muted: #666;
+    --border: #d8dce2;
+    --accent: #1f6feb;
+    --ok: #1a7f37;
+    --danger: #b42318;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0d1117;
+      --panel: #161b22;
+      --text: #e6edf3;
+      --muted: #9da7b3;
+      --border: #30363d;
+      --accent: #58a6ff;
+      --ok: #3fb950;
+      --danger: #ff7b72;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: system-ui, -apple-system, "Segoe UI", "Yu Gothic UI", "Yu Gothic", sans-serif;
+  }
+  button, select, input { font: inherit; }
+  button, select, input[type="search"] {
+    border: 1px solid var(--border);
+    background: var(--panel);
+    color: var(--text);
+    border-radius: 7px;
+  }
+  button {
+    padding: 7px 11px;
+    cursor: pointer;
+  }
+  button:disabled { opacity: .45; cursor: default; }
+  a { color: var(--accent); }
+  .page {
+    width: min(1600px, 100%);
+    margin: 0 auto;
+    padding: 14px;
+  }
+  .topbar {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+    margin-bottom: 10px;
+  }
+  .topbar h1 {
+    font-size: 22px;
+    margin: 0 14px 0 0;
+  }
+  .topbar select {
+    min-width: min(520px, 70vw);
+    padding: 7px 9px;
+  }
+  .status {
+    min-height: 24px;
+    color: var(--muted);
+    margin: 4px 0 10px;
+  }
+  .status.ok { color: var(--ok); }
+  .status.error { color: var(--danger); }
+  .layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1.75fr) minmax(360px, .95fr);
+    gap: 12px;
+    align-items: stretch;
+  }
+  .panel {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    min-width: 0;
+  }
+  .viewer-panel {
+    display: flex;
+    flex-direction: column;
+    min-height: 76vh;
+  }
+  .panel-head {
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--border);
+  }
+  .viewer-controls {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  .viewer-controls select {
+    min-width: 280px;
+    max-width: 70%;
+    padding: 6px 8px;
+  }
+  .progress {
+    margin-left: auto;
+    color: var(--muted);
+    font-size: 13px;
+  }
+  .chapter-title {
+    margin-top: 9px;
+    font-weight: 700;
+  }
+  .chapter-text {
+    flex: 1;
+    margin: 0;
+    padding: 18px 20px 28px;
+    white-space: pre-wrap;
+    overflow: auto;
+    line-height: 1.9;
+    font-family: inherit;
+    font-size: 16px;
+  }
+  .viewer-footer {
+    border-top: 1px solid var(--border);
+    padding: 10px 12px;
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+  }
+  .review-panel {
+    min-height: 76vh;
+    display: flex;
+    flex-direction: column;
+  }
+  .tabs {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+  }
+  .tab.active {
+    border-color: var(--accent);
+    font-weight: 700;
+  }
+  .review-tools {
+    display: flex;
+    gap: 8px;
+    margin-top: 9px;
+  }
+  .review-tools input {
+    width: 100%;
+    padding: 7px 9px;
+  }
+  .candidate-list {
+    flex: 1;
+    overflow: auto;
+    max-height: calc(76vh - 160px);
+  }
+  .candidate-row {
+    display: grid;
+    grid-template-columns: 24px minmax(0, 1fr);
+    gap: 7px;
+    align-items: start;
+    padding: 8px 11px;
+    border-bottom: 1px solid var(--border);
+    cursor: pointer;
+  }
+  .candidate-row:hover { background: rgba(127,127,127,.08); }
+  .candidate-row input { margin-top: 4px; }
+  .candidate-name {
+    overflow-wrap: anywhere;
+    font-weight: 600;
+  }
+  .candidate-meta {
+    color: var(--muted);
+    font-size: 12px;
+    margin-top: 2px;
+  }
+  .empty {
+    padding: 20px 12px;
+    color: var(--muted);
+    text-align: center;
+  }
+  .review-action {
+    border-top: 1px solid var(--border);
+    padding: 10px 12px;
+  }
+  .review-action button { width: 100%; }
+  .primary {
+    border-color: var(--accent);
+    color: var(--accent);
+    font-weight: 700;
+  }
+  .busy { pointer-events: none; opacity: .72; }
+  @media (max-width: 980px) {
+    .layout { grid-template-columns: 1fr; }
+    .viewer-panel, .review-panel { min-height: 60vh; }
+    .candidate-list { max-height: 55vh; }
+    .progress { margin-left: 0; width: 100%; }
+  }
+</style>
+</head>
+<body>
+<div class="page" id="app">
+  <div class="topbar">
+    <h1>人物判定</h1>
+    <select id="sourceSelect" aria-label="本文切り替え"></select>
+    <button id="reload" type="button">再読込</button>
+    <a href="/corpus-manager/">本文管理へ戻る</a>
+  </div>
+  <div id="status" class="status"></div>
+
+  <div class="layout">
+    <section class="panel viewer-panel">
+      <div class="panel-head">
+        <div class="viewer-controls">
+          <button id="prevView" type="button">← 前話</button>
+          <select id="chapterSelect" aria-label="話数切り替え"></select>
+          <div id="progress" class="progress"></div>
+        </div>
+        <div id="chapterTitle" class="chapter-title"></div>
+      </div>
+      <pre id="chapterText" class="chapter-text"></pre>
+      <div class="viewer-footer">
+        <button id="prevViewBottom" type="button">← 前話を表示</button>
+        <button id="processNext" class="primary" type="button">次話を処理 →</button>
+      </div>
+    </section>
+
+    <section class="panel review-panel">
+      <div class="panel-head">
+        <div class="tabs">
+          <button id="pendingTab" class="tab active" type="button">未確定 0</button>
+          <button id="confirmedTab" class="tab" type="button">確定 0</button>
+        </div>
+        <div class="review-tools">
+          <input id="candidateSearch" type="search" placeholder="候補を検索（空欄なら全部表示）">
+        </div>
+      </div>
+      <div id="candidateList" class="candidate-list"></div>
+      <div class="review-action">
+        <button id="candidateAction" class="primary" type="button">チェックした候補を確定</button>
+      </div>
+    </section>
+  </div>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  var OWNER = "momotarou2025desu-pixel";
+  var REPO = "narou-character-analyzer";
+  var BRANCH = "main";
+  var API_ROOT = "https://api.github.com";
+  var SESSION_KEY = "narouCorpusManagerGithubToken";
+  var LOCAL_KEY = "narouCorpusManagerGithubTokenPersistent";
+
+  var state = {
+    sourceFiles: [],
+    sourceFile: "",
+    pack: null,
+    reviewFileSha: null,
+    processedChapter: 1,
+    currentChapter: 1,
+    confirmed: new Map(),
+    activeTab: "pending",
+    checked: new Set()
+  };
+
+  var el = {
+    app: document.getElementById("app"),
+    sourceSelect: document.getElementById("sourceSelect"),
+    reload: document.getElementById("reload"),
+    status: document.getElementById("status"),
+    prevView: document.getElementById("prevView"),
+    prevViewBottom: document.getElementById("prevViewBottom"),
+    chapterSelect: document.getElementById("chapterSelect"),
+    progress: document.getElementById("progress"),
+    chapterTitle: document.getElementById("chapterTitle"),
+    chapterText: document.getElementById("chapterText"),
+    processNext: document.getElementById("processNext"),
+    pendingTab: document.getElementById("pendingTab"),
+    confirmedTab: document.getElementById("confirmedTab"),
+    candidateSearch: document.getElementById("candidateSearch"),
+    candidateList: document.getElementById("candidateList"),
+    candidateAction: document.getElementById("candidateAction")
+  };
+
+  function token() {
+    return (
+      localStorage.getItem(LOCAL_KEY) ||
+      sessionStorage.getItem(SESSION_KEY) ||
+      ""
+    ).trim();
+  }
+
+  function setBusy(flag) {
+    el.app.classList.toggle("busy", Boolean(flag));
+  }
+
+  function setStatus(message, type) {
+    el.status.textContent = message || "";
+    el.status.className = "status" + (type ? " " + type : "");
+  }
+
+  function apiHeaders() {
+    return {
+      "Accept": "application/vnd.github+json",
+      "Authorization": "Bearer " + token(),
+      "X-GitHub-Api-Version": "2022-11-28"
+    };
+  }
+
+  function encodedPath(path) {
+    return String(path).split("/").map(encodeURIComponent).join("/");
+  }
+
+  function contentsUrl(path) {
+    return API_ROOT + "/repos/" + OWNER + "/" + REPO + "/contents/" + encodedPath(path);
+  }
+
+  async function githubRequest(url, options, allow404) {
+    var opts = Object.assign({}, options || {});
+    opts.headers = Object.assign({}, apiHeaders(), opts.headers || {});
+
+    if (!opts.method || String(opts.method).toUpperCase() === "GET") {
+      opts.cache = "no-store";
+    }
+
+    var response = await fetch(url, opts);
+    var text = await response.text();
+    var body = null;
+
+    if (text) {
+      try { body = JSON.parse(text); }
+      catch (_) { body = text; }
+    }
+
+    if (allow404 && response.status === 404) return null;
+
+    if (!response.ok) {
+      var message = body && body.message ? body.message : String(body || response.statusText);
+      throw new Error(response.status + " " + message);
+    }
+
+    return body;
+  }
+
+  async function githubRawText(path, allow404) {
+    var url =
+      contentsUrl(path) +
+      "?ref=" + encodeURIComponent(BRANCH) +
+      "&_=" + Date.now();
+
+    var headers = apiHeaders();
+    headers.Accept = "application/vnd.github.raw+json";
+
+    var response = await fetch(url, {
+      cache: "no-store",
+      headers: headers
+    });
+
+    if (allow404 && response.status === 404) return null;
+
+    if (!response.ok) {
+      var message = await response.text();
+      throw new Error(response.status + " " + (message || response.statusText));
+    }
+
+    return await response.text();
+  }
+
+  function decodeBase64Utf8(base64) {
+    var binary = atob(String(base64 || "").replace(/\s/g, ""));
+    var bytes = new Uint8Array(binary.length);
+    for (var i = 0; i < binary.length; i++) {
+      bytes[i] = binary.charCodeAt(i);
+    }
+    return new TextDecoder("utf-8").decode(bytes);
+  }
+
+  function utf8ToBase64(value) {
+    var bytes = new TextEncoder().encode(String(value));
+    var binary = "";
+    var chunk = 0x8000;
+
+    for (var i = 0; i < bytes.length; i += chunk) {
+      var part = bytes.subarray(i, Math.min(i + chunk, bytes.length));
+      for (var j = 0; j < part.length; j++) {
+        binary += String.fromCharCode(part[j]);
+      }
+    }
+
+    return btoa(binary);
+  }
+
+  async function loadSourceFiles() {
+    if (!token()) {
+      throw new Error("GitHubトークンがありません。本文管理画面で接続してください。");
+    }
+
+    var url =
+      contentsUrl("corpus") +
+      "?ref=" + encodeURIComponent(BRANCH) +
+      "&_=" + Date.now();
+
+    var data = await githubRequest(url);
+
+    if (!Array.isArray(data)) {
+      throw new Error("corpus の本文一覧を取得できませんでした。");
+    }
+
+    state.sourceFiles = data
+      .filter(function (item) {
+        return item.type === "file" && item.name.toLowerCase().endsWith(".txt");
+      })
+      .sort(function (a, b) {
+        return a.name.localeCompare(b.name, "ja");
+      });
+
+    el.sourceSelect.innerHTML = "";
+
+    state.sourceFiles.forEach(function (item) {
+      var option = document.createElement("option");
+      option.value = item.name;
+      option.textContent = item.name;
+      el.sourceSelect.appendChild(option);
+    });
+
+    if (!state.sourceFiles.length) {
+      throw new Error("corpus に本文がありません。");
+    }
+  }
+
+  function requestedFile() {
+    var params = new URLSearchParams(location.search);
+    return params.get("file") || "";
+  }
+
+  async function loadSource(fileName) {
+    state.sourceFile = fileName;
+    state.pack = null;
+    state.reviewFileSha = null;
+    state.confirmed = new Map();
+    state.checked = new Set();
+    state.activeTab = "pending";
+    el.candidateSearch.value = "";
+    el.chapterSelect.innerHTML = "";
+    el.chapterTitle.textContent = "";
+    el.chapterText.textContent = "";
+    el.candidateList.innerHTML = "";
+    el.progress.textContent = "";
+
+    el.sourceSelect.value = fileName;
+    setStatus(fileName + " の人物判定データを取得しています…");
+
+    var packPath = "review-data/" + fileName + ".review.json";
+    var raw = await githubRawText(packPath, true);
+
+    if (raw === null) {
+      throw new Error(
+        "この本文の人物判定データはまだありません。本文追加直後ならGitHub Actionsで生成中です。"
+      );
+    }
+
+    var pack;
+    try {
+      pack = JSON.parse(raw);
+    } catch (_) {
+      throw new Error("人物判定データJSONを読み込めませんでした。");
+    }
+
+    if (!pack || !Array.isArray(pack.chapters) || !pack.chapters.length) {
+      throw new Error("人物判定データに話数情報がありません。");
+    }
+
+    state.pack = pack;
+    await loadReviewState();
+    renderAll();
+
+    var params = new URLSearchParams(location.search);
+    params.set("file", fileName);
+    history.replaceState(null, "", location.pathname + "?" + params.toString());
+
+    setStatus(
+      "第" + state.processedChapter + "話まで処理済み。未確定候補は省略せず全部表示します。",
+      "ok"
+    );
+  }
+
+  async function loadReviewState() {
+    var path = "review-state/" + state.sourceFile + ".json";
+    var url =
+      contentsUrl(path) +
+      "?ref=" + encodeURIComponent(BRANCH) +
+      "&_=" + Date.now();
+
+    var data = await githubRequest(url, null, true);
+
+    if (!data) {
+      state.reviewFileSha = null;
+      state.processedChapter = 1;
+      state.currentChapter = 1;
+      state.confirmed = new Map();
+      return;
+    }
+
+    state.reviewFileSha = data.sha || null;
+
+    if (data.encoding !== "base64" || !data.content) {
+      throw new Error("保存済み判定データを読み込めませんでした。");
+    }
+
+    var saved;
+    try {
+      saved = JSON.parse(decodeBase64Utf8(data.content));
+    } catch (_) {
+      throw new Error("保存済み判定データJSONを解析できませんでした。");
+    }
+
+    var maxChapter = state.pack.chapterCount || state.pack.chapters.length;
+    state.processedChapter = Math.max(
+      1,
+      Math.min(Number(saved.processedChapter) || 1, maxChapter)
+    );
+    state.currentChapter = state.processedChapter;
+
+    var allById = new Map();
+    var allByName = new Map();
+
+    state.pack.chapters.forEach(function (chapter) {
+      (chapter.candidates || []).forEach(function (candidate) {
+        allById.set(Number(candidate.id), candidate);
+        if (!allByName.has(candidate.displayName)) {
+          allByName.set(candidate.displayName, candidate);
+        }
+      });
+    });
+
+    var samePack =
+      saved.sourceSha256 === state.pack.sourceSha256 &&
+      saved.algorithmVersion === state.pack.algorithmVersion;
+
+    state.confirmed = new Map();
+
+    (saved.confirmed || []).forEach(function (entry) {
+      var candidate = null;
+
+      if (samePack && allById.has(Number(entry.candidateId))) {
+        candidate = allById.get(Number(entry.candidateId));
+      } else if (entry.displayName && allByName.has(entry.displayName)) {
+        candidate = allByName.get(entry.displayName);
+      }
+
+      if (candidate) {
+        state.confirmed.set(Number(candidate.id), {
+          candidateId: Number(candidate.id),
+          displayName: candidate.displayName
+        });
+      }
+    });
+  }
+
+  function candidatesThroughProcessedChapter() {
+    var byId = new Map();
+
+    for (var i = 0; i < state.processedChapter && i < state.pack.chapters.length; i++) {
+      var chapter = state.pack.chapters[i];
+      (chapter.candidates || []).forEach(function (candidate) {
+        byId.set(
+          Number(candidate.id),
+          Object.assign({}, candidate, { firstSeenChapter: Number(chapter.number) })
+        );
+      });
+    }
+
+    return Array.from(byId.values()).sort(function (a, b) {
+      return Number(a.id) - Number(b.id);
+    });
+  }
+
+  function renderAll() {
+    renderChapterSelect();
+    renderChapter();
+    renderCandidateTabs();
+    renderCandidates();
+    renderProcessButton();
+  }
+
+  function renderChapterSelect() {
+    el.chapterSelect.innerHTML = "";
+
+    state.pack.chapters.forEach(function (chapter) {
+      var option = document.createElement("option");
+      option.value = String(chapter.number);
+      option.textContent =
+        chapter.title +
+        (chapter.number > state.processedChapter ? "　［未処理］" : "");
+      el.chapterSelect.appendChild(option);
+    });
+
+    el.chapterSelect.value = String(state.currentChapter);
+  }
+
+  function renderChapter() {
+    var chapter = state.pack.chapters.find(function (x) {
+      return Number(x.number) === Number(state.currentChapter);
+    }) || state.pack.chapters[0];
+
+    state.currentChapter = Number(chapter.number);
+    el.chapterSelect.value = String(state.currentChapter);
+    el.chapterTitle.textContent = chapter.title || ("第" + state.currentChapter + "話");
+    el.chapterText.textContent = chapter.text || "";
+
+    var total = state.pack.chapterCount || state.pack.chapters.length;
+    el.progress.textContent =
+      "処理済み " + state.processedChapter + " / " + total +
+      "　表示 " + state.currentChapter + "話";
+
+    var prevDisabled = state.currentChapter <= 1;
+    el.prevView.disabled = prevDisabled;
+    el.prevViewBottom.disabled = prevDisabled;
+  }
+
+  function renderCandidateTabs() {
+    var all = candidatesThroughProcessedChapter();
+    var confirmedCount = all.filter(function (x) {
+      return state.confirmed.has(Number(x.id));
+    }).length;
+    var pendingCount = all.length - confirmedCount;
+
+    el.pendingTab.textContent = "未確定 " + pendingCount;
+    el.confirmedTab.textContent = "確定 " + confirmedCount;
+
+    el.pendingTab.classList.toggle("active", state.activeTab === "pending");
+    el.confirmedTab.classList.toggle("active", state.activeTab === "confirmed");
+
+    el.candidateAction.textContent =
+      state.activeTab === "pending"
+        ? "チェックした候補を確定"
+        : "チェックした候補を未確定へ戻す";
+  }
+
+  function renderCandidates() {
+    state.checked = new Set();
+    el.candidateList.innerHTML = "";
+
+    var query = el.candidateSearch.value.trim().toLocaleLowerCase("ja");
+    var all = candidatesThroughProcessedChapter();
+
+    var items = all.filter(function (candidate) {
+      var isConfirmed = state.confirmed.has(Number(candidate.id));
+
+      if (state.activeTab === "pending" && isConfirmed) return false;
+      if (state.activeTab === "confirmed" && !isConfirmed) return false;
+
+      if (!query) return true;
+
+      return String(candidate.displayName || "")
+        .toLocaleLowerCase("ja")
+        .includes(query);
+    });
+
+    if (!items.length) {
+      var empty = document.createElement("div");
+      empty.className = "empty";
+      empty.textContent = query ? "一致する候補はありません。" : "候補はありません。";
+      el.candidateList.appendChild(empty);
+      return;
+    }
+
+    items.forEach(function (candidate) {
+      var label = document.createElement("label");
+      label.className = "candidate-row";
+
+      var checkbox = document.createElement("input");
+      checkbox.type = "checkbox";
+      checkbox.value = String(candidate.id);
+      checkbox.addEventListener("change", function () {
+        var id = Number(candidate.id);
+        if (checkbox.checked) state.checked.add(id);
+        else state.checked.delete(id);
+      });
+
+      var body = document.createElement("div");
+
+      var name = document.createElement("div");
+      name.className = "candidate-name";
+      name.textContent = candidate.displayName;
+
+      var meta = document.createElement("div");
+      meta.className = "candidate-meta";
+      meta.textContent =
+        "初出 第" + candidate.firstSeenChapter + "話" +
+        (candidate.category ? " / " + candidate.category : "");
+
+      body.appendChild(name);
+      body.appendChild(meta);
+      label.appendChild(checkbox);
+      label.appendChild(body);
+      el.candidateList.appendChild(label);
+    });
+  }
+
+  function renderProcessButton() {
+    var total = state.pack.chapterCount || state.pack.chapters.length;
+
+    if (state.processedChapter >= total) {
+      el.processNext.disabled = true;
+      el.processNext.textContent = "全話処理済み";
+      return;
+    }
+
+    el.processNext.disabled = false;
+    el.processNext.textContent =
+      "次話を処理（第" + (state.processedChapter + 1) + "話）→";
+  }
+
+  function reviewPayload() {
+    return {
+      version: 1,
+      sourceFile: state.sourceFile,
+      sourceSha256: state.pack.sourceSha256,
+      algorithmVersion: state.pack.algorithmVersion,
+      processedChapter: state.processedChapter,
+      confirmed: Array.from(state.confirmed.values()).sort(function (a, b) {
+        return Number(a.candidateId) - Number(b.candidateId);
+      })
+    };
+  }
+
+  async function saveReviewState(message) {
+    var path = "review-state/" + state.sourceFile + ".json";
+    var body = {
+      message: message,
+      content: utf8ToBase64(JSON.stringify(reviewPayload(), null, 2)),
+      branch: BRANCH
+    };
+
+    if (state.reviewFileSha) {
+      body.sha = state.reviewFileSha;
+    }
+
+    var response = await githubRequest(contentsUrl(path), {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body)
+    });
+
+    if (response && response.content && response.content.sha) {
+      state.reviewFileSha = response.content.sha;
+    }
+  }
+
+  async function applyCandidateAction() {
+    if (!state.checked.size) {
+      setStatus("候補にチェックを入れてください。", "error");
+      return;
+    }
+
+    var oldConfirmed = new Map(state.confirmed);
+
+    try {
+      setBusy(true);
+
+      var candidateMap = new Map(
+        candidatesThroughProcessedChapter().map(function (x) {
+          return [Number(x.id), x];
+        })
+      );
+
+      if (state.activeTab === "pending") {
+        state.checked.forEach(function (id) {
+          var candidate = candidateMap.get(Number(id));
+          if (candidate) {
+            state.confirmed.set(Number(id), {
+              candidateId: Number(id),
+              displayName: candidate.displayName
+            });
+          }
+        });
+
+        await saveReviewState("Confirm character candidates: " + state.sourceFile);
+        setStatus("チェックした候補を確定しました。", "ok");
+      } else {
+        state.checked.forEach(function (id) {
+          state.confirmed.delete(Number(id));
+        });
+
+        await saveReviewState("Unconfirm character candidates: " + state.sourceFile);
+        setStatus("チェックした候補を未確定へ戻しました。", "ok");
+      }
+
+      renderCandidateTabs();
+      renderCandidates();
+    } catch (error) {
+      state.confirmed = oldConfirmed;
+      renderCandidateTabs();
+      renderCandidates();
+      setStatus("保存失敗: " + error.message, "error");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function processNextChapter() {
+    var total = state.pack.chapterCount || state.pack.chapters.length;
+    if (state.processedChapter >= total) return;
+
+    var oldProcessed = state.processedChapter;
+    var oldCurrent = state.currentChapter;
+
+    try {
+      setBusy(true);
+      state.processedChapter += 1;
+      state.currentChapter = state.processedChapter;
+
+      await saveReviewState(
+        "Process chapter " + state.processedChapter + ": " + state.sourceFile
+      );
+
+      renderAll();
+      setStatus(
+        "第" + state.processedChapter + "話を処理し、新しい候補を未確定リストへ追加しました。",
+        "ok"
+      );
+    } catch (error) {
+      state.processedChapter = oldProcessed;
+      state.currentChapter = oldCurrent;
+      renderAll();
+      setStatus("次話処理の保存に失敗しました: " + error.message, "error");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  function showPreviousChapter() {
+    if (state.currentChapter <= 1) return;
+    state.currentChapter -= 1;
+    renderChapterSelect();
+    renderChapter();
+  }
+
+  async function reloadCurrent() {
+    try {
+      setBusy(true);
+      await loadSourceFiles();
+
+      var wanted =
+        state.sourceFile ||
+        requestedFile() ||
+        state.sourceFiles[0].name;
+
+      if (!state.sourceFiles.some(function (x) { return x.name === wanted; })) {
+        wanted = state.sourceFiles[0].name;
+      }
+
+      await loadSource(wanted);
+    } catch (error) {
+      setStatus(error.message, "error");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  el.sourceSelect.addEventListener("change", async function () {
+    try {
+      setBusy(true);
+      await loadSource(el.sourceSelect.value);
+    } catch (error) {
+      setStatus(error.message, "error");
+    } finally {
+      setBusy(false);
+    }
+  });
+
+  el.reload.addEventListener("click", reloadCurrent);
+
+  el.chapterSelect.addEventListener("change", function () {
+    state.currentChapter = Number(el.chapterSelect.value) || 1;
+    renderChapter();
+  });
+
+  el.prevView.addEventListener("click", showPreviousChapter);
+  el.prevViewBottom.addEventListener("click", showPreviousChapter);
+  el.processNext.addEventListener("click", processNextChapter);
+
+  el.pendingTab.addEventListener("click", function () {
+    state.activeTab = "pending";
+    renderCandidateTabs();
+    renderCandidates();
+  });
+
+  el.confirmedTab.addEventListener("click", function () {
+    state.activeTab = "confirmed";
+    renderCandidateTabs();
+    renderCandidates();
+  });
+
+  el.candidateSearch.addEventListener("input", renderCandidates);
+  el.candidateAction.addEventListener("click", applyCandidateAction);
+
+  reloadCurrent();
+})();
+</script>
+</body>
+</html>
