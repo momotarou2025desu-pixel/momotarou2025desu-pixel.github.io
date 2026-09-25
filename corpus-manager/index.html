@@ -611,8 +611,6 @@
 
     if (!opts.method || String(opts.method).toUpperCase() === "GET") {
       opts.cache = "no-store";
-      opts.headers["Cache-Control"] = "no-cache";
-      opts.headers["Pragma"] = "no-cache";
     }
 
     var response = await fetch(url, opts);
