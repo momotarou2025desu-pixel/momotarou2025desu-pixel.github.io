@@ -231,7 +231,9 @@
     <h1>会話 男女判定</h1>
     <select id="sourceSelect" aria-label="本文切り替え"></select>
     <button id="reload" type="button">再読込</button>
-    <a href="/character-review/">人物判定へ</a>
+    <a id="characterReviewLink" href="/character-review/">人物判定へ</a>
+    <a href="http://127.0.0.1:5188/speakers">話者確定を開く</a>
+    <a href="http://127.0.0.1:5188/voices">読み上げ設定を開く</a>
   </div>
 
   <div id="status" class="status"></div>
@@ -435,8 +437,14 @@
     el.sourceSelect.value = fileName;
 
     var params = new URLSearchParams(location.search);
-    params.set("file", pack.sourceFile || fileName.replace(/\.speaker\.json$/, ""));
+    var sourceName = pack.sourceFile || fileName.replace(/\.speaker\.json$/, "");
+    params.set("file", sourceName);
     history.replaceState(null, "", location.pathname + "?" + params.toString());
+
+    var characterLink = document.getElementById("characterReviewLink");
+    if (characterLink) {
+      characterLink.href = "/character-review/?file=" + encodeURIComponent(sourceName);
+    }
 
     renderAll();
 
