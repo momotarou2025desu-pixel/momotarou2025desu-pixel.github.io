@@ -1,0 +1,620 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>会話 男女判定</title>
+<style>
+  :root {
+    color-scheme: light dark;
+    --bg: #f6f7f9;
+    --panel: #ffffff;
+    --text: #1f2328;
+    --muted: #66707a;
+    --border: #d8dee4;
+    --accent: #0969da;
+    --male-bg: #dbeafe;
+    --male-border: #2563eb;
+    --male-text: #163b73;
+    --female-bg: #fde2ea;
+    --female-border: #db2777;
+    --female-text: #7d1747;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0d1117;
+      --panel: #161b22;
+      --text: #e6edf3;
+      --muted: #8b949e;
+      --border: #30363d;
+      --accent: #58a6ff;
+      --male-bg: #17345e;
+      --male-border: #58a6ff;
+      --male-text: #dbeafe;
+      --female-bg: #5a1d3b;
+      --female-border: #f778ba;
+      --female-text: #fde2ea;
+    }
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: system-ui, -apple-system, "Segoe UI", "Yu Gothic UI", "Yu Gothic", sans-serif;
+  }
+
+  button, select, input { font: inherit; }
+
+  button, select {
+    border: 1px solid var(--border);
+    background: var(--panel);
+    color: var(--text);
+    border-radius: 7px;
+    padding: 7px 10px;
+  }
+
+  button { cursor: pointer; }
+  button:disabled { opacity: .45; cursor: default; }
+  a { color: var(--accent); }
+
+  .page {
+    width: min(1500px, 100%);
+    margin: 0 auto;
+    padding: 14px;
+  }
+
+  .topbar {
+    display: grid;
+    grid-template-columns: auto minmax(250px, 1fr) auto auto;
+    gap: 9px;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+
+  .topbar h1 {
+    margin: 0;
+    font-size: 20px;
+    white-space: nowrap;
+  }
+
+  .status {
+    min-height: 24px;
+    margin: 6px 0 10px;
+    color: var(--muted);
+    font-size: 13px;
+  }
+
+  .status.error { color: #cf222e; }
+  .status.ok { color: #1a7f37; }
+
+  .panel {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+
+  .toolbar {
+    display: grid;
+    grid-template-columns: auto minmax(240px, 1fr) auto auto auto;
+    gap: 8px;
+    align-items: center;
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .legend {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .legend-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 3px 7px;
+    border-radius: 999px;
+    font-size: 12px;
+    border: 1px solid var(--border);
+  }
+
+  .legend-swatch {
+    width: 14px;
+    height: 14px;
+    border-radius: 4px;
+  }
+
+  .legend-swatch.male {
+    background: var(--male-bg);
+    border: 1px solid var(--male-border);
+  }
+
+  .legend-swatch.female {
+    background: var(--female-bg);
+    border: 1px solid var(--female-border);
+  }
+
+  .chapter-title {
+    padding: 12px 18px 0;
+    font-weight: 700;
+    font-size: 18px;
+  }
+
+  .summary {
+    padding: 5px 18px 10px;
+    color: var(--muted);
+    font-size: 13px;
+  }
+
+  .chapter-text {
+    min-height: 70vh;
+    max-height: calc(100vh - 230px);
+    overflow: auto;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    padding: 18px 26px 48px;
+    font-family: "Yu Mincho", "Hiragino Mincho ProN", "Meiryo", serif;
+    line-height: 1.95;
+    font-size: 17px;
+  }
+
+  .dialogue {
+    display: inline;
+    padding: 1px 2px;
+    border-radius: 4px;
+    border-bottom: 2px solid transparent;
+    cursor: pointer;
+  }
+
+  .dialogue.male {
+    background: var(--male-bg);
+    border-bottom-color: var(--male-border);
+    color: var(--male-text);
+  }
+
+  .dialogue.female {
+    background: var(--female-bg);
+    border-bottom-color: var(--female-border);
+    color: var(--female-text);
+  }
+
+  .dialogue.active {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  .detail {
+    min-height: 40px;
+    padding: 10px 18px;
+    border-top: 1px solid var(--border);
+    font-size: 13px;
+    color: var(--muted);
+  }
+
+  .detail strong { color: var(--text); }
+
+  .busy {
+    pointer-events: none;
+    opacity: .72;
+  }
+
+  @media (max-width: 850px) {
+    .topbar {
+      grid-template-columns: 1fr auto;
+    }
+    .topbar h1,
+    .topbar select {
+      grid-column: 1 / -1;
+    }
+    .toolbar {
+      grid-template-columns: auto 1fr auto;
+    }
+    .legend {
+      grid-column: 1 / -1;
+    }
+    .chapter-text {
+      max-height: none;
+      min-height: 60vh;
+      padding: 16px;
+      font-size: 16px;
+    }
+  }
+</style>
+</head>
+<body>
+<div class="page" id="app">
+  <div class="topbar">
+    <h1>会話 男女判定</h1>
+    <select id="sourceSelect" aria-label="本文切り替え"></select>
+    <button id="reload" type="button">再読込</button>
+    <a href="/character-review/">人物判定へ</a>
+  </div>
+
+  <div id="status" class="status"></div>
+
+  <section class="panel">
+    <div class="toolbar">
+      <button id="prevChapter" type="button">← 前話</button>
+      <select id="chapterSelect" aria-label="話数切り替え"></select>
+      <button id="nextChapter" type="button">次話 →</button>
+      <div class="legend">
+        <span class="legend-item">
+          <span class="legend-swatch male"></span>
+          男
+        </span>
+        <span class="legend-item">
+          <span class="legend-swatch female"></span>
+          女
+        </span>
+      </div>
+      <span id="chapterCount"></span>
+    </div>
+
+    <div id="chapterTitle" class="chapter-title"></div>
+    <div id="summary" class="summary"></div>
+    <div id="chapterText" class="chapter-text"></div>
+    <div id="detail" class="detail">
+      色の付いた会話をクリックすると判定情報を表示します。
+    </div>
+  </section>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  var OWNER = "momotarou2025desu-pixel";
+  var REPO = "narou-character-analyzer";
+  var BRANCH = "main";
+  var API_ROOT = "https://api.github.com";
+  var DATA_DIR = "speaker-data";
+  var SESSION_KEY = "narouCorpusManagerGithubToken";
+  var LOCAL_KEY = "narouCorpusManagerGithubTokenPersistent";
+
+  var state = {
+    files: [],
+    sourceFile: "",
+    pack: null,
+    currentChapter: 1,
+    activeDialogue: null
+  };
+
+  var el = {
+    app: document.getElementById("app"),
+    sourceSelect: document.getElementById("sourceSelect"),
+    reload: document.getElementById("reload"),
+    status: document.getElementById("status"),
+    prevChapter: document.getElementById("prevChapter"),
+    nextChapter: document.getElementById("nextChapter"),
+    chapterSelect: document.getElementById("chapterSelect"),
+    chapterCount: document.getElementById("chapterCount"),
+    chapterTitle: document.getElementById("chapterTitle"),
+    summary: document.getElementById("summary"),
+    chapterText: document.getElementById("chapterText"),
+    detail: document.getElementById("detail")
+  };
+
+  function token() {
+    return (
+      localStorage.getItem(LOCAL_KEY) ||
+      sessionStorage.getItem(SESSION_KEY) ||
+      ""
+    ).trim();
+  }
+
+  function setBusy(flag) {
+    el.app.classList.toggle("busy", Boolean(flag));
+  }
+
+  function setStatus(message, type) {
+    el.status.textContent = message || "";
+    el.status.className = "status" + (type ? " " + type : "");
+  }
+
+  function apiHeaders() {
+    return {
+      "Accept": "application/vnd.github+json",
+      "Authorization": "Bearer " + token(),
+      "X-GitHub-Api-Version": "2022-11-28"
+    };
+  }
+
+  function encodedPath(path) {
+    return String(path).split("/").map(encodeURIComponent).join("/");
+  }
+
+  function contentsUrl(path) {
+    return API_ROOT + "/repos/" + OWNER + "/" + REPO + "/contents/" + encodedPath(path);
+  }
+
+  async function githubRequest(url) {
+    var response = await fetch(url, {
+      cache: "no-store",
+      headers: apiHeaders()
+    });
+    var text = await response.text();
+    var body = null;
+
+    if (text) {
+      try { body = JSON.parse(text); }
+      catch (_) { body = text; }
+    }
+
+    if (!response.ok) {
+      var message = body && body.message ? body.message : String(body || response.statusText);
+      throw new Error(response.status + " " + message);
+    }
+
+    return body;
+  }
+
+  async function githubRawText(path) {
+    var headers = apiHeaders();
+    headers.Accept = "application/vnd.github.raw+json";
+
+    var response = await fetch(
+      contentsUrl(path) +
+        "?ref=" + encodeURIComponent(BRANCH) +
+        "&_=" + Date.now(),
+      {
+        cache: "no-store",
+        headers: headers
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error(response.status + " " + (await response.text()));
+    }
+
+    return await response.text();
+  }
+
+  async function loadFileList() {
+    if (!token()) {
+      throw new Error("GitHubトークンがありません。先に本文管理または人物判定ページで接続してください。");
+    }
+
+    var data = await githubRequest(
+      contentsUrl(DATA_DIR) +
+        "?ref=" + encodeURIComponent(BRANCH) +
+        "&_=" + Date.now()
+    );
+
+    state.files = (Array.isArray(data) ? data : [])
+      .filter(function (item) {
+        return item.type === "file" && item.name.endsWith(".speaker.json");
+      })
+      .map(function (item) {
+        return {
+          name: item.name,
+          sourceFile: item.name.replace(/\.speaker\.json$/, "")
+        };
+      })
+      .sort(function (a, b) {
+        return a.sourceFile.localeCompare(b.sourceFile, "ja");
+      });
+
+    el.sourceSelect.innerHTML = "";
+
+    state.files.forEach(function (file) {
+      var option = document.createElement("option");
+      option.value = file.name;
+      option.textContent = file.sourceFile;
+      el.sourceSelect.appendChild(option);
+    });
+
+    if (!state.files.length) {
+      throw new Error("speaker-data がまだ生成されていません。");
+    }
+  }
+
+  function requestedFile() {
+    var params = new URLSearchParams(location.search);
+    var source = params.get("file") || "";
+    if (!source) return null;
+
+    return state.files.find(function (x) {
+      return x.sourceFile === source || x.name === source;
+    }) || null;
+  }
+
+  async function loadPack(fileName) {
+    setStatus("男女判定データを読み込んでいます…");
+    var raw = await githubRawText(DATA_DIR + "/" + fileName);
+    var pack = JSON.parse(raw);
+
+    state.pack = pack;
+    state.sourceFile = fileName;
+    state.currentChapter = 1;
+    state.activeDialogue = null;
+
+    el.sourceSelect.value = fileName;
+
+    var params = new URLSearchParams(location.search);
+    params.set("file", pack.sourceFile || fileName.replace(/\.speaker\.json$/, ""));
+    history.replaceState(null, "", location.pathname + "?" + params.toString());
+
+    renderAll();
+
+    setStatus(
+      "読込完了。会話 " + pack.dialogueCount +
+      "件 / 男 " + pack.maleCount +
+      " / 女 " + pack.femaleCount +
+      " / " + pack.algorithmVersion,
+      "ok"
+    );
+  }
+
+  function renderAll() {
+    renderChapterSelect();
+    renderChapter();
+  }
+
+  function renderChapterSelect() {
+    el.chapterSelect.innerHTML = "";
+
+    state.pack.chapters.forEach(function (chapter) {
+      var option = document.createElement("option");
+      option.value = String(chapter.number);
+      option.textContent = chapter.title || ("第" + chapter.number + "話");
+      el.chapterSelect.appendChild(option);
+    });
+
+    el.chapterSelect.value = String(state.currentChapter);
+  }
+
+  function renderChapter() {
+    var chapter = state.pack.chapters.find(function (x) {
+      return Number(x.number) === Number(state.currentChapter);
+    }) || state.pack.chapters[0];
+
+    state.currentChapter = Number(chapter.number);
+    state.activeDialogue = null;
+    el.chapterSelect.value = String(state.currentChapter);
+    el.chapterTitle.textContent = chapter.title || ("第" + state.currentChapter + "話");
+
+    var male = chapter.dialogues.filter(function (x) { return x.gender === "MALE"; }).length;
+    var female = chapter.dialogues.filter(function (x) { return x.gender === "FEMALE"; }).length;
+
+    el.summary.textContent =
+      "会話 " + chapter.dialogues.length +
+      "件　男 " + male +
+      "　女 " + female;
+
+    el.chapterCount.textContent =
+      state.currentChapter + " / " + state.pack.chapterCount;
+
+    el.prevChapter.disabled = state.currentChapter <= 1;
+    el.nextChapter.disabled = state.currentChapter >= state.pack.chapterCount;
+
+    renderColoredText(chapter);
+
+    el.detail.textContent =
+      "色の付いた会話をクリックすると判定情報を表示します。";
+  }
+
+  function renderColoredText(chapter) {
+    el.chapterText.innerHTML = "";
+
+    var text = chapter.text || "";
+    var cursor = 0;
+
+    (chapter.dialogues || []).forEach(function (dialogue) {
+      var start = Math.max(cursor, Number(dialogue.start) || 0);
+      var end = Math.max(start, Number(dialogue.end) || start);
+
+      if (start > cursor) {
+        el.chapterText.appendChild(
+          document.createTextNode(text.slice(cursor, start))
+        );
+      }
+
+      var span = document.createElement("span");
+      span.className =
+        "dialogue " + (dialogue.gender === "MALE" ? "male" : "female");
+      span.textContent = text.slice(start, end);
+      span.dataset.dialogueId = String(dialogue.id);
+      span.title = dialogue.gender === "MALE" ? "男" : "女";
+
+      span.addEventListener("click", function () {
+        el.chapterText.querySelectorAll(".dialogue.active").forEach(function (x) {
+          x.classList.remove("active");
+        });
+        span.classList.add("active");
+        state.activeDialogue = dialogue.id;
+        showDialogueDetail(dialogue);
+      });
+
+      el.chapterText.appendChild(span);
+      cursor = end;
+    });
+
+    if (cursor < text.length) {
+      el.chapterText.appendChild(
+        document.createTextNode(text.slice(cursor))
+      );
+    }
+  }
+
+  function showDialogueDetail(dialogue) {
+    var label = dialogue.gender === "MALE" ? "男" : "女";
+
+    el.detail.innerHTML = "";
+
+    var strong = document.createElement("strong");
+    strong.textContent = label;
+    el.detail.appendChild(strong);
+
+    el.detail.appendChild(
+      document.createTextNode(
+        "　判定=" + dialogue.resolution +
+        "　maleScore=" + dialogue.maleScore +
+        "　femaleScore=" + dialogue.femaleScore +
+        "　weakScore=" + dialogue.weakScore
+      )
+    );
+  }
+
+  async function reloadCurrent() {
+    try {
+      setBusy(true);
+      await loadFileList();
+
+      var selected = requestedFile();
+      if (!selected && state.sourceFile) {
+        selected = state.files.find(function (x) {
+          return x.name === state.sourceFile;
+        }) || null;
+      }
+      if (!selected) selected = state.files[0];
+
+      await loadPack(selected.name);
+    } catch (error) {
+      setStatus("読込失敗: " + error.message, "error");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  el.reload.addEventListener("click", reloadCurrent);
+
+  el.sourceSelect.addEventListener("change", function () {
+    var fileName = el.sourceSelect.value;
+    if (!fileName) return;
+
+    setBusy(true);
+    loadPack(fileName)
+      .catch(function (error) {
+        setStatus("読込失敗: " + error.message, "error");
+      })
+      .finally(function () {
+        setBusy(false);
+      });
+  });
+
+  el.chapterSelect.addEventListener("change", function () {
+    state.currentChapter = Number(el.chapterSelect.value) || 1;
+    renderChapter();
+  });
+
+  el.prevChapter.addEventListener("click", function () {
+    if (state.currentChapter <= 1) return;
+    state.currentChapter -= 1;
+    renderChapter();
+  });
+
+  el.nextChapter.addEventListener("click", function () {
+    if (state.currentChapter >= state.pack.chapterCount) return;
+    state.currentChapter += 1;
+    renderChapter();
+  });
+
+  reloadCurrent();
+})();
+</script>
+</body>
+</html>
