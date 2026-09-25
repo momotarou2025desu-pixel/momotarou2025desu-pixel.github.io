@@ -126,13 +126,6 @@
     font-family: inherit;
     font-size: 16px;
   }
-  .viewer-footer {
-    border-top: 1px solid var(--border);
-    padding: 10px 12px;
-    display: flex;
-    justify-content: space-between;
-    gap: 8px;
-  }
   .review-panel {
     min-height: 76vh;
     display: flex;
@@ -222,21 +215,18 @@
           <button id="prevView" type="button">← 前話</button>
           <select id="chapterSelect" aria-label="話数切り替え"></select>
           <div id="progress" class="progress"></div>
+          <button id="processNext" class="primary" type="button">次話を処理 →</button>
         </div>
         <div id="chapterTitle" class="chapter-title"></div>
       </div>
       <pre id="chapterText" class="chapter-text"></pre>
-      <div class="viewer-footer">
-        <button id="prevViewBottom" type="button">← 前話を表示</button>
-        <button id="processNext" class="primary" type="button">次話を処理 →</button>
-      </div>
     </section>
 
     <section class="panel review-panel">
       <div class="panel-head">
         <div class="tabs">
-          <button id="pendingTab" class="tab active" type="button">未確定 0</button>
-          <button id="confirmedTab" class="tab" type="button">確定 0</button>
+          <button id="confirmedTab" class="tab active" type="button">確定 0</button>
+          <button id="pendingTab" class="tab" type="button">未確定 0</button>
         </div>
         <div class="review-tools">
           <input id="candidateSearch" type="search" placeholder="候補を検索（空欄なら全部表示）">
@@ -271,7 +261,7 @@
     confirmed: new Map(),
     manualConfirmed: new Map(),
     manualUnconfirmed: new Map(),
-    activeTab: "pending",
+    activeTab: "confirmed",
     checked: new Set()
   };
 
@@ -281,7 +271,6 @@
     reload: document.getElementById("reload"),
     status: document.getElementById("status"),
     prevView: document.getElementById("prevView"),
-    prevViewBottom: document.getElementById("prevViewBottom"),
     chapterSelect: document.getElementById("chapterSelect"),
     progress: document.getElementById("progress"),
     chapterTitle: document.getElementById("chapterTitle"),
@@ -453,7 +442,7 @@
     state.manualConfirmed = new Map();
     state.manualUnconfirmed = new Map();
     state.checked = new Set();
-    state.activeTab = "pending";
+    state.activeTab = "confirmed";
     el.candidateSearch.value = "";
     el.chapterSelect.innerHTML = "";
     el.chapterTitle.textContent = "";
@@ -724,7 +713,6 @@
 
     var prevDisabled = state.currentChapter <= 1;
     el.prevView.disabled = prevDisabled;
-    el.prevViewBottom.disabled = prevDisabled;
   }
 
   function renderCandidateTabs() {
@@ -1033,7 +1021,6 @@
   });
 
   el.prevView.addEventListener("click", showPreviousChapter);
-  el.prevViewBottom.addEventListener("click", showPreviousChapter);
   el.processNext.addEventListener("click", processNextChapter);
 
   el.pendingTab.addEventListener("click", function () {
