@@ -606,8 +606,15 @@
   }
 
   async function githubRequest(url, options) {
-    var opts = options || {};
+    var opts = Object.assign({}, options || {});
     opts.headers = Object.assign({}, apiHeaders(), opts.headers || {});
+
+    if (!opts.method || String(opts.method).toUpperCase() === "GET") {
+      opts.cache = "no-store";
+      opts.headers["Cache-Control"] = "no-cache";
+      opts.headers["Pragma"] = "no-cache";
+    }
+
     var response = await fetch(url, opts);
     var text = await response.text();
     var body = null;
@@ -664,7 +671,10 @@
 
     saveSessionToken(token());
     setStatus("GitHubから corpus 一覧を取得しています…");
-    var url = contentsUrl(DIR) + "?ref=" + encodeURIComponent(BRANCH);
+    var url =
+      contentsUrl(DIR) +
+      "?ref=" + encodeURIComponent(BRANCH) +
+      "&_=" + Date.now();
     var data = await githubRequest(url);
 
     if (!Array.isArray(data)) {
@@ -690,6 +700,35 @@
     }
 
     setStatus("接続しました。本文 " + state.files.length + " 件。", "ok");
+  }
+
+  async function waitForCorpusFile(fileName, expectedSha) {
+    var maxAttempts = 8;
+    var delayMs = 450;
+
+    for (var attempt = 1; attempt <= maxAttempts; attempt++) {
+      await refreshFiles(false);
+
+      var found = state.files.find(function (item) {
+        return item.name === fileName;
+      });
+
+      if (found && (!expectedSha || found.sha === expectedSha)) {
+        return found;
+      }
+
+      if (attempt < maxAttempts) {
+        setStatus(
+          fileName + " の一覧反映を待っています… " + attempt + "/" + maxAttempts
+        );
+
+        await new Promise(function (resolve) {
+          window.setTimeout(resolve, delayMs);
+        });
+      }
+    }
+
+    return null;
   }
 
   function renderFileList() {
@@ -750,7 +789,10 @@
     try {
       setBusy(true);
       setStatus(item.name + " を取得しています…");
-      var url = contentsUrl(DIR + "/" + item.name) + "?ref=" + encodeURIComponent(BRANCH);
+      var url =
+        contentsUrl(DIR + "/" + item.name) +
+        "?ref=" + encodeURIComponent(BRANCH) +
+        "&_=" + Date.now();
       var data = await githubRequest(url);
 
       if (!data || data.type !== "file") {
@@ -867,12 +909,20 @@
         body: JSON.stringify(body)
       });
 
-      await refreshFiles(false);
+      var expectedSha =
+        response && response.content && response.content.sha
+          ? response.content.sha
+          : null;
 
-      var uploaded = state.files.find(function (x) { return x.name === file.name; });
-      if (uploaded) {
-        await viewFile(uploaded);
+      var uploaded = await waitForCorpusFile(file.name, expectedSha);
+
+      if (!uploaded) {
+        throw new Error(
+          "GitHubへの保存は成功しましたが、一覧への反映確認が時間内に完了しませんでした。接続・更新を押してください。"
+        );
       }
+
+      await viewFile(uploaded);
 
       state.selectedFile = null;
       el.fileInput.value = "";
