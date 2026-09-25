@@ -272,6 +272,16 @@
     font-size: 12px;
   }
 
+  .danger-button {
+    color: var(--danger);
+    border-color: color-mix(in srgb, var(--danger) 45%, var(--border));
+  }
+
+  .danger-button:hover {
+    border-color: var(--danger);
+    background: color-mix(in srgb, var(--danger) 8%, var(--panel));
+  }
+
   .viewer-card {
     min-width: 0;
     overflow: hidden;
@@ -774,13 +784,97 @@
       open.target = "_blank";
       open.rel = "noopener noreferrer";
 
+      var remove = document.createElement("button");
+      remove.type = "button";
+      remove.className = "danger-button";
+      remove.textContent = "削除";
+      remove.addEventListener("click", function (event) {
+        event.stopPropagation();
+        deleteFile(item);
+      });
+
       actions.appendChild(view);
       actions.appendChild(open);
+      actions.appendChild(remove);
       row.appendChild(name);
       row.appendChild(meta);
       row.appendChild(actions);
       el.fileList.appendChild(row);
     });
+  }
+
+  async function deleteFile(item) {
+    if (!item || !item.name) {
+      setStatus("削除する本文を確認できませんでした。", "error");
+      return;
+    }
+
+    if (!token()) {
+      setStatus("GitHubトークンを入力してください。", "error");
+      return;
+    }
+
+    var ok = window.confirm(
+      item.name +
+      " を削除しますか？\n\nGitHub上では削除コミットとして履歴に残るため、必要なら後から復元できます。"
+    );
+
+    if (!ok) {
+      setStatus("削除を中止しました。");
+      return;
+    }
+
+    try {
+      setBusy(true);
+      saveTokenPreference();
+      setStatus(item.name + " を削除しています…");
+
+      // Refresh first so the DELETE always uses the latest blob SHA.
+      await refreshFiles(false);
+
+      var fresh = state.files.find(function (x) {
+        return x.name === item.name;
+      });
+
+      if (!fresh) {
+        throw new Error("対象ファイルがGitHub上に見つかりません。");
+      }
+
+      var body = {
+        message: "Delete corpus text: " + fresh.name,
+        sha: fresh.sha,
+        branch: BRANCH
+      };
+
+      await githubRequest(contentsUrl(DIR + "/" + fresh.name), {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body)
+      });
+
+      var wasCurrent =
+        state.currentFile &&
+        state.currentFile.name === fresh.name;
+
+      await refreshFiles(false);
+
+      if (wasCurrent) {
+        state.currentFile = null;
+        state.currentText = "";
+        state.searchHits = [];
+        state.activeHit = -1;
+        el.viewerTitle.textContent = "View";
+        el.searchCount.textContent = "0 / 0";
+        el.chapterNav.innerHTML = '<div class="empty">話数一覧</div>';
+        el.textView.innerHTML = '<div class="empty">一覧から本文を選択してください。</div>';
+      }
+
+      setStatus(fresh.name + " を削除しました。", "ok");
+    } catch (error) {
+      setStatus("削除失敗: " + error.message, "error");
+    } finally {
+      setBusy(false);
+    }
   }
 
   async function viewFile(item) {
