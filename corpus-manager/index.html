@@ -144,6 +144,29 @@
     font-size: 13px;
   }
 
+  .auth-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px 14px;
+    align-items: center;
+    margin-top: 10px;
+  }
+
+  .remember-token {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 13px;
+    color: var(--text);
+    cursor: pointer;
+  }
+
+  .remember-token input {
+    width: 17px;
+    height: 17px;
+    margin: 0;
+  }
+
   .status.ok { color: var(--ok); }
   .status.error { color: var(--danger); }
 
@@ -390,8 +413,21 @@
       <button id="connect" class="primary" type="button">接続・更新</button>
       <button id="disconnect" class="disconnect" type="button">接続解除</button>
     </div>
+    <div class="auth-options">
+      <label class="remember-token">
+        <input id="rememberToken" type="checkbox" checked>
+        このPCに保存して次回から自動接続
+      </label>
+      <a
+        class="link-button"
+        href="https://github.com/settings/personal-access-tokens/new"
+        target="_blank"
+        rel="noopener noreferrer"
+      >GitHubトークンを作る</a>
+    </div>
     <div class="small muted" style="margin-top:8px;">
-      トークンはGitHub APIへの通信にだけ使用し、このタブのsessionStorageにだけ保持します。タブを閉じると消えます。
+      初回だけPATを入力します。保存を有効にすると、このブラウザのlocalStorageに保持して次回から自動接続します。
+      PATは対象を narou-character-analyzer のみにし、Contents: Read and write を許可してください。
     </div>
     <div id="status" class="status"></div>
   </section>
@@ -448,6 +484,7 @@
   var DIR = "corpus";
   var API_ROOT = "https://api.github.com";
   var SESSION_KEY = "narouCorpusManagerGithubToken";
+  var LOCAL_KEY = "narouCorpusManagerGithubTokenPersistent";
 
   var state = {
     files: [],
@@ -464,6 +501,7 @@
     toggleToken: document.getElementById("toggleToken"),
     connect: document.getElementById("connect"),
     disconnect: document.getElementById("disconnect"),
+    rememberToken: document.getElementById("rememberToken"),
     status: document.getElementById("status"),
     dropZone: document.getElementById("dropZone"),
     fileInput: document.getElementById("fileInput"),
@@ -497,15 +535,54 @@
     try {
       sessionStorage.setItem(SESSION_KEY, value);
     } catch (_) {
-      // file:// environments may restrict storage. The app still works.
+      // Storage may be restricted. The app still works for this page load.
     }
   }
 
   function clearSessionToken() {
     try {
-      clearSessionToken();
+      sessionStorage.removeItem(SESSION_KEY);
     } catch (_) {
       // Ignore storage restrictions.
+    }
+  }
+
+  function loadPersistentToken() {
+    try {
+      return localStorage.getItem(LOCAL_KEY) || "";
+    } catch (_) {
+      return "";
+    }
+  }
+
+  function savePersistentToken(value) {
+    try {
+      localStorage.setItem(LOCAL_KEY, value);
+    } catch (_) {
+      // Ignore storage restrictions.
+    }
+  }
+
+  function clearPersistentToken() {
+    try {
+      localStorage.removeItem(LOCAL_KEY);
+    } catch (_) {
+      // Ignore storage restrictions.
+    }
+  }
+
+  function saveTokenPreference() {
+    var value = token();
+
+    if (!value)
+      return;
+
+    saveSessionToken(value);
+
+    if (el.rememberToken.checked) {
+      savePersistentToken(value);
+    } else {
+      clearPersistentToken();
     }
   }
 
@@ -753,7 +830,7 @@
 
     try {
       setBusy(true);
-      saveSessionToken(token());
+      saveTokenPreference();
 
       // Refresh first so an existing file is always detected even when the
       // user uploads before pressing "接続・更新".
@@ -979,6 +1056,7 @@
   el.connect.addEventListener("click", async function () {
     try {
       setBusy(true);
+      saveTokenPreference();
       await refreshFiles(true);
     } catch (error) {
       setStatus("接続失敗: " + error.message, "error");
@@ -987,9 +1065,22 @@
     }
   });
 
+  el.rememberToken.addEventListener("change", function () {
+    if (!el.rememberToken.checked) {
+      clearPersistentToken();
+      return;
+    }
+
+    if (token()) {
+      savePersistentToken(token());
+    }
+  });
+
   el.disconnect.addEventListener("click", function () {
     clearSessionToken();
+    clearPersistentToken();
     el.token.value = "";
+    el.rememberToken.checked = true;
     state.files = [];
     state.currentFile = null;
     state.currentText = "";
@@ -1049,12 +1140,26 @@
     focusHit(state.activeHit + 1, true);
   });
 
-  var saved = loadSessionToken();
+  var persistentToken = loadPersistentToken();
+  var sessionToken = loadSessionToken();
+  var saved = persistentToken || sessionToken;
+
+  if (persistentToken) {
+    el.rememberToken.checked = true;
+  } else if (sessionToken) {
+    el.rememberToken.checked = false;
+  }
+
   if (saved) {
     el.token.value = saved;
+    saveSessionToken(saved);
+    setStatus("保存済みトークンで自動接続しています…");
+
     refreshFiles(false).catch(function (error) {
       setStatus("自動接続失敗: " + error.message, "error");
     });
+  } else {
+    setStatus("初回だけGitHubトークンを入力して接続してください。");
   }
 })();
 </script>
