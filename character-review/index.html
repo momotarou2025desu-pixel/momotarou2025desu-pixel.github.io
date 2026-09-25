@@ -445,11 +445,17 @@
 
   async function loadSource(fileName) {
     state.sourceFile = fileName;
+    state.pack = null;
     state.reviewFileSha = null;
     state.confirmed = new Map();
     state.checked = new Set();
     state.activeTab = "pending";
     el.candidateSearch.value = "";
+    el.chapterSelect.innerHTML = "";
+    el.chapterTitle.textContent = "";
+    el.chapterText.textContent = "";
+    el.candidateList.innerHTML = "";
+    el.progress.textContent = "";
 
     el.sourceSelect.value = fileName;
     setStatus(fileName + " の人物判定データを取得しています…");
@@ -565,8 +571,12 @@
     var byId = new Map();
 
     for (var i = 0; i < state.processedChapter && i < state.pack.chapters.length; i++) {
-      (state.pack.chapters[i].candidates || []).forEach(function (candidate) {
-        byId.set(Number(candidate.id), candidate);
+      var chapter = state.pack.chapters[i];
+      (chapter.candidates || []).forEach(function (candidate) {
+        byId.set(
+          Number(candidate.id),
+          Object.assign({}, candidate, { firstSeenChapter: Number(chapter.number) })
+        );
       });
     }
 
@@ -687,7 +697,7 @@
       var meta = document.createElement("div");
       meta.className = "candidate-meta";
       meta.textContent =
-        "初出ID " + candidate.id +
+        "初出 第" + candidate.firstSeenChapter + "話" +
         (candidate.category ? " / " + candidate.category : "");
 
       body.appendChild(name);
