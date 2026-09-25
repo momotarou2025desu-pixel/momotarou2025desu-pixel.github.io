@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>会話 男女判定</title>
+<title>会話 話者判定</title>
 <style>
   :root {
     color-scheme: light dark;
@@ -182,6 +182,20 @@
     color: var(--female-text);
   }
 
+  .dialogue.character {
+    background: hsl(var(--speaker-hue) 78% 84% / .82);
+    border-bottom-color: hsl(var(--speaker-hue) 68% 42%);
+    color: var(--text);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    .dialogue.character {
+      background: hsl(var(--speaker-hue) 48% 28% / .90);
+      border-bottom-color: hsl(var(--speaker-hue) 72% 66%);
+      color: var(--text);
+    }
+  }
+
   .dialogue.active {
     outline: 2px solid var(--accent);
     outline-offset: 2px;
@@ -228,7 +242,7 @@
 <body>
 <div class="page" id="app">
   <div class="topbar">
-    <h1>会話 男女判定</h1>
+    <h1>会話 話者判定</h1>
     <select id="sourceSelect" aria-label="本文切り替え"></select>
     <button id="reload" type="button">再読込</button>
     <a id="characterReviewLink" href="/character-review/">人物判定へ</a>
@@ -243,16 +257,7 @@
       <button id="prevChapter" type="button">← 前話</button>
       <select id="chapterSelect" aria-label="話数切り替え"></select>
       <button id="nextChapter" type="button">次話 →</button>
-      <div class="legend">
-        <span class="legend-item">
-          <span class="legend-swatch male"></span>
-          男
-        </span>
-        <span class="legend-item">
-          <span class="legend-swatch female"></span>
-          女
-        </span>
-      </div>
+      <div class="legend" id="legend"></div>
       <span id="chapterCount"></span>
     </div>
 
@@ -297,7 +302,8 @@
     chapterTitle: document.getElementById("chapterTitle"),
     summary: document.getElementById("summary"),
     chapterText: document.getElementById("chapterText"),
-    detail: document.getElementById("detail")
+    detail: document.getElementById("detail"),
+    legend: document.getElementById("legend")
   };
 
   function token() {
@@ -425,7 +431,7 @@
   }
 
   async function loadPack(fileName) {
-    setStatus("男女判定データを読み込んでいます…");
+    setStatus("話者判定データを読み込んでいます…");
     var raw = await githubRawText(DATA_DIR + "/" + fileName);
     var pack = JSON.parse(raw);
 
@@ -450,8 +456,8 @@
 
     setStatus(
       "読込完了。会話 " + pack.dialogueCount +
-      "件 / 男 " + pack.maleCount +
-      " / 女 " + pack.femaleCount +
+      "件 / 人物特定 " + (pack.characterSpeakerCount || 0) +
+      " / 男女のみ " + (pack.genderOnlyCount || 0) +
       " / " + pack.algorithmVersion,
       "ok"
     );
@@ -485,13 +491,23 @@
     el.chapterSelect.value = String(state.currentChapter);
     el.chapterTitle.textContent = chapter.title || ("第" + state.currentChapter + "話");
 
-    var male = chapter.dialogues.filter(function (x) { return x.gender === "MALE"; }).length;
-    var female = chapter.dialogues.filter(function (x) { return x.gender === "FEMALE"; }).length;
+    var characterCount = chapter.dialogues.filter(function (x) {
+      return x.speakerType === "CHARACTER";
+    }).length;
+    var maleOnly = chapter.dialogues.filter(function (x) {
+      return x.speakerType !== "CHARACTER" && x.gender === "MALE";
+    }).length;
+    var femaleOnly = chapter.dialogues.filter(function (x) {
+      return x.speakerType !== "CHARACTER" && x.gender === "FEMALE";
+    }).length;
 
     el.summary.textContent =
       "会話 " + chapter.dialogues.length +
-      "件　男 " + male +
-      "　女 " + female;
+      "件　人物特定 " + characterCount +
+      "　男 " + maleOnly +
+      "　女 " + femaleOnly;
+
+    renderLegend(chapter);
 
     el.chapterCount.textContent =
       state.currentChapter + " / " + state.pack.chapterCount;
@@ -503,6 +519,58 @@
 
     el.detail.textContent =
       "色の付いた会話をクリックすると判定情報を表示します。";
+  }
+
+  function speakerHue(label) {
+    var hash = 0;
+    String(label || "").split("").forEach(function (ch) {
+      hash = ((hash * 31) + ch.charCodeAt(0)) >>> 0;
+    });
+    return hash % 360;
+  }
+
+  function renderLegend(chapter) {
+    el.legend.innerHTML = "";
+
+    var labels = [];
+    var seen = new Set();
+
+    (chapter.dialogues || []).forEach(function (dialogue) {
+      if (dialogue.speakerType !== "CHARACTER") return;
+      var label = dialogue.speakerLabel || dialogue.speaker;
+      if (!label || seen.has(label)) return;
+      seen.add(label);
+      labels.push(label);
+    });
+
+    labels.forEach(function (label) {
+      var item = document.createElement("span");
+      item.className = "legend-item";
+
+      var swatch = document.createElement("span");
+      swatch.className = "legend-swatch";
+      swatch.style.background =
+        "hsl(" + speakerHue(label) + " 78% 72% / .9)";
+      swatch.style.border =
+        "1px solid hsl(" + speakerHue(label) + " 68% 42%)";
+
+      item.appendChild(swatch);
+      item.appendChild(document.createTextNode(label));
+      el.legend.appendChild(item);
+    });
+
+    [
+      ["male", "男"],
+      ["female", "女"]
+    ].forEach(function (row) {
+      var item = document.createElement("span");
+      item.className = "legend-item";
+      var swatch = document.createElement("span");
+      swatch.className = "legend-swatch " + row[0];
+      item.appendChild(swatch);
+      item.appendChild(document.createTextNode(row[1]));
+      el.legend.appendChild(item);
+    });
   }
 
   function renderColoredText(chapter) {
@@ -522,11 +590,23 @@
       }
 
       var span = document.createElement("span");
+      var isCharacter = dialogue.speakerType === "CHARACTER";
+      var label = dialogue.speakerLabel ||
+        (dialogue.gender === "MALE" ? "男" : "女");
+
       span.className =
-        "dialogue " + (dialogue.gender === "MALE" ? "male" : "female");
+        "dialogue " +
+        (isCharacter
+          ? "character"
+          : (dialogue.gender === "MALE" ? "male" : "female"));
+
+      if (isCharacter) {
+        span.style.setProperty("--speaker-hue", speakerHue(label));
+      }
+
       span.textContent = text.slice(start, end);
       span.dataset.dialogueId = String(dialogue.id);
-      span.title = dialogue.gender === "MALE" ? "男" : "女";
+      span.title = label;
 
       span.addEventListener("click", function () {
         el.chapterText.querySelectorAll(".dialogue.active").forEach(function (x) {
@@ -549,7 +629,9 @@
   }
 
   function showDialogueDetail(dialogue) {
-    var label = dialogue.gender === "MALE" ? "男" : "女";
+    var label = dialogue.speakerLabel ||
+      (dialogue.gender === "MALE" ? "男" : "女");
+    var genderLabel = dialogue.gender === "MALE" ? "男" : "女";
 
     el.detail.innerHTML = "";
 
@@ -559,10 +641,13 @@
 
     el.detail.appendChild(
       document.createTextNode(
-        "　判定=" + dialogue.resolution +
-        "　maleScore=" + dialogue.maleScore +
-        "　femaleScore=" + dialogue.femaleScore +
-        "　weakScore=" + dialogue.weakScore
+        "　種別=" + (dialogue.speakerType || "GENDER_ONLY") +
+        "　話者理由=" + (dialogue.speakerIdentityReason || "gender-only") +
+        "　男女=" + genderLabel +
+        "　男女判定=" + dialogue.resolution +
+        "　元の話者候補=" + (dialogue.predictedSpeaker || "なし") +
+        "　候補理由=" + (dialogue.speakerReason || "なし") +
+        "　confidence=" + (dialogue.speakerIdentityConfidence ?? "-")
       )
     );
   }
