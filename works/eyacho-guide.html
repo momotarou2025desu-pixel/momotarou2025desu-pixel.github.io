@@ -28,6 +28,25 @@ dialog{border:0;border-radius:16px;padding:17px;width:min(1120px,95vw);max-heigh
 @media(max-width:850px){.hero{gap:26px}.hero-visual{grid-template-columns:1fr 90px;padding:18px}.visual-labels{font-size:12px}.visual-labels small{font-size:11px}.flow-summary a{padding:14px 12px;gap:7px;font-size:13px}.story-copy{padding:21px 22px 14px}.story figure{padding:0 18px 18px}.more{grid-template-columns:1fr}.more .actions{flex-direction:row}}
 @media(max-width:620px){html{scroll-padding-top:76px}.container{width:calc(100% - 32px)}.bar{min-height:62px;gap:10px}.brand{font-size:12px;gap:8px}.brand img{width:28px;height:28px}.nav{gap:10px}.nav>a:not(.home){display:none}.home{padding:6px 16px}.hero{grid-template-columns:1fr;gap:15px;padding:26px 0 28px}.hero-copy{display:contents}.eyebrow{order:0;font-size:12px;margin:0}h1{order:1;font-size:34px;margin:0}h1 span{display:inline-block;margin-top:7px;margin-right:8px;font-size:1.3em}h1 small{font-size:11px;margin:0;white-space:nowrap}.lead{order:2;font-size:15px;line-height:1.85}.hero-visual{order:3;grid-template-columns:1fr 100px;padding:15px 20px;gap:14px;border-radius:20px}.hero-visual>.zoom{height:235px;width:auto}.hero-visual img{height:100%;width:auto}.visual-labels{font-size:13px;gap:18px}.visual-labels small{font-size:11px}.hero-visual figcaption{font-size:10px;margin-top:0}.hero .actions{order:4;margin:1px 0 0;gap:10px}.button{font-size:13px;padding:10px 17px}.section{padding:29px 0}.section-lead{font-size:15px;margin-bottom:20px}.flow-summary{grid-template-columns:1fr 1fr;margin-bottom:19px}.flow-summary li:nth-child(3){border-left:0}.flow-summary li:nth-child(n+3){border-top:1px solid #ffffff40}.flow-summary a{font-size:13px;padding:10px 14px}.flow-summary b{font-size:20px}.story-grid{grid-template-columns:1fr;gap:18px}.story h3{font-size:22px}.story-copy{padding:20px 22px 15px}.story-copy>p:last-child{font-size:14px}.story figure{padding:0 18px 18px}.story-stage{height:220px}.story-stage.portrait{height:280px}.about-site{grid-template-columns:1fr;gap:12px;font-size:13px}.use-grid{grid-template-columns:1fr;gap:18px}.use-image{height:240px;padding:16px}.use-image:has(img[src*="inspection-form"]){height:340px}.use-body{padding:20px 22px}.use h3{font-size:20px}.more{padding:27px 23px;gap:22px}.more h2{font-size:24px}.more .actions{flex-direction:column}.foot-row{flex-direction:column;gap:7px}dialog{padding:12px}.dialog-scroll{padding:8px}}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+
+#image-dialog{position:fixed;inset:0;margin:0;width:100vw;height:100dvh;max-width:none;max-height:none;border:0;border-radius:0;padding:0;background:#10151c;color:#fff;overflow:hidden;box-shadow:none}
+#image-dialog::backdrop{background:#10151c}
+#image-dialog .dialog-scroll{position:absolute;inset:0;width:100%;height:100%;max-height:none;overflow:hidden;padding:0;display:block;background:#10151c;touch-action:none;cursor:grab;user-select:none}
+#image-dialog .dialog-scroll:active{cursor:grabbing}
+#image-dialog #dialog-image{position:absolute;left:50%;top:50%;display:block;margin:0;max-width:none;max-height:none;object-fit:fill;transform-origin:center;will-change:transform;pointer-events:none;user-select:none}
+#image-dialog #dialog-image[hidden]{display:none}
+#image-dialog .dialog-bar{position:absolute;left:12px;right:12px;top:12px;z-index:2;display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin:0;pointer-events:none}
+#image-dialog .dialog-bar p{font-size:13px;font-weight:500;color:white;background:#10151cd9;border-radius:9px;padding:9px 13px;margin:0;max-width:calc(100% - 110px)}
+#image-dialog .close{pointer-events:auto;color:white;background:#10151ce8;border:1px solid #ffffff65;padding:8px 18px;min-height:44px;border-radius:999px}
+.viewer-controls{position:absolute;z-index:2;left:50%;bottom:14px;transform:translateX(-50%);display:flex;gap:5px;align-items:center;padding:5px;background:#10151ce8;border:1px solid #ffffff50;border-radius:999px;white-space:nowrap}
+.viewer-controls button{border:0;color:white;background:transparent;min-height:42px;min-width:44px;border-radius:999px;padding:6px 12px;font-size:14px}
+.viewer-controls button:hover{background:#ffffff25}
+.viewer-controls output{min-width:52px;text-align:center;font-size:13px;color:#d8e8ff}
+.viewer-hint{position:absolute;z-index:1;left:14px;bottom:16px;max-width:calc(50% - 185px);font-size:11px;color:#fff;background:#10151cd9;border-radius:6px;padding:5px 9px;margin:0;pointer-events:none}
+.viewer-status{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);color:#fff;font-size:14px;margin:0}
+#image-dialog button:focus-visible{outline:3px solid #90bfff;outline-offset:3px}
+@media(max-width:620px){#image-dialog .dialog-bar{top:8px;left:8px;right:8px;gap:8px}#image-dialog .dialog-bar p{font-size:11px;padding:8px 10px;max-width:calc(100% - 100px)}#image-dialog .close{padding:7px 14px}.viewer-controls{bottom:max(10px,env(safe-area-inset-bottom));gap:1px}.viewer-controls button{min-width:42px;padding:6px 10px}.viewer-hint{display:none}}
+
 </style>
 </head>
 <body>
@@ -72,25 +91,123 @@ dialog{border:0;border-radius:16px;padding:17px;width:min(1120px,95vw);max-heigh
 <ul class="source-list"><li>eYACHO for Business 7 スタートガイド：P6〜10・21・38</li><li>工事写真管理機能利用ガイド：P7・12・15</li><li>フォーム作成ガイド：P4</li><li>図面ピン打ち機能の使い方：P3</li><li>測量テンプレートの使い方：P3〜5</li></ul><p>資料・掲載画面の著作権は株式会社MetaMoJiほか各権利者に帰属します。</p></details></section>
 </main>
 <footer><div class="container"><div class="foot-row"><a href="../index.html">← ChatGPTの達人 Home</a><span>No.7 eYACHOで現場の記録・共有</span></div><p>紹介対象：株式会社MetaMoJi「eYACHO for Business 7」</p><p>画像出典：MetaMoJi公式ガイド。各画像下のリンクから原本をご覧いただけます。</p></div></footer>
-<dialog id="image-dialog" aria-labelledby="dialog-title"><div class="dialog-bar"><p id="dialog-title">画面を拡大</p><button class="close" type="button">閉じる ×</button></div><div class="dialog-scroll"><img id="dialog-image" alt=""></div><p class="dialog-link"><a id="original-image" target="_blank" rel="noopener noreferrer">画像を別のタブで開く ↗</a></p></dialog>
+<dialog id="image-dialog" aria-labelledby="dialog-title" aria-describedby="viewer-hint">
+<div class="dialog-scroll" id="viewer-stage"><img id="dialog-image" alt="" draggable="false" hidden><p class="viewer-status" id="viewer-status" role="status"></p></div>
+<div class="dialog-bar"><p id="dialog-title">画像を拡大</p><button class="close" type="button">閉じる ×</button></div>
+<div class="viewer-controls" role="group" aria-label="画像の拡大操作"><button type="button" id="zoom-out" aria-label="縮小">−</button><output id="zoom-level" aria-label="画面に合わせた表示からの拡大率">100%</output><button type="button" id="zoom-in" aria-label="拡大">＋</button><button type="button" id="zoom-fit">全体表示</button></div>
+<p class="viewer-hint" id="viewer-hint">ホイール・ピンチで拡大／ドラッグで移動／Escで閉じる</p>
+</dialog>
 <script>
 (() => {
  const dialog = document.getElementById('image-dialog');
+ const stage = document.getElementById('viewer-stage');
  const image = document.getElementById('dialog-image');
- const original = document.getElementById('original-image');
- document.querySelectorAll('.zoom').forEach(button => button.addEventListener('click',() => {
+ const level = document.getElementById('zoom-level');
+ const status = document.getElementById('viewer-status');
+ const pointers = new Map();
+ let zoom = 1, panX = 0, panY = 0, fitWidth = 0, fitHeight = 0;
+ let previousOverflow = '', requestId = 0;
+ function render() {
+  const bounds = stage.getBoundingClientRect();
+  const limitX = Math.max(0,(fitWidth * zoom - bounds.width) / 2);
+  const limitY = Math.max(0,(fitHeight * zoom - bounds.height) / 2);
+  panX = Math.max(-limitX,Math.min(limitX,panX));
+  panY = Math.max(-limitY,Math.min(limitY,panY));
+  image.style.width = fitWidth + 'px';
+  image.style.height = fitHeight + 'px';
+  image.style.transform = 'translate(-50%, -50%) translate(' + panX + 'px,' + panY + 'px) scale(' + zoom + ')';
+  level.value = Math.round(zoom * 100) + '%';
+ }
+ function fit() {
+  if (!dialog.open || !image.naturalWidth) return;
+  const bounds = stage.getBoundingClientRect();
+  const scale = Math.min(bounds.width / image.naturalWidth, bounds.height / image.naturalHeight);
+  fitWidth = image.naturalWidth * scale;
+  fitHeight = image.naturalHeight * scale;
+  zoom = 1; panX = 0; panY = 0;
+  render();
+ }
+ function zoomAt(value, clientX, clientY) {
+  const bounds = stage.getBoundingClientRect();
+  const next = Math.max(1,Math.min(6,value));
+  const anchorX = (clientX ?? bounds.left + bounds.width / 2) - bounds.left - bounds.width / 2;
+  const anchorY = (clientY ?? bounds.top + bounds.height / 2) - bounds.top - bounds.height / 2;
+  panX = anchorX - (anchorX - panX) * next / zoom;
+  panY = anchorY - (anchorY - panY) * next / zoom;
+  zoom = next; render();
+ }
+ document.querySelectorAll('.zoom').forEach(button => button.addEventListener('click',async () => {
+  const token = ++requestId;
   const source = button.querySelector('img');
-  image.src = source.dataset.full || source.currentSrc || source.src;
-  image.alt = source.alt;
   document.getElementById('dialog-title').textContent = button.getAttribute('aria-label').replace(/を拡大$/,'');
-  original.href = image.src;
+  image.alt = source.alt;
+  image.hidden = true;
+  status.textContent = '読み込み中…';
+  previousOverflow = document.body.style.overflow;
+  document.body.style.overflow = 'hidden';
+  pointers.clear();
   dialog.showModal();
+  image.src = source.dataset.full || source.currentSrc || source.src;
+  try {
+   await image.decode();
+   if (token !== requestId || !dialog.open) return;
+   status.textContent = ''; image.hidden = false; fit();
+  } catch {
+   if (token === requestId) status.textContent = '画像を読み込めませんでした。閉じてもう一度お試しください。';
+  }
  }));
+ document.getElementById('zoom-in').addEventListener('click',() => zoomAt(zoom * 1.4));
+ document.getElementById('zoom-out').addEventListener('click',() => zoomAt(zoom / 1.4));
+ document.getElementById('zoom-fit').addEventListener('click',fit);
  dialog.querySelector('.close').addEventListener('click',() => dialog.close());
- dialog.addEventListener('click',event => {
-  const rect = dialog.getBoundingClientRect();
-  if (event.target === dialog && (event.clientX < rect.left || event.clientX > rect.right || event.clientY < rect.top || event.clientY > rect.bottom)) dialog.close();
+ dialog.addEventListener('close',() => {
+  ++requestId; pointers.clear();
+  document.body.style.overflow = previousOverflow;
  });
+ stage.addEventListener('wheel',event => {
+  event.preventDefault();
+  const delta = event.deltaY * (event.deltaMode === 1 ? 16 : event.deltaMode === 2 ? stage.clientHeight : 1);
+  zoomAt(zoom * Math.exp(-delta * 0.0015),event.clientX,event.clientY);
+ },{passive:false});
+ stage.addEventListener('dblclick',event => zoomAt(zoom > 1 ? 1 : 2.5,event.clientX,event.clientY));
+ stage.addEventListener('pointerdown',event => {
+  if (event.pointerType === 'mouse' && event.button !== 0) return;
+  event.preventDefault();
+  pointers.set(event.pointerId,{x:event.clientX,y:event.clientY});
+  stage.setPointerCapture(event.pointerId);
+ });
+ stage.addEventListener('pointermove',event => {
+  if (!pointers.has(event.pointerId)) return;
+  event.preventDefault();
+  const before = [...pointers.values()];
+  const old = pointers.get(event.pointerId);
+  pointers.set(event.pointerId,{x:event.clientX,y:event.clientY});
+  const after = [...pointers.values()];
+  if (before.length === 1) {
+   panX += event.clientX - old.x; panY += event.clientY - old.y; render();
+  } else if (before.length === 2) {
+   const distance = points => Math.hypot(points[1].x - points[0].x,points[1].y - points[0].y);
+   const oldMid = {x:(before[0].x + before[1].x)/2,y:(before[0].y + before[1].y)/2};
+   const newMid = {x:(after[0].x + after[1].x)/2,y:(after[0].y + after[1].y)/2};
+   if (distance(before) > 0) zoomAt(zoom * distance(after) / distance(before),oldMid.x,oldMid.y);
+   panX += newMid.x - oldMid.x; panY += newMid.y - oldMid.y; render();
+  }
+ });
+ ['pointerup','pointercancel','lostpointercapture'].forEach(name => stage.addEventListener(name,event => pointers.delete(event.pointerId)));
+ dialog.addEventListener('keydown',event => {
+  if (event.key === '+' || event.key === '=') {event.preventDefault(); zoomAt(zoom * 1.4);}
+  else if (event.key === '-') {event.preventDefault(); zoomAt(zoom / 1.4);}
+  else if (event.key === '0') {event.preventDefault(); fit();}
+  else if (['ArrowLeft','ArrowRight','ArrowUp','ArrowDown'].includes(event.key)) {
+   event.preventDefault();
+   if (event.key === 'ArrowLeft') panX += 60;
+   if (event.key === 'ArrowRight') panX -= 60;
+   if (event.key === 'ArrowUp') panY += 60;
+   if (event.key === 'ArrowDown') panY -= 60;
+   render();
+  }
+ });
+ window.addEventListener('resize',fit);
 })();
 </script>
 </body>
