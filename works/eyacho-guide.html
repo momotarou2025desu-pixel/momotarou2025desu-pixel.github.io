@@ -47,6 +47,14 @@ dialog{border:0;border-radius:16px;padding:17px;width:min(1120px,95vw);max-heigh
 #image-dialog button:focus-visible{outline:3px solid #90bfff;outline-offset:3px}
 @media(max-width:620px){#image-dialog .dialog-bar{top:8px;left:8px;right:8px;gap:8px}#image-dialog .dialog-bar p{font-size:11px;padding:8px 10px;max-width:calc(100% - 100px)}#image-dialog .close{padding:7px 14px}.viewer-controls{bottom:max(10px,env(safe-area-inset-bottom));gap:1px}.viewer-controls button{min-width:42px;padding:6px 10px}.viewer-hint{display:none}}
 
+
+.video-layout{display:grid;grid-template-columns:1fr minmax(0,400px);gap:48px;align-items:center}
+.video-copy .section-lead{max-width:540px}.video-frame{width:min(100%,360px,calc(78svh * 9 / 16));margin:0 auto}
+.intro-video{display:block;width:100%;height:auto;aspect-ratio:9/16;background:#10151c;border-radius:18px;box-shadow:0 10px 35px #15365e20}
+.video-note{color:var(--muted);font-size:12px;line-height:1.8;margin:16px 0 0}
+.video-copy .actions{margin-top:20px}
+@media(max-width:620px){.video-layout{grid-template-columns:1fr;gap:22px}.video-frame{width:min(100%,calc(78svh * 9 / 16))}.intro-video{border-radius:14px}.video-copy .section-lead{margin-bottom:12px}}
+
 </style>
 </head>
 <body>
@@ -61,8 +69,27 @@ dialog{border:0;border-radius:16px;padding:17px;width:min(1120px,95vw);max-heigh
 <div class="hero-copy"><p class="eyebrow">No.7 <span>現場の記録・共有</span></p>
 <h1 id="title">現場の記録を、<br>ひとつに。<span>eYACHO</span><small>イーヤチョウ</small></h1>
 <p class="lead">図面に書く。写真を貼る。チームに伝える。<br>現場のメモ帳をデジタルにした「野帳」です。</p>
-<div class="actions"><a class="button" href="#scene">4つの流れを見る ↓</a><a class="button secondary" href="https://product.metamoji.com/gemba/eyacho/" target="_blank" rel="noopener noreferrer">公式サイト ↗</a></div></div>
+<div class="actions"><a class="button" href="#video">紹介動画を見る ▶</a><a class="button secondary" href="#scene">4つの流れを見る ↓</a><a class="button secondary" href="https://product.metamoji.com/gemba/eyacho/" target="_blank" rel="noopener noreferrer">公式サイト ↗</a></div></div>
 <figure class="hero-visual"><button class="zoom" type="button" aria-label="現場巡視記録の完成例を拡大"><img src="../assets/eyacho/patrol-page.webp" data-full="../assets/eyacho/patrol-page-large.webp" width="365" height="557" fetchpriority="high" alt="図面、現場写真、赤い丸とヒビの指示を1ページにまとめた現場巡視記録の完成例"></button><div class="visual-labels" aria-hidden="true"><span>図面<small>どこの話か</small></span><span>写真<small>どんな状態か</small></span><span>指示<small>何を伝えるか</small></span></div><figcaption>現場巡視記録の完成例／画像を押すと拡大</figcaption></figure>
+</section>
+<section class="section" id="video" aria-labelledby="video-title">
+<div class="video-layout">
+<div class="video-copy">
+<p class="section-num">VIDEO / 約38秒</p>
+<h2 id="video-title">38秒でわかる、eYACHO</h2>
+<p class="section-lead">現場の困りごとから、記録・共有の使い方を動画で紹介します。</p>
+<p>「この写真、どこの場所だったっけ？」<br>現場の2人と案内役の会話で、図面・写真・指示をひとつにまとめる使い方がわかります。</p>
+<div class="actions"><a class="button secondary" href="#scene">動画のあとに、画面で詳しく見る ↓</a></div>
+<p class="video-note" id="video-help">再生ボタンでスタート。音声・全文字幕付き。プレーヤーの全画面ボタンで大きく見られます。</p>
+<p class="video-note">人物・現場の写真はAI生成のイメージです。操作画面はMetaMoJi公式マニュアルを使用しています。</p>
+</div>
+<div class="video-frame">
+<video class="intro-video" id="intro-video" controls playsinline preload="none" poster="../assets/eyacho/eyacho-intro-poster.jpg" width="1080" height="1920" aria-label="eYACHOの記録と共有を紹介する38秒の動画" aria-describedby="video-help">
+<source src="../assets/eyacho/eyacho-intro-v2.mp4" type="video/mp4">
+このブラウザでは動画を再生できません。<a href="../assets/eyacho/eyacho-intro-v2.mp4">紹介動画を開く</a>
+</video>
+</div>
+</div>
 </section>
 <section class="section" id="scene" aria-labelledby="scene-title">
 <p class="section-num">01 / 同じ現場巡視記録で見る</p>
