@@ -55,6 +55,18 @@ dialog{border:0;border-radius:16px;padding:17px;width:min(1120px,95vw);max-heigh
 .video-copy .actions{margin-top:20px}
 @media(max-width:620px){.video-layout{grid-template-columns:1fr;gap:22px}.video-frame{width:min(100%,calc(78svh * 9 / 16))}.intro-video{border-radius:14px}.video-copy .section-lead{margin-bottom:12px}}
 
+
+.video-frame{position:relative}
+.video-start{position:absolute;inset:0;z-index:1;width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;border:0;border-radius:18px;padding:18px;color:#fff;background:linear-gradient(transparent,#10192315);cursor:pointer}
+.video-start[hidden]{display:none}
+.video-start-icon{display:flex;align-items:center;justify-content:center;width:96px;height:96px;border-radius:50%;border:2px solid #ffffffdb;background:#15365ee8;box-shadow:0 5px 25px #0005;font-size:42px;line-height:1;padding-left:6px}
+.video-start-text{font-size:17px;font-weight:700;text-shadow:0 2px 6px #000,0 1px 3px #000;background:#101923b8;padding:5px 13px;border-radius:999px}
+.video-start:hover .video-start-icon{background:#1a73e8;transform:scale(1.05)}
+.video-start:focus-visible{outline:4px solid #1a73e8;outline-offset:4px}
+.video-start:disabled{cursor:wait}
+@media(max-width:620px){.video-start{border-radius:14px}.video-start-icon{width:88px;height:88px;font-size:38px}}
+@media(prefers-reduced-motion:reduce){.video-start:hover .video-start-icon{transform:none}}
+
 </style>
 </head>
 <body>
@@ -80,7 +92,7 @@ dialog{border:0;border-radius:16px;padding:17px;width:min(1120px,95vw);max-heigh
 <p class="section-lead">現場の困りごとから、記録・共有の使い方を動画で紹介します。</p>
 <p>「この写真、どこの場所だったっけ？」<br>現場の2人と案内役の会話で、図面・写真・指示をひとつにまとめる使い方がわかります。</p>
 <div class="actions"><a class="button secondary" href="#scene">動画のあとに、画面で詳しく見る ↓</a></div>
-<p class="video-note" id="video-help">再生ボタンでスタート。音声・全文字幕付き。プレーヤーの全画面ボタンで大きく見られます。</p>
+<p class="video-note" id="video-help">動画の表紙は、どこを押しても再生できます。音声・全文字幕付き。再生中は操作ボタンで一時停止や全画面表示ができます。</p>
 <p class="video-note">人物・現場の写真はAI生成のイメージです。操作画面はMetaMoJi公式マニュアルを使用しています。</p>
 </div>
 <div class="video-frame">
@@ -88,6 +100,7 @@ dialog{border:0;border-radius:16px;padding:17px;width:min(1120px,95vw);max-heigh
 <source src="../assets/eyacho/eyacho-intro-v2.mp4" type="video/mp4">
 このブラウザでは動画を再生できません。<a href="../assets/eyacho/eyacho-intro-v2.mp4">紹介動画を開く</a>
 </video>
+<button class="video-start" id="video-start" type="button" aria-label="eYACHOの紹介動画を再生" aria-controls="intro-video" hidden><span class="video-start-icon" aria-hidden="true">▶</span><span class="video-start-text">タップして再生</span></button>
 </div>
 </div>
 </section>
@@ -235,6 +248,40 @@ dialog{border:0;border-radius:16px;padding:17px;width:min(1120px,95vw);max-heigh
   }
  });
  window.addEventListener('resize',fit);
+})();
+</script>
+<script>
+(() => {
+ const video = document.getElementById('intro-video');
+ const start = document.getElementById('video-start');
+ const text = start.querySelector('.video-start-text');
+ video.controls = false;
+ start.hidden = false;
+ const showStart = (label) => {
+  video.controls = false;
+  text.textContent = label;
+  start.disabled = false;
+  start.hidden = false;
+ };
+ start.addEventListener('click', async () => {
+  start.disabled = true;
+  text.textContent = '読み込み中…';
+  video.controls = true;
+  try {
+   if (video.ended) video.currentTime = 0;
+   await video.play();
+   start.hidden = true;
+   start.disabled = false;
+  } catch {
+   showStart('もう一度押して再生');
+  }
+ });
+ video.addEventListener('playing', () => {
+  video.controls = true;
+  start.hidden = true;
+  start.disabled = false;
+ });
+ video.addEventListener('ended', () => showStart('もう一度再生'));
 })();
 </script>
 </body>
