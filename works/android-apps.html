@@ -1,0 +1,326 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f7f9fc">
+  <title>ChatGPTで作成したAndroidアプリ | ChatGPTの達人</title>
+  <meta name="description" content="ChatGPTと対話しながら作成した4つのAndroidアプリを紹介。日本国海軍パズル、Rock Paper Atelier、青空文庫・小説・webを聞こう、日本植物図鑑。紹介動画もこのページで再生できます。">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="ChatGPTで作成したAndroidアプリ4作品">
+  <meta property="og:description" content="アイコンと動画で、4つのAndroidアプリをご紹介します。">
+  <meta property="og:url" content="https://momotarou2025desu-pixel.github.io/works/android-apps.html">
+  <meta property="og:image" content="https://momotarou2025desu-pixel.github.io/assets/android-apps/navy-poster.jpg">
+  <link rel="icon" href="../assets/tatsujin_icon_transparent.png">
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f7f9fc;
+      --white: #ffffff;
+      --ink: #202b38;
+      --muted: #56677a;
+      --line: #dce4ee;
+      --blue: #176bd7;
+      --blue-soft: #eaf3ff;
+      --navy: #173250;
+      --shadow: 0 15px 45px rgba(29, 59, 93, 0.065);
+    }
+    *, *::before, *::after { box-sizing: border-box; }
+    html { scroll-behavior: smooth; scroll-padding-top: 95px; }
+    body { margin: 0; background: var(--bg); color: var(--ink); font-family: "Yu Gothic UI", "Hiragino Sans", Meiryo, Arial, sans-serif; line-height: 1.7; }
+    a { color: var(--blue); text-underline-offset: 4px; }
+    img { display: block; max-width: 100%; }
+    button { font: inherit; cursor: pointer; }
+    a:focus-visible, button:focus-visible { outline: 3px solid #347ef3; outline-offset: 4px; }
+    .container { width: min(1120px, calc(100% - 48px)); margin: 0 auto; }
+    .skip { position: fixed; top: -70px; left: 12px; z-index: 200; padding: 12px 18px; border-radius: 8px; background: white; }
+    .skip:focus { top: 12px; }
+    .site-header { background: rgba(247,249,252,.96); border-bottom: 1px solid var(--line); position: sticky; top: 0; z-index: 20; backdrop-filter: blur(12px); }
+    .header-inner { min-height: 73px; display: flex; justify-content: space-between; align-items: center; gap: 15px; }
+    .brand { display: inline-flex; align-items: center; gap: 11px; color: var(--ink); text-decoration: none; font-size: 15px; font-weight: 800; }
+    .brand img { width: 34px; height: 34px; object-fit: contain; }
+    .header-nav { display: flex; align-items: center; gap: 21px; font-size: 14px; font-weight: 700; }
+    .header-nav a { color: var(--muted); text-decoration: none; }
+    .header-nav a:hover { color: var(--blue); }
+    .header-nav .home { background: white; color: var(--blue); border: 1px solid var(--line); padding: 7px 20px; border-radius: 99px; }
+    .hero { padding: 64px 0 48px; position: relative; }
+    .hero-inner { max-width: 900px; margin: 0 auto; text-align: center; }
+    .eyebrow { margin: 0 0 15px; color: var(--blue); font-size: 13px; font-weight: 800; letter-spacing: .09em; }
+    h1 { margin: 0; font-size: clamp(35px, 4.7vw, 58px); line-height: 1.32; letter-spacing: -.035em; }
+    h1 span { color: var(--blue); }
+    .lead { margin: 20px auto 0; max-width: 720px; color: var(--muted); font-size: 17px; line-height: 2; }
+    .hero-cta { display: inline-flex; align-items: center; gap: 9px; margin-top: 28px; border: 1px solid var(--blue); border-radius: 999px; background: var(--blue); color: white; text-decoration: none; padding: 11px 26px; font-weight: 800; font-size: 14px; }
+    .hero-cta:hover { background: #0c56b2; }
+    .section-intro { display: flex; justify-content: space-between; align-items: end; gap: 22px; margin: 0 0 22px; }
+    .section-kicker { margin: 0 0 5px; font-size: 12px; font-weight: 800; letter-spacing: .1em; color: var(--blue); }
+    h2 { margin: 0; font-size: clamp(24px, 3vw, 32px); line-height: 1.45; }
+    .section-note { margin: 0; color: var(--muted); font-size: 13px; }
+    .apps-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 25px; margin-bottom: 64px; }
+    .app-card { min-width: 0; display: flex; flex-direction: column; overflow: hidden; background: white; border: 1px solid var(--line); border-radius: 24px; box-shadow: var(--shadow); }
+    .card-content { padding: 28px 28px 20px; }
+    .app-heading { display: flex; align-items: center; gap: 20px; min-height: 94px; }
+    .app-icon { flex: none; width: 90px; height: 90px; object-fit: cover; border-radius: 19px; box-shadow: 0 5px 15px #142f4b24; }
+    .app-kind { margin: 0 0 5px; color: var(--blue); font-size: 12px; font-weight: 800; letter-spacing: .035em; }
+    h3 { margin: 0; font-size: clamp(18px, 2.1vw, 22px); line-height: 1.38; letter-spacing: -.025em; overflow-wrap: anywhere; }
+    .app-description { margin: 20px 0 0; font-size: 15px; line-height: 1.9; color: var(--muted); min-height: 57px; }
+    .video-preview { position: relative; width: 100%; height: 257px; padding: 0; border: 0; display: flex; justify-content: center; align-items: center; overflow: hidden; color: white; background: #10233c; }
+    .video-preview img { width: 100%; height: 100%; object-fit: cover; transition: transform .3s ease, filter .3s ease; }
+    .video-preview:hover img { transform: scale(1.035); filter: brightness(.77); }
+    .video-preview.portrait img { object-fit: contain; }
+    .video-preview.portrait { background: radial-gradient(circle at 50% 20%, #48617e, #0d1a2c 85%); }
+    .play-label { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); display: inline-flex; align-items: center; justify-content: center; gap: 10px; white-space: nowrap; background: #101c2de0; border: 1px solid #ffffff85; border-radius: 999px; padding: 12px 20px; font-size: 15px; font-weight: 800; box-shadow: 0 6px 18px #0006; }
+    .play-icon { display: inline-grid; place-items: center; background: white; color: var(--blue); border-radius: 50%; width: 27px; height: 27px; font-size: 13px; padding-left: 2px; }
+    .card-bottom { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 12px; padding: 19px 27px 26px; margin-top: auto; }
+    .store-link { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 11px 20px; text-decoration: none; border-radius: 999px; background: var(--blue); color: white; font-weight: 800; font-size: 14px; border: 1px solid var(--blue); }
+    .store-link:hover { background: #0b58bb; }
+    .video-source { color: var(--muted); font-size: 12px; text-align: right; }
+    .language-button { border: 1px solid var(--line); border-radius: 999px; background: var(--white); color: var(--blue); font-size: 13px; font-weight: 800; padding: 9px 13px; }
+    .language-button:hover { background: var(--blue-soft); }
+    .note-band { background: #eaf1f9; border: 1px solid #d9e5f2; border-radius: 20px; padding: 25px 30px; display: flex; justify-content: space-between; align-items: center; gap: 26px; margin-bottom: 68px; }
+    .note-band h2 { font-size: 20px; }
+    .note-band p { margin: 7px 0 0; color: var(--muted); font-size: 14px; }
+    .note-band a { flex: none; display: inline-flex; align-items: center; justify-content: center; border-radius: 999px; border: 1px solid #b7cce2; padding: 10px 19px; background: white; color: var(--blue); text-decoration: none; font-weight: 800; font-size: 13px; }
+    footer { border-top: 1px solid var(--line); padding: 23px 0 35px; color: var(--muted); font-size: 12px; }
+    .footer-inner { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 12px; }
+    .footer-inner p { margin: 0; }
+    .footer-inner a { color: var(--muted); }
+    #player-dialog { width: min(1140px, 95vw); max-width: none; max-height: 95dvh; padding: 0; border: 0; border-radius: 20px; overflow: hidden; background: #0d1624; color: white; box-shadow: 0 24px 90px #0008; }
+    #player-dialog::backdrop { background: rgba(5, 12, 22, .84); }
+    .dialog-header { display: flex; align-items: center; justify-content: space-between; gap: 18px; padding: 13px 18px; background: #162437; }
+    .dialog-header h2 { font-size: 15px; font-weight: 700; margin: 0; line-height: 1.55; }
+    .dialog-close { flex: none; background: white; color: #152d49; border: 0; border-radius: 999px; padding: 8px 17px; font-size: 13px; font-weight: 800; }
+    .player-shell { background: #05090e; display: flex; align-items: center; justify-content: center; min-height: min(58vh, 640px); max-height: calc(95dvh - 65px); }
+    .player-shell iframe { display: block; width: 100%; aspect-ratio: 16 / 9; height: auto; border: 0; max-height: calc(95dvh - 65px); }
+    .player-shell video { width: 100%; max-height: calc(95dvh - 65px); display: block; object-fit: contain; }
+    @media (max-width: 800px) {
+      .apps-grid { gap: 18px; }
+      .card-content { padding: 23px 21px 17px; }
+      .app-heading { gap: 14px; }
+      .app-icon { width: 76px; height: 76px; border-radius: 16px; }
+      .video-preview { height: 220px; }
+      .card-bottom { padding: 17px 20px 23px; }
+    }
+    @media (max-width: 650px) {
+      .container { width: calc(100% - 30px); }
+      .header-inner { min-height: 62px; }
+      .brand { font-size: 12px; }
+      .brand img { width: 29px; height: 29px; }
+      .header-nav { gap: 11px; font-size: 12px; }
+      .header-nav .list-anchor { display: none; }
+      .header-nav .home { padding: 6px 14px; }
+      .hero { padding: 46px 0 41px; }
+      .eyebrow { font-size: 11px; }
+      h1 { font-size: clamp(31px, 8vw, 43px); }
+      .lead { font-size: 14px; line-height: 1.9; margin-top: 18px; }
+      .hero-cta { margin-top: 20px; }
+      .section-intro { margin-bottom: 17px; }
+      .section-note { display: none; }
+      .apps-grid { grid-template-columns: 1fr; margin-bottom: 40px; gap: 20px; }
+      .card-content { padding: 22px 21px 18px; }
+      .app-heading { gap: 16px; }
+      .app-icon { width: 79px; height: 79px; border-radius: 17px; }
+      .app-description { min-height: 0; margin-top: 13px; font-size: 14px; }
+      .video-preview { height: 215px; }
+      .card-bottom { padding: 17px 20px 22px; }
+      .note-band { display: block; padding: 23px; margin-bottom: 42px; }
+      .note-band h2 { font-size: 18px; }
+      .note-band a { margin-top: 17px; }
+      #player-dialog { width: 100vw; max-height: 100dvh; border-radius: 0; }
+      .player-shell { min-height: 50vh; max-height: calc(100dvh - 62px); }
+      .player-shell iframe { max-height: calc(100dvh - 62px); }
+      .player-shell video { max-height: calc(100dvh - 62px); }
+    }
+    @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } .video-preview img { transition: none; } }
+  </style>
+</head>
+<body>
+<a class="skip" href="#main">本文へ進む</a>
+<header class="site-header">
+  <div class="container header-inner">
+    <a class="brand" href="../index.html"><img src="../assets/tatsujin_icon_transparent.png" alt="" width="34" height="34"><span>ChatGPTの達人</span></a>
+    <nav class="header-nav" aria-label="ページ内ナビゲーション">
+      <a class="list-anchor" href="#apps">アプリ一覧</a>
+      <a class="home" href="../index.html">Home</a>
+    </nav>
+  </div>
+</header>
+
+<main id="main" class="container">
+  <section class="hero" aria-labelledby="page-title">
+    <div class="hero-inner">
+      <p class="eyebrow">NO.8 / ANDROID APPLICATIONS</p>
+      <h1 id="page-title">ChatGPTで作成した<br><span>Androidアプリ</span></h1>
+      <p class="lead">ChatGPTと対話しながら、企画・デザイン・開発・実機での確認を進めてきた4つのアプリをご紹介します。<br>気になる作品は、紹介動画をこのページで再生できます。</p>
+      <a class="hero-cta" href="#apps">4つのアプリを見る <span aria-hidden="true">↓</span></a>
+    </div>
+  </section>
+
+  <section id="apps" aria-labelledby="apps-title">
+    <div class="section-intro">
+      <div>
+        <p class="section-kicker">01 / APP COLLECTION</p>
+        <h2 id="apps-title">制作した4つのアプリ</h2>
+      </div>
+      <p class="section-note">画像を押すと紹介動画を再生します</p>
+    </div>
+    <div class="apps-grid">
+
+      <article class="app-card">
+        <div class="card-content">
+          <div class="app-heading">
+            <img class="app-icon" src="../assets/android-apps/navy-icon.png" alt="日本国海軍パズルのアプリアイコン" width="90" height="90" loading="lazy">
+            <div><p class="app-kind">歴史 × スライドパズル</p><h3>日本国海軍パズル</h3></div>
+          </div>
+          <p class="app-description">明治期の日本海軍艦艇を題材にしたパズルゲーム。艦船の絵を完成させながら、艦歴や当時の海軍史にも触れられます。</p>
+        </div>
+        <button class="video-preview" type="button" data-video="youtube" data-id="KbdVzRi4fjE" data-title="日本国海軍パズル｜紹介動画" aria-label="日本国海軍パズルの紹介動画を再生">
+          <img src="../assets/android-apps/navy-poster.jpg" alt="日本国海軍パズルの紹介動画サムネイル" width="1280" height="720" loading="lazy">
+          <span class="play-label"><span class="play-icon" aria-hidden="true">▶</span> 紹介動画を再生</span>
+        </button>
+        <div class="card-bottom">
+          <a class="store-link" href="https://play.google.com/store/apps/details?id=com.momotarou.kaigunpuzzle&amp;hl=ja" target="_blank" rel="noopener noreferrer">Google Playで見る <span aria-hidden="true">↗</span></a>
+          <span class="video-source">動画：YouTube</span>
+        </div>
+      </article>
+
+      <article class="app-card">
+        <div class="card-content">
+          <div class="app-heading">
+            <img class="app-icon" src="../assets/android-apps/rock-icon.png" alt="Rock Paper Atelierのアプリアイコン" width="90" height="90" loading="lazy">
+            <div><p class="app-kind">じゃんけん × 世界の名画</p><h3>Rock Paper Atelier</h3></div>
+          </div>
+          <p class="app-description">勝てるじゃんけんの手をタップして、隠れた絵を完成させるゲーム。古代の壁画から名画まで、世界の美術作品100点を楽しめます。</p>
+        </div>
+        <button class="video-preview portrait" type="button" data-video="local" data-src="../assets/android-apps/rock-japanese.mp4" data-poster="../assets/android-apps/rock-poster.jpg" data-title="Rock Paper Atelier｜日本語紹介動画" aria-label="Rock Paper Atelierの日本語紹介動画を再生">
+          <img src="../assets/android-apps/rock-poster.jpg" alt="Rock Paper Atelierの紹介動画サムネイル" width="720" height="1600" loading="lazy">
+          <span class="play-label"><span class="play-icon" aria-hidden="true">▶</span> 日本語動画を再生</span>
+        </button>
+        <div class="card-bottom">
+          <a class="store-link" href="https://play.google.com/store/apps/details?id=com.momotarou.rockpaperatelier&amp;hl=ja" target="_blank" rel="noopener noreferrer">Google Playで見る <span aria-hidden="true">↗</span></a>
+          <button class="language-button" type="button" data-video="local" data-src="../assets/android-apps/rock-english.mp4" data-poster="../assets/android-apps/rock-poster.jpg" data-title="Rock Paper Atelier｜English promo video">English 動画</button>
+        </div>
+      </article>
+
+      <article class="app-card">
+        <div class="card-content">
+          <div class="app-heading">
+            <img class="app-icon" src="../assets/android-apps/reader-icon.png" alt="青空文庫・小説・webを聞こうのアプリアイコン" width="90" height="90" loading="lazy">
+            <div><p class="app-kind">読書 × 音声読み上げ</p><h3>青空文庫・小説・webを聞こう</h3></div>
+          </div>
+          <p class="app-description">青空文庫やWeb小説、ニュース、Webページを音声で楽しめる読み上げブラウザ。画面を見続けず、耳で読書ができます。</p>
+        </div>
+        <button class="video-preview" type="button" data-video="youtube" data-id="ZwKmfCYGR_E" data-title="青空文庫・小説・webを聞こう｜紹介動画" aria-label="青空文庫・小説・webを聞こうの紹介動画を再生">
+          <img src="../assets/android-apps/reader-poster.jpg" alt="読み上げブラウザの紹介動画サムネイル" width="1280" height="720" loading="lazy">
+          <span class="play-label"><span class="play-icon" aria-hidden="true">▶</span> 紹介動画を再生</span>
+        </button>
+        <div class="card-bottom">
+          <a class="store-link" href="https://play.google.com/store/apps/details?id=com.voicereader.app&amp;hl=ja" target="_blank" rel="noopener noreferrer">Google Playで見る <span aria-hidden="true">↗</span></a>
+          <span class="video-source">動画：YouTube</span>
+        </div>
+      </article>
+
+      <article class="app-card">
+        <div class="card-content">
+          <div class="app-heading">
+            <img class="app-icon" src="../assets/android-apps/plant-icon.png" alt="日本植物図鑑のアプリアイコン" width="90" height="90" loading="lazy">
+            <div><p class="app-kind">自然 × 植物図鑑</p><h3>日本植物図鑑</h3></div>
+          </div>
+          <p class="app-description">花・草木・きのこ・山菜・ハーブなど2,600件以上を収録。写真を眺めながら、身近な植物の名前や特徴を調べられます。</p>
+        </div>
+        <button class="video-preview" type="button" data-video="youtube" data-id="IY_JelUMIfE" data-title="日本植物図鑑｜紹介動画" aria-label="日本植物図鑑の紹介動画を再生">
+          <img src="../assets/android-apps/plant-poster.jpg" alt="日本植物図鑑の紹介動画サムネイル" width="1280" height="720" loading="lazy">
+          <span class="play-label"><span class="play-icon" aria-hidden="true">▶</span> 紹介動画を再生</span>
+        </button>
+        <div class="card-bottom">
+          <a class="store-link" href="https://play.google.com/store/apps/details?id=com.momotarou.flowerthumbbrowser&amp;hl=ja" target="_blank" rel="noopener noreferrer">Google Playで見る <span aria-hidden="true">↗</span></a>
+          <span class="video-source">動画：YouTube</span>
+        </div>
+      </article>
+
+    </div>
+  </section>
+
+  <aside class="note-band">
+    <div>
+      <h2>気になるアプリはGoogle Playで</h2>
+      <p>紹介動画はページを離れずに視聴できます。詳しい内容や対応端末、インストールについては各製品のGoogle Playページをご確認ください。</p>
+    </div>
+    <a href="../index.html">トップページへ戻る <span aria-hidden="true">↗</span></a>
+  </aside>
+</main>
+
+<footer>
+  <div class="container footer-inner">
+    <p>ChatGPTで作成したAndroidアプリ / by iogusnohin</p>
+    <a href="../index.html">ChatGPTの達人 TOPへ</a>
+  </div>
+</footer>
+
+<dialog id="player-dialog" aria-labelledby="player-title">
+  <div class="dialog-header">
+    <h2 id="player-title">紹介動画</h2>
+    <button type="button" class="dialog-close" id="player-close" aria-label="動画を閉じる">閉じる ✕</button>
+  </div>
+  <div class="player-shell" id="player-shell"></div>
+</dialog>
+<script>
+  (function () {
+    'use strict';
+    const dialog = document.getElementById('player-dialog');
+    const title = document.getElementById('player-title');
+    const shell = document.getElementById('player-shell');
+    const close = document.getElementById('player-close');
+    let previousFocus = null;
+
+    function clearPlayer() {
+      shell.replaceChildren();
+      if (previousFocus && previousFocus.isConnected) previousFocus.focus();
+      previousFocus = null;
+    }
+
+    function openPlayer(button) {
+      previousFocus = button;
+      title.textContent = button.dataset.title || '紹介動画';
+      shell.replaceChildren();
+
+      if (button.dataset.video === 'youtube') {
+        const id = button.dataset.id || '';
+        if (!/^[A-Za-z0-9_-]{11}$/.test(id)) return;
+        const iframe = document.createElement('iframe');
+        iframe.title = title.textContent;
+        iframe.loading = 'eager';
+        iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
+        iframe.allowFullscreen = true;
+        iframe.referrerPolicy = 'strict-origin-when-cross-origin';
+        iframe.src = 'https://www.youtube-nocookie.com/embed/' + id + '?autoplay=1&rel=0&playsinline=1';
+        shell.appendChild(iframe);
+      } else if (button.dataset.video === 'local') {
+        const video = document.createElement('video');
+        video.controls = true;
+        video.playsInline = true;
+        video.preload = 'metadata';
+        video.poster = button.dataset.poster || '';
+        video.src = button.dataset.src || '';
+        shell.appendChild(video);
+        video.addEventListener('loadedmetadata', function () {
+          video.play().catch(function () {});
+        }, { once: true });
+      } else {
+        return;
+      }
+
+      dialog.showModal();
+    }
+
+    document.querySelectorAll('button[data-video]').forEach(function (button) {
+      button.addEventListener('click', function () { openPlayer(button); });
+    });
+    close.addEventListener('click', function () { dialog.close(); });
+    dialog.addEventListener('close', clearPlayer);
+    dialog.addEventListener('click', function (event) {
+      if (event.target === dialog) dialog.close();
+    });
+  }());
+</script>
+</body>
+</html>
