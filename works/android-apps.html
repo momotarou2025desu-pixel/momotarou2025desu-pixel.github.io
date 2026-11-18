@@ -84,14 +84,18 @@
     .footer-inner { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 12px; }
     .footer-inner p { margin: 0; }
     .footer-inner a { color: var(--muted); }
-    #player-dialog { width: min(1140px, 95vw); max-width: none; max-height: 95dvh; padding: 0; border: 0; border-radius: 20px; overflow: hidden; background: #0d1624; color: white; box-shadow: 0 24px 90px #0008; }
-    #player-dialog::backdrop { background: rgba(5, 12, 22, .84); }
-    .dialog-header { display: flex; align-items: center; justify-content: space-between; gap: 18px; padding: 13px 18px; background: #162437; }
-    .dialog-header h2 { font-size: 15px; font-weight: 700; margin: 0; line-height: 1.55; }
-    .dialog-close { flex: none; background: white; color: #152d49; border: 0; border-radius: 999px; padding: 8px 17px; font-size: 13px; font-weight: 800; }
-    .player-shell { background: #05090e; display: flex; align-items: center; justify-content: center; min-height: min(58vh, 640px); max-height: calc(95dvh - 65px); }
-    .player-shell iframe { display: block; width: 100%; aspect-ratio: 16 / 9; height: auto; border: 0; max-height: calc(95dvh - 65px); }
-    .player-shell video { width: 100%; max-height: calc(95dvh - 65px); display: block; object-fit: contain; }
+    /* No.7の全画面画像ビューアと同様、再生中は画面全体を動画表示に使う。 */
+    #player-dialog { position: fixed; inset: 0; margin: 0; width: 100vw; height: 100dvh; max-width: none; max-height: none; padding: 0; border: 0; border-radius: 0; overflow: hidden; background: #10151c; color: white; box-shadow: none; }
+    #player-dialog::backdrop { background: #10151c; }
+    .dialog-header { position: absolute; z-index: 3; top: max(12px, env(safe-area-inset-top)); left: max(12px, env(safe-area-inset-left)); right: max(12px, env(safe-area-inset-right)); display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; pointer-events: none; }
+    .dialog-header h2 { margin: 0; max-width: calc(100% - 130px); padding: 9px 13px; border-radius: 9px; background: #10151cdd; color: white; font-size: 13px; font-weight: 700; line-height: 1.55; }
+    .dialog-close { flex: none; pointer-events: auto; min-height: 44px; padding: 8px 18px; border: 1px solid #ffffff65; border-radius: 999px; background: #10151ce8; color: white; font-size: 13px; font-weight: 800; }
+    .dialog-close:hover { background: #31445a; }
+    .player-shell { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; width: 100%; height: 100%; background: #10151c; overflow: hidden; }
+    /* YouTubeは横長16:9の画面を、縦横どちらの端末でも入る最大サイズにする。 */
+    .player-shell iframe { display: block; width: min(100vw, 177.77778dvh); height: min(100dvh, 56.25vw); max-width: 100%; max-height: 100%; aspect-ratio: 16 / 9; border: 0; background: black; }
+    /* MP4は原寸の縦横比を保ち、見切れずに最大限大きくする。 */
+    .player-shell video { display: block; width: auto; height: auto; max-width: 100%; max-height: 100%; object-fit: contain; background: black; }
     @media (max-width: 800px) {
       .apps-grid { gap: 18px; }
       .card-content { padding: 23px 21px 17px; }
@@ -125,10 +129,9 @@
       .note-band { display: block; padding: 23px; margin-bottom: 42px; }
       .note-band h2 { font-size: 18px; }
       .note-band a { margin-top: 17px; }
-      #player-dialog { width: 100vw; max-height: 100dvh; border-radius: 0; }
-      .player-shell { min-height: 50vh; max-height: calc(100dvh - 62px); }
-      .player-shell iframe { max-height: calc(100dvh - 62px); }
-      .player-shell video { max-height: calc(100dvh - 62px); }
+      .dialog-header { top: max(8px, env(safe-area-inset-top)); left: max(8px, env(safe-area-inset-left)); right: max(8px, env(safe-area-inset-right)); }
+      .dialog-header h2 { max-width: calc(100% - 115px); padding: 8px 10px; font-size: 11px; }
+      .dialog-close { padding: 8px 14px; }
     }
     @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } .video-preview img { transition: none; } }
   </style>
